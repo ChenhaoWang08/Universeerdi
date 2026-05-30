@@ -1,0 +1,11 @@
+# Changelog
+
+## Completed
+
+- `PR1`: initialize workflow control files for spec-first, reviewable, rollbackable work.
+- `PR2`: create the minimal Pygame viewer foundation.
+- `PR3`: add the solar-system body data model and fix PR2 stabilization issues.
+
+## In Progress
+
+- `PR3.5`: baseline stabilization before PR4.

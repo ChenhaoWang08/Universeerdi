@@ -1,0 +1,222 @@
+from __future__ import annotations
+
+from dataclasses import dataclass
+from math import floor, log10
+from typing import List, Sequence, Tuple
+
+from .body import Body
+
+Point = Tuple[float, float]
+Size = Tuple[int, int]
+LineSegment = Tuple[Point, Point]
+
+BACKGROUND_COLOR = (34, 36, 40)
+GRID_MINOR_COLOR = (92, 96, 104)
+GRID_MAJOR_COLOR = (188, 192, 200)
+UI_PANEL_FILL = (52, 54, 60, 220)
+UI_PANEL_BORDER = (208, 212, 220)
+UI_TEXT_LINE = (168, 172, 180)
+BODY_OUTLINE_COLOR = (244, 246, 250)
+
+MIN_GRID_PIXELS = 48.0
+MAX_GRID_PIXELS = 160.0
+TARGET_GRID_PIXELS = 96.0
+ZOOM_STEP = 1.1
+
+
+@dataclass
+class Camera:
+    center_x: float = 0.0
+    center_y: float = 0.0
+    zoom: float = 1.0
+    min_zoom: float = 0.2
+    max_zoom: float = 4.0
+
+    def world_to_screen(self, position: Point, viewport_size: Size) -> Point:
+        width, height = viewport_size
+        world_x, world_y = position
+        screen_x = (world_x - self.center_x) * self.zoom + (width / 2.0)
+        screen_y = (world_y - self.center_y) * self.zoom + (height / 2.0)
+        return (screen_x, screen_y)
+
+    def screen_to_world(self, position: Point, viewport_size: Size) -> Point:
+        width, height = viewport_size
+        screen_x, screen_y = position
+        world_x = ((screen_x - (width / 2.0)) / self.zoom) + self.center_x
+        world_y = ((screen_y - (height / 2.0)) / self.zoom) + self.center_y
+        return (world_x, world_y)
+
+    def pan_by_screen_delta(self, delta_x: float, delta_y: float) -> None:
+        self.center_x -= delta_x / self.zoom
+        self.center_y -= delta_y / self.zoom
+
+    def zoom_by_scroll(
+        self, steps: int, anchor_screen: Point, viewport_size: Size
+    ) -> None:
+        if steps == 0:
+            return
+
+        anchor_before = self.screen_to_world(anchor_screen, viewport_size)
+
+        if steps > 0:
+            next_zoom = self.zoom / (ZOOM_STEP ** steps)
+        else:
+            next_zoom = self.zoom * (ZOOM_STEP ** abs(steps))
+
+        self.zoom = max(self.min_zoom, min(self.max_zoom, next_zoom))
+
+        anchor_after = self.screen_to_world(anchor_screen, viewport_size)
+        self.center_x += anchor_before[0] - anchor_after[0]
+        self.center_y += anchor_before[1] - anchor_after[1]
+
+
+def choose_grid_world_spacing(zoom: float) -> float:
+    if zoom <= 0:
+        raise ValueError("zoom must be positive")
+
+    target_world_spacing = TARGET_GRID_PIXELS / zoom
+    base_exponent = floor(log10(target_world_spacing))
+
+    best_spacing = None
+    best_key = None
+
+    for exponent in range(base_exponent - 2, base_exponent + 3):
+        magnitude = 10.0 ** exponent
+        for scale in (1.0, 2.0, 5.0):
+            spacing = scale * magnitude
+            pixel_spacing = spacing * zoom
+            in_range = MIN_GRID_PIXELS <= pixel_spacing <= MAX_GRID_PIXELS
+            key = (0 if in_range else 1, abs(pixel_spacing - TARGET_GRID_PIXELS))
+            if best_key is None or key < best_key:
+                best_key = key
+                best_spacing = spacing
+
+    return float(best_spacing)
+
+
+def build_grid_segments(
+    camera: Camera, viewport_size: Size
+) -> Tuple[List[LineSegment], List[LineSegment], float]:
+    minor_spacing = choose_grid_world_spacing(camera.zoom)
+    major_spacing = minor_spacing * 5.0
+
+    top_left = camera.screen_to_world((0.0, 0.0), viewport_size)
+    bottom_right = camera.screen_to_world(
+        (float(viewport_size[0]), float(viewport_size[1])), viewport_size
+    )
+
+    min_x, min_y = top_left
+    max_x, max_y = bottom_right
+
+    minor_segments: List[LineSegment] = []
+    major_segments: List[LineSegment] = []
+
+    start_x = floor(min_x / minor_spacing) * minor_spacing
+    start_y = floor(min_y / minor_spacing) * minor_spacing
+
+    vertical_count = int((max_x - min_x) / minor_spacing) + 3
+    horizontal_count = int((max_y - min_y) / minor_spacing) + 3
+
+    for index in range(vertical_count):
+        world_x = start_x + (index * minor_spacing)
+        start = camera.world_to_screen((world_x, min_y), viewport_size)
+        end = camera.world_to_screen((world_x, max_y), viewport_size)
+        target = major_segments if _is_major_line(world_x, major_spacing) else minor_segments
+        target.append((start, end))
+
+    for index in range(horizontal_count):
+        world_y = start_y + (index * minor_spacing)
+        start = camera.world_to_screen((min_x, world_y), viewport_size)
+        end = camera.world_to_screen((max_x, world_y), viewport_size)
+        target = major_segments if _is_major_line(world_y, major_spacing) else minor_segments
+        target.append((start, end))
+
+    return minor_segments, major_segments, minor_spacing
+
+
+def ui_placeholder_rect(viewport_size: Size) -> Tuple[int, int, int, int]:
+    width = min(260, viewport_size[0] - 32)
+    height = 108
+    return (16, 16, max(width, 180), height)
+
+
+def is_point_in_ui_placeholder(point: Point, viewport_size: Size) -> bool:
+    left, top, width, height = ui_placeholder_rect(viewport_size)
+    x, y = point
+    return left <= x <= left + width and top <= y <= top + height
+
+
+def body_contains_screen_point(
+    body: Body, camera: Camera, point: Point, viewport_size: Size
+) -> bool:
+    body_x, body_y = camera.world_to_screen(body.position, viewport_size)
+    radius = max(6.0, body.draw_radius * camera.zoom)
+    point_x, point_y = point
+    return ((point_x - body_x) ** 2) + ((point_y - body_y) ** 2) <= radius ** 2
+
+
+def draw_scene(surface: object, pygame_module: object, camera: Camera, bodies: Sequence[Body]) -> None:
+    surface.fill(BACKGROUND_COLOR)
+    draw_grid(surface, pygame_module, camera)
+    draw_bodies(surface, pygame_module, camera, bodies)
+    draw_ui_placeholder(surface, pygame_module)
+
+
+def draw_grid(surface: object, pygame_module: object, camera: Camera) -> None:
+    viewport_size = surface.get_size()
+    minor_segments, major_segments, _ = build_grid_segments(camera, viewport_size)
+
+    for start, end in minor_segments:
+        pygame_module.draw.line(surface, GRID_MINOR_COLOR, start, end, 1)
+
+    for start, end in major_segments:
+        pygame_module.draw.line(surface, GRID_MAJOR_COLOR, start, end, 2)
+
+
+def draw_bodies(
+    surface: object, pygame_module: object, camera: Camera, bodies: Sequence[Body]
+) -> None:
+    viewport_size = surface.get_size()
+
+    for body in bodies:
+        center_x, center_y = camera.world_to_screen(body.position, viewport_size)
+        screen_center = (int(round(center_x)), int(round(center_y)))
+        radius = max(6, int(round(body.draw_radius * camera.zoom)))
+        pygame_module.draw.circle(surface, body.color, screen_center, radius)
+        pygame_module.draw.circle(surface, BODY_OUTLINE_COLOR, screen_center, radius, 2)
+
+
+def draw_ui_placeholder(surface: object, pygame_module: object) -> None:
+    viewport_size = surface.get_size()
+    left, top, width, height = ui_placeholder_rect(viewport_size)
+
+    panel = pygame_module.Surface((width, height), pygame_module.SRCALPHA)
+    panel.fill(UI_PANEL_FILL)
+    surface.blit(panel, (left, top))
+    pygame_module.draw.rect(surface, UI_PANEL_BORDER, (left, top, width, height), 2, border_radius=8)
+
+    checkbox_size = 16
+    row_height = 28
+    first_row_y = top + 18
+
+    for index in range(3):
+        row_y = first_row_y + (index * row_height)
+        pygame_module.draw.rect(
+            surface,
+            UI_PANEL_BORDER,
+            (left + 16, row_y, checkbox_size, checkbox_size),
+            2,
+            border_radius=4,
+        )
+        pygame_module.draw.line(
+            surface,
+            UI_TEXT_LINE,
+            (left + 44, row_y + 8),
+            (left + width - 18, row_y + 8),
+            2,
+        )
+
+
+def _is_major_line(value: float, major_spacing: float) -> bool:
+    rounded = round(value / major_spacing)
+    return abs(value - (rounded * major_spacing)) <= major_spacing * 1e-6
