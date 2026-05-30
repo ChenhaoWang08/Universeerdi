@@ -1,6 +1,3 @@
-下面是我建议你替换当前 AGENTS.md 的版本。
-它比原版更完整，但仍然控制在 repo-level 指令，不会塞太多细节。细节仍然交给 agent/task.md、agent/allowed-files.md、agent/forbidden-files.md。
-
 AGENTS.md
 
 Repository Role
