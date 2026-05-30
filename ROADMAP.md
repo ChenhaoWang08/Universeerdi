@@ -27,7 +27,7 @@
 - position update
 - time step
 - numerical stability
-- current PR focus: controlled demo simulation connected to PR4 physics foundation
+- controlled demo simulation connected to PR4 physics foundation
 
 ## Phase D: Rendering and UX
 
@@ -37,6 +37,7 @@
 - planet colors
 - time controls
 - pause and resume
+- current PR focus: trails and labels behind feature flags for controlled demo rendering
 
 ## Phase E: Relativistic / Visual Effects
 

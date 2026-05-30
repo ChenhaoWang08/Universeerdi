@@ -1,45 +1,44 @@
-# PR5: Connect physics foundation to a controlled demo simulation
+# PR6: Add visual trails and labels behind feature flags
 
 ## Objective
 
-Connect the PR4 Newtonian physics foundation to a controlled demo simulation path without claiming real solar-system stability.
+Add optional visual trails and body labels to the controlled demo simulation without changing physics correctness.
 
 ## Scope
 
-- add a controlled demo simulation mode with demo-only bodies
-- keep demo bodies separate from real solar-system constants
-- step demo bodies with PR4 physics (`step_bodies`)
-- keep physics in SI units and convert to render coordinates only at display boundary
-- optionally render demo motion in runtime viewer
-- add non-window tests for demo setup and step behavior
+- add optional trail rendering for controlled demo bodies
+- add optional body label rendering for controlled demo bodies
+- keep both overlays behind simple feature flags in runtime configuration
+- keep feature work in rendering/runtime layers only
+- preserve PR5 controlled demo stepping behavior
+- add non-window tests for trail/label helper logic
 
 ## Non-Goals
 
-- no stable real solar-system tuning
+- no changes to Newtonian equations
+- no stable real solar-system tuning claims
 - no real ephemeris or JPL Horizons runtime integration
 - no hardcoded circular orbit animation
-- no Kepler solver
-- no Lorentz factor, trails, labels, or grid distortion
-- no fullscreen mode, no save/load, no networking
+- no Lorentz factor
+- no grid distortion
+- no fullscreen mode
+- no complex UI framework
 
 ## Required Design
 
-- launch command remains `python3 -m src.main`
-- controlled demo behavior is explicitly documented as non-real and verification-only
-- camera drag, zoom, and dynamic grid remain available
-- automated tests remain non-windowed
+- launch with `python3 -m src.main`
+- preserve camera drag, zoom, and grid behavior
+- keep trails bounded with a fixed history length
+- keep labels and trails optional via feature flags
+- keep automated tests non-windowed
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/simulation.py`
-- `src/universe/physics.py` only if bug fix is required
-- `src/universe/body.py` only if integration requires it
 - `src/universe/rendering.py`
-- `src/universe/demo_simulation.py`
-- `tests/test_simulation.py`
-- `tests/test_physics.py`
-- `tests/test_demo_simulation.py`
+- `src/universe/demo_simulation.py` (only if integration requires minor changes)
+- `tests/test_grid.py`
+- `tests/test_demo_simulation.py` (only if integration requires minor checks)
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -50,7 +49,6 @@ Connect the PR4 Newtonian physics foundation to a controlled demo simulation pat
 - `agent/task.md`
 - `harness/scenarios/`
 - `harness/judges/`
-- `reviews/`
 
 ## Forbidden Files
 
@@ -78,8 +76,8 @@ Connect the PR4 Newtonian physics foundation to a controlled demo simulation pat
 - verify window opens and closes cleanly
 - verify grid remains visible
 - verify camera drag and zoom remain available
-- verify demo bodies visibly move in controlled demo mode
+- verify trails and labels appear when flags are enabled
 
 ## Suggested Next PR
 
-`PR6: Add visual trails and labels behind feature flags without changing physics correctness`
+`PR7: Add configurable overlay styling controls without changing simulation correctness`
