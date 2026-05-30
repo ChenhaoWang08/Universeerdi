@@ -19,7 +19,6 @@
 - rotation period
 - orbital period
 - unit system
-- current PR focus: source-backed body constants with placeholder viewer layout only
 
 ## Phase C: Newtonian N-body Simulation
 
@@ -28,7 +27,7 @@
 - position update
 - time step
 - numerical stability
-- suggested next PR: initial Newtonian N-body physics foundation
+- current PR focus: controlled demo simulation connected to PR4 physics foundation
 
 ## Phase D: Rendering and UX
 

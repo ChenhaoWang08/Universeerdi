@@ -1,8 +1,14 @@
 from __future__ import annotations
 
-from typing import Sequence
+from typing import Literal, Optional, Sequence
 
 from .universe.body import Body
+from .universe.demo_simulation import (
+    ControlledDemoState,
+    controlled_demo_to_render_bodies,
+    create_controlled_demo_state,
+    step_controlled_demo_state,
+)
 from .universe.physics import step_placeholder_bodies
 from .universe.rendering import (
     Camera,
@@ -11,6 +17,9 @@ from .universe.rendering import (
     is_point_in_ui_placeholder,
 )
 from .universe.simulation import DEFAULT_WINDOW_SIZE, MIN_WINDOW_SIZE, create_placeholder_bodies
+
+SimulationMode = Literal["placeholder", "controlled_demo"]
+DEFAULT_SIMULATION_MODE: SimulationMode = "controlled_demo"
 
 
 def main() -> int:
@@ -22,7 +31,12 @@ def main() -> int:
     clock = pygame.time.Clock()
 
     camera = Camera(center_x=260.0, center_y=0.0, zoom=1.0)
-    bodies = create_placeholder_bodies()
+    demo_state: Optional[ControlledDemoState] = None
+    if DEFAULT_SIMULATION_MODE == "controlled_demo":
+        demo_state = create_controlled_demo_state()
+        bodies = controlled_demo_to_render_bodies(demo_state)
+    else:
+        bodies = create_placeholder_bodies()
     dragging = False
 
     try:
@@ -47,7 +61,13 @@ def main() -> int:
                     camera.zoom_by_scroll(event.y, pygame.mouse.get_pos(), screen.get_size())
 
             delta_seconds = clock.tick(60) / 1000.0
-            bodies = step_placeholder_bodies(bodies, delta_seconds)
+            if DEFAULT_SIMULATION_MODE == "controlled_demo":
+                # Demo motion is physics-driven and intentionally separate from real dataset motion.
+                assert demo_state is not None
+                demo_state = step_controlled_demo_state(demo_state, delta_seconds)
+                bodies = controlled_demo_to_render_bodies(demo_state)
+            else:
+                bodies = step_placeholder_bodies(bodies, delta_seconds)
             draw_scene(screen, pygame, camera, bodies)
             pygame.display.flip()
     finally:

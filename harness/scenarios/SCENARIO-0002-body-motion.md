@@ -1,17 +1,19 @@
-# SCENARIO-0002: Solar-System Body Data
+# SCENARIO-0002: Controlled Demo Physics Motion
 
 ## Goal
 
-Verify that `PR3` uses the real solar-system dataset while keeping viewer positions placeholder-only and non-physical.
+Verify that `PR5` uses a controlled demo simulation stepped by PR4 Newtonian physics, without claiming real solar-system stability.
 
 ## Steps
 
 1. Launch the viewer.
-2. Confirm that visible bodies come from the real named dataset.
-3. Confirm that no real orbital motion is required.
+2. Confirm that demo bodies move over time.
+3. Confirm that motion is demo-only and not presented as real solar-system stability.
+4. Confirm that camera drag and zoom remain available.
 
 ## Expected Result
 
-- the Sun and planet names are present in the dataset
-- the viewer still uses placeholder layout positions for display
-- real Newtonian motion is not required for `PR3`
+- controlled demo bodies are visible and moving
+- movement comes from physics stepping, not hardcoded circular animation
+- real solar-system dataset remains separate from demo motion
+- viewer controls remain functional

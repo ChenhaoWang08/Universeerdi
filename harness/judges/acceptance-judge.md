@@ -1,14 +1,13 @@
 # Acceptance Judge
 
-Judge `PR3` against `ACCEPTANCE.md`.
+Judge `PR5` against `ACCEPTANCE.md`.
 
 Pass only if:
 
-- the launch-command contract is corrected
-- wheel zoom is handled through a single reliable path
-- the solar-system data model exists and includes the Sun plus eight planets
-- SI units are used for the physical dataset
-- physical scale and display scale stay separated
+- a controlled demo simulation path exists
+- demo stepping uses the PR4 Newtonian physics foundation
+- demo data and real solar-system constants stay separated
+- no hardcoded circular-orbit animation was introduced
+- no ephemeris, runtime network data fetch, or external API integration was introduced
+- no Lorentz/trails/grid-distortion/fullscreen/checkbox scope creep was introduced
 - all listed acceptance checks pass
-- scope remains limited to data foundation plus stabilization
-- future physics or real orbital simulation was not pulled into `PR3`
