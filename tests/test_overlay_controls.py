@@ -1,0 +1,66 @@
+import unittest
+
+from src.universe.demo_simulation import create_controlled_demo_state
+from src.universe.overlay_controls import (
+    OverlayControlsState,
+    build_overlay_control_rects,
+    handle_overlay_click,
+)
+
+
+class OverlayControlsTests(unittest.TestCase):
+    def test_default_overlay_state_is_enabled_for_labels_and_trails(self) -> None:
+        state = OverlayControlsState()
+        self.assertTrue(state.show_labels)
+        self.assertTrue(state.show_trails)
+
+    def test_clicking_inside_labels_control_toggles_labels(self) -> None:
+        state = OverlayControlsState(show_labels=True, show_trails=True)
+        rects = build_overlay_control_rects((1280, 720))
+        click_point = (rects.labels_rect[0] + 3, rects.labels_rect[1] + 3)
+        next_state, consumed = handle_overlay_click(state, click_point, (1280, 720))
+        self.assertTrue(consumed)
+        self.assertFalse(next_state.show_labels)
+        self.assertTrue(next_state.show_trails)
+
+    def test_clicking_inside_trails_control_toggles_trails(self) -> None:
+        state = OverlayControlsState(show_labels=True, show_trails=True)
+        rects = build_overlay_control_rects((1280, 720))
+        click_point = (rects.trails_rect[0] + 3, rects.trails_rect[1] + 3)
+        next_state, consumed = handle_overlay_click(state, click_point, (1280, 720))
+        self.assertTrue(consumed)
+        self.assertTrue(next_state.show_labels)
+        self.assertFalse(next_state.show_trails)
+
+    def test_clicking_outside_controls_does_not_toggle(self) -> None:
+        state = OverlayControlsState(show_labels=False, show_trails=True)
+        next_state, consumed = handle_overlay_click(state, (700.0, 500.0), (1280, 720))
+        self.assertFalse(consumed)
+        self.assertEqual(next_state, state)
+
+    def test_clicking_control_is_consumed(self) -> None:
+        state = OverlayControlsState()
+        rects = build_overlay_control_rects((1280, 720))
+        click_point = (rects.labels_rect[0] + 1, rects.labels_rect[1] + 1)
+        _, consumed = handle_overlay_click(state, click_point, (1280, 720))
+        self.assertTrue(consumed)
+
+    def test_control_rectangles_are_deterministic(self) -> None:
+        first = build_overlay_control_rects((1280, 720))
+        second = build_overlay_control_rects((1280, 720))
+        self.assertEqual(first, second)
+
+    def test_toggle_clicks_do_not_mutate_physics_state(self) -> None:
+        demo_state = create_controlled_demo_state()
+        before_positions = tuple(body.position_m for body in demo_state.physics_bodies)
+        before_velocities = tuple(body.velocity_m_s for body in demo_state.physics_bodies)
+
+        rects = build_overlay_control_rects((1280, 720))
+        _state, _consumed = handle_overlay_click(
+            OverlayControlsState(),
+            (rects.labels_rect[0] + 2, rects.labels_rect[1] + 2),
+            (1280, 720),
+        )
+
+        self.assertEqual(before_positions, tuple(body.position_m for body in demo_state.physics_bodies))
+        self.assertEqual(before_velocities, tuple(body.velocity_m_s for body in demo_state.physics_bodies))

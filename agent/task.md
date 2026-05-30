@@ -1,17 +1,17 @@
-# PR6: Add visual trails and labels behind feature flags
+# PR7: Add simple in-window toggle controls for labels and trails
 
 ## Objective
 
-Add optional visual trails and body labels to the controlled demo simulation without changing physics correctness.
+Add simple clickable in-window controls for toggling labels and trails in controlled demo mode, while keeping physics correctness unchanged.
 
 ## Scope
 
-- add optional trail rendering for controlled demo bodies
-- add optional body label rendering for controlled demo bodies
-- keep both overlays behind simple feature flags in runtime configuration
-- keep feature work in rendering/runtime layers only
-- preserve PR5 controlled demo stepping behavior
-- add non-window tests for trail/label helper logic
+- add runtime overlay control state for `show_labels` and `show_trails`
+- render simple top-left controls for Labels and Trails ON/OFF
+- handle click interactions for toggle controls
+- ensure control clicks are consumed before camera drag logic
+- keep overlay toggles rendering-only and separate from physics state
+- add non-window tests for overlay control hitboxes and click behavior
 
 ## Non-Goals
 
@@ -22,23 +22,24 @@ Add optional visual trails and body labels to the controlled demo simulation wit
 - no Lorentz factor
 - no grid distortion
 - no fullscreen mode
-- no complex UI framework
+- no UI framework
 
 ## Required Design
 
 - launch with `python3 -m src.main`
-- preserve camera drag, zoom, and grid behavior
-- keep trails bounded with a fixed history length
-- keep labels and trails optional via feature flags
+- preserve camera drag, zoom, and dynamic grid behavior
+- maintain bounded trail history
+- keep toggle state local to runtime/rendering control paths
 - keep automated tests non-windowed
 
 ## Allowed Files
 
 - `src/main.py`
 - `src/universe/rendering.py`
-- `src/universe/demo_simulation.py` (only if integration requires minor changes)
+- `src/universe/overlay_controls.py`
+- `src/universe/demo_simulation.py` only if needed for small handoff changes
 - `tests/test_grid.py`
-- `tests/test_demo_simulation.py` (only if integration requires minor checks)
+- `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -73,11 +74,12 @@ Add optional visual trails and body labels to the controlled demo simulation wit
 ## Manual Verification
 
 - run `python3 -m src.main`
-- verify window opens and closes cleanly
-- verify grid remains visible
-- verify camera drag and zoom remain available
-- verify trails and labels appear when flags are enabled
+- verify Labels and Trails toggles are visible
+- verify clicking toggles changes overlay visibility
+- verify clicking controls does not pan the camera
+- verify dragging background still pans camera
+- verify scroll wheel zoom still works
 
 ## Suggested Next PR
 
-`PR7: Add configurable overlay styling controls without changing simulation correctness`
+`PR8: Add a basic body selection inspector without changing physics simulation correctness`

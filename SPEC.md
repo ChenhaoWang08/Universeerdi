@@ -11,32 +11,32 @@
 `PR3` added the real solar-system body data foundation and fixed viewer stabilization issues.
 `PR4` added a pure Newtonian N-body physics foundation.
 `PR5` connected the PR4 physics foundation to a controlled demo simulation path.
-The active work is now `PR6`, which adds visual trails and labels behind feature flags.
+`PR6` added visual trails and labels behind feature flags.
+The active work is now `PR7`, which adds simple clickable in-window toggle controls for those overlay flags.
 
-## PR6 Scope
+## PR7 Scope
 
-`PR6` should:
+`PR7` should:
 
-- add optional trail rendering for controlled demo bodies
-- add optional body label rendering for controlled demo bodies
-- keep overlays behind simple feature flags in runtime configuration
-- keep overlays in rendering/runtime layers without changing physics equations
-- keep camera drag, mouse-wheel zoom, and dynamic grid behavior stable
-- add deterministic non-window tests for trail and label helper logic
+- add simple, clickable top-left controls for `Labels` and `Trails`
+- let users toggle overlay visibility during runtime
+- keep overlay state in rendering/runtime control layers only
+- keep simulation correctness and Newtonian physics unchanged
+- preserve camera drag, mouse-wheel zoom, and grid behavior
+- add deterministic non-window tests for overlay control logic
 
-## PR6 Non-Goals
+## PR7 Non-Goals
 
-`PR6` must not include:
+`PR7` must not include:
 
 - Newtonian equation changes
 - stable real solar-system orbit tuning
 - real ephemeris inputs or JPL Horizons runtime integration
 - hardcoded circular orbit animation
 - Lorentz factor or relativity display
-- geodesic fitting
 - mass-based grid distortion
 - fullscreen mode
-- complex UI framework or checkbox behavior
+- complex UI framework
 - networking, deployment, or external services
 
 ## Core Principles
