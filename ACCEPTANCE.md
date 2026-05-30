@@ -1,22 +1,18 @@
-# PR3 Acceptance Criteria
+# PR5 Acceptance Criteria
 
-`PR3` is accepted only if all of the following are true:
+`PR5` is accepted only if all of the following are true:
 
-- `python3 -m src.main` is the documented primary launch command
-- stale mandatory `python -m src.main` references are fixed
-- the viewer launches with `python3 -m src.main`
-- the window remains resizable and non-fullscreen
-- wheel zoom no longer has a double-application risk
-- a solar-system body data model exists
-- the dataset includes the Sun plus Mercury, Venus, Earth, Mars, Jupiter, Saturn, Uranus, and Neptune
-- SI units are used internally for mass, radius, distance, and periods
-- physical scale and visual scale remain separate
-- viewer layout positions remain placeholder display values instead of real orbital simulation
+- `python3 -m src.main` remains the documented primary launch command
+- a controlled demo simulation path exists
+- the controlled demo uses PR4 Newtonian physics stepping (`step_bodies` or equivalent)
+- demo physics state and render coordinates remain separated
+- demo moving bodies are clearly separated from real solar-system data constants
+- no hardcoded circular orbit animation is used for motion
+- no real ephemeris, JPL Horizons runtime integration, or network data fetch is added
+- no Lorentz factor, trails, labels, grid distortion, real checkbox behavior, or fullscreen behavior is added
+- camera drag, mouse-wheel zoom, and dynamic grid remain available in the viewer runtime
+- tests verify demo logic without opening a window
+- existing physics tests still pass
 - `scripts/check.sh` passes
-- tests verify dataset integrity without opening a window
 - `python3 -m pytest tests` passes
-- the viewer still shows the dark gray background, dynamic grid, and visible bodies
-- no Newtonian N-body physics is implemented yet
-- no hardcoded real orbital motion is implemented
-- no Lorentz factor or grid distortion is implemented
-- no network access, secrets, or external APIs are added
+- no secrets, credentials, `.env`, binary assets, or deployment files are added

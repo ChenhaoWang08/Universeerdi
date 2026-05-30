@@ -8,32 +8,33 @@
 
 `PR1` established the workflow control system.
 `PR2` established the runnable viewer foundation.
-`PR3` added the real solar-system body data foundation and fixed PR2 stabilization issues.
-The active work is now `PR4`, which introduces a pure Newtonian N-body physics foundation while keeping real orbital behavior out of scope.
+`PR3` added the real solar-system body data foundation and fixed viewer stabilization issues.
+`PR4` added a pure Newtonian N-body physics foundation.
+The active work is now `PR5`, which connects the PR4 physics foundation to a controlled demo simulation path.
 
-## PR4 Scope
+## PR5 Scope
 
-`PR4` should:
+`PR5` should:
 
-- implement pure, testable Newtonian pairwise gravitational acceleration
-- implement deterministic N-body net acceleration summation
-- implement velocity and position updates with a documented timestep method
-- use semi-implicit Euler integration for the step foundation
-- keep physics state in SI units and separate from screen-space render state
-- keep viewer behavior stable without wiring full real-orbit runtime motion
-- add deterministic non-window tests for physics behavior and safety
+- add a controlled demo simulation mode that uses PR4 Newtonian physics stepping
+- keep demo physics states in SI units and separate from screen-space render coordinates
+- keep real solar-system dataset constants separate from demo moving bodies
+- optionally render moving demo bodies in the viewer runtime
+- keep camera drag, mouse-wheel zoom, and dynamic grid behavior stable
+- add deterministic non-window tests for controlled demo setup and stepping behavior
 
-## PR4 Non-Goals
+## PR5 Non-Goals
 
-`PR4` must not include:
+`PR5` must not include:
 
 - stable real solar-system orbit tuning
-- real orbital motion driven by ephemeris inputs
-- hardcoded circular orbit playback
-- relativity or Lorentz factor display
+- real ephemeris inputs or JPL Horizons runtime integration
+- hardcoded circular orbit animation
+- Kepler solver features
+- Lorentz factor or relativity display
 - geodesic fitting
 - mass-based grid distortion
-- trail rendering
+- trail rendering or planet labels
 - real checkbox behavior
 - fullscreen mode
 - save or load features
@@ -45,5 +46,4 @@ The active work is now `PR4`, which introduces a pure Newtonian N-body physics f
 - Real body constants must use SI units internally.
 - `visual_radius_px` is for display only and must not be treated as physical radius.
 - `mean_orbital_radius_m` must not be treated as screen pixels.
-- Future physics must not hardcode circular orbits as the motion model.
-- Real physics is future work and is not part of `PR1`, `PR2`, or `PR3`.
+- Controlled demo simulation is for verification only and is not a claim of real solar-system stability.
