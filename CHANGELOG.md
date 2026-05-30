@@ -8,4 +8,4 @@
 
 ## In Progress
 
-- `PR3.5`: baseline stabilization before PR4.
+- `PR4`: add initial Newtonian N-body physics foundation.
