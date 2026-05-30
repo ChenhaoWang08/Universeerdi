@@ -13,13 +13,16 @@ from .universe.physics import step_placeholder_bodies
 from .universe.rendering import (
     Camera,
     body_contains_screen_point,
-    draw_scene,
+    draw_scene_with_overlays,
     is_point_in_ui_placeholder,
+    update_trail_history,
 )
 from .universe.simulation import DEFAULT_WINDOW_SIZE, MIN_WINDOW_SIZE, create_placeholder_bodies
 
 SimulationMode = Literal["placeholder", "controlled_demo"]
 DEFAULT_SIMULATION_MODE: SimulationMode = "controlled_demo"
+SHOW_DEMO_TRAILS = True
+SHOW_DEMO_LABELS = True
 
 
 def main() -> int:
@@ -37,6 +40,7 @@ def main() -> int:
         bodies = controlled_demo_to_render_bodies(demo_state)
     else:
         bodies = create_placeholder_bodies()
+    trail_history = {}
     dragging = False
 
     try:
@@ -68,7 +72,20 @@ def main() -> int:
                 bodies = controlled_demo_to_render_bodies(demo_state)
             else:
                 bodies = step_placeholder_bodies(bodies, delta_seconds)
-            draw_scene(screen, pygame, camera, bodies)
+            if DEFAULT_SIMULATION_MODE == "controlled_demo" and SHOW_DEMO_TRAILS:
+                trail_history = update_trail_history(trail_history, bodies)
+            else:
+                trail_history = {}
+
+            draw_scene_with_overlays(
+                screen,
+                pygame,
+                camera,
+                bodies,
+                trail_history=trail_history,
+                show_trails=DEFAULT_SIMULATION_MODE == "controlled_demo" and SHOW_DEMO_TRAILS,
+                show_labels=DEFAULT_SIMULATION_MODE == "controlled_demo" and SHOW_DEMO_LABELS,
+            )
             pygame.display.flip()
     finally:
         pygame.quit()

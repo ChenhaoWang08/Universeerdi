@@ -2,13 +2,14 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from math import floor, log10
-from typing import List, Sequence, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 from .body import Body
 
 Point = Tuple[float, float]
 Size = Tuple[int, int]
 LineSegment = Tuple[Point, Point]
+TrailHistory = Dict[str, Tuple[Point, ...]]
 
 BACKGROUND_COLOR = (34, 36, 40)
 GRID_MINOR_COLOR = (92, 96, 104)
@@ -17,11 +18,15 @@ UI_PANEL_FILL = (52, 54, 60, 220)
 UI_PANEL_BORDER = (208, 212, 220)
 UI_TEXT_LINE = (168, 172, 180)
 BODY_OUTLINE_COLOR = (244, 246, 250)
+LABEL_TEXT_COLOR = (236, 240, 248)
 
 MIN_GRID_PIXELS = 48.0
 MAX_GRID_PIXELS = 160.0
 TARGET_GRID_PIXELS = 96.0
 ZOOM_STEP = 1.1
+TRAIL_MAX_POINTS = 120
+TRAIL_LINE_WIDTH = 2
+LABEL_OFFSET_PX = 10.0
 
 
 @dataclass
@@ -162,6 +167,24 @@ def draw_scene(surface: object, pygame_module: object, camera: Camera, bodies: S
     draw_ui_placeholder(surface, pygame_module)
 
 
+def draw_scene_with_overlays(
+    surface: object,
+    pygame_module: object,
+    camera: Camera,
+    bodies: Sequence[Body],
+    *,
+    trail_history: Optional[TrailHistory] = None,
+    show_trails: bool = False,
+    show_labels: bool = False,
+) -> None:
+    surface.fill(BACKGROUND_COLOR)
+    draw_grid(surface, pygame_module, camera)
+    if show_trails and trail_history:
+        draw_trails(surface, pygame_module, camera, bodies, trail_history)
+    draw_bodies(surface, pygame_module, camera, bodies, show_labels=show_labels)
+    draw_ui_placeholder(surface, pygame_module)
+
+
 def draw_grid(surface: object, pygame_module: object, camera: Camera) -> None:
     viewport_size = surface.get_size()
     minor_segments, major_segments, _ = build_grid_segments(camera, viewport_size)
@@ -174,9 +197,15 @@ def draw_grid(surface: object, pygame_module: object, camera: Camera) -> None:
 
 
 def draw_bodies(
-    surface: object, pygame_module: object, camera: Camera, bodies: Sequence[Body]
+    surface: object,
+    pygame_module: object,
+    camera: Camera,
+    bodies: Sequence[Body],
+    *,
+    show_labels: bool = False,
 ) -> None:
     viewport_size = surface.get_size()
+    label_font = pygame_module.font.Font(None, 20) if show_labels else None
 
     for body in bodies:
         center_x, center_y = camera.world_to_screen(body.position, viewport_size)
@@ -184,6 +213,66 @@ def draw_bodies(
         radius = max(6, int(round(body.draw_radius * camera.zoom)))
         pygame_module.draw.circle(surface, body.color, screen_center, radius)
         pygame_module.draw.circle(surface, BODY_OUTLINE_COLOR, screen_center, radius, 2)
+        if label_font is not None:
+            label_surface = label_font.render(body.name, True, LABEL_TEXT_COLOR)
+            anchor_x, anchor_y = body_label_anchor((center_x, center_y), float(radius))
+            surface.blit(label_surface, (int(round(anchor_x)), int(round(anchor_y))))
+
+
+def draw_trails(
+    surface: object,
+    pygame_module: object,
+    camera: Camera,
+    bodies: Sequence[Body],
+    trail_history: TrailHistory,
+) -> None:
+    viewport_size = surface.get_size()
+    for body in bodies:
+        world_points = trail_history.get(body.name, ())
+        if len(world_points) < 2:
+            continue
+        screen_points = [
+            (
+                int(round(screen_point[0])),
+                int(round(screen_point[1])),
+            )
+            for screen_point in (
+                camera.world_to_screen(world_point, viewport_size)
+                for world_point in world_points
+            )
+        ]
+        if len(screen_points) >= 2:
+            pygame_module.draw.lines(
+                surface,
+                body.color,
+                False,
+                screen_points,
+                TRAIL_LINE_WIDTH,
+            )
+
+
+def update_trail_history(
+    trail_history: TrailHistory,
+    bodies: Sequence[Body],
+    max_points: int = TRAIL_MAX_POINTS,
+) -> TrailHistory:
+    if max_points <= 0:
+        raise ValueError("max_points must be positive")
+
+    next_history: TrailHistory = {}
+    for body in bodies:
+        previous_points = trail_history.get(body.name, ())
+        combined = previous_points + (body.position,)
+        next_history[body.name] = combined[-max_points:]
+    return next_history
+
+
+def body_label_anchor(center: Point, radius_px: float) -> Point:
+    center_x, center_y = center
+    return (
+        center_x + radius_px + LABEL_OFFSET_PX,
+        center_y - radius_px - LABEL_OFFSET_PX,
+    )
 
 
 def draw_ui_placeholder(surface: object, pygame_module: object) -> None:

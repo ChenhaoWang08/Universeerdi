@@ -10,34 +10,33 @@
 `PR2` established the runnable viewer foundation.
 `PR3` added the real solar-system body data foundation and fixed viewer stabilization issues.
 `PR4` added a pure Newtonian N-body physics foundation.
-The active work is now `PR5`, which connects the PR4 physics foundation to a controlled demo simulation path.
+`PR5` connected the PR4 physics foundation to a controlled demo simulation path.
+The active work is now `PR6`, which adds visual trails and labels behind feature flags.
 
-## PR5 Scope
+## PR6 Scope
 
-`PR5` should:
+`PR6` should:
 
-- add a controlled demo simulation mode that uses PR4 Newtonian physics stepping
-- keep demo physics states in SI units and separate from screen-space render coordinates
-- keep real solar-system dataset constants separate from demo moving bodies
-- optionally render moving demo bodies in the viewer runtime
+- add optional trail rendering for controlled demo bodies
+- add optional body label rendering for controlled demo bodies
+- keep overlays behind simple feature flags in runtime configuration
+- keep overlays in rendering/runtime layers without changing physics equations
 - keep camera drag, mouse-wheel zoom, and dynamic grid behavior stable
-- add deterministic non-window tests for controlled demo setup and stepping behavior
+- add deterministic non-window tests for trail and label helper logic
 
-## PR5 Non-Goals
+## PR6 Non-Goals
 
-`PR5` must not include:
+`PR6` must not include:
 
+- Newtonian equation changes
 - stable real solar-system orbit tuning
 - real ephemeris inputs or JPL Horizons runtime integration
 - hardcoded circular orbit animation
-- Kepler solver features
 - Lorentz factor or relativity display
 - geodesic fitting
 - mass-based grid distortion
-- trail rendering or planet labels
-- real checkbox behavior
 - fullscreen mode
-- save or load features
+- complex UI framework or checkbox behavior
 - networking, deployment, or external services
 
 ## Core Principles

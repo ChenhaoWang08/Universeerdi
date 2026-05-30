@@ -1,12 +1,17 @@
 import unittest
 
+from src.universe.body import Body
 from src.universe.rendering import (
     MAX_GRID_PIXELS,
     MIN_GRID_PIXELS,
+    LABEL_OFFSET_PX,
     Camera,
+    body_label_anchor,
     build_grid_segments,
     choose_grid_world_spacing,
+    update_trail_history,
 )
+from src.universe.solar_system_data import get_solar_system_body
 
 
 class GridTests(unittest.TestCase):
@@ -28,3 +33,36 @@ class GridTests(unittest.TestCase):
         camera = Camera(zoom=0.2)
         minor, major, _ = build_grid_segments(camera, (1600, 900))
         self.assertLess(len(minor) + len(major), 80)
+
+    def test_trail_history_appends_and_caps_points(self) -> None:
+        earth = get_solar_system_body("Earth")
+        history = {}
+        history = update_trail_history(history, (Body(data=earth, world_x=1.0, world_y=2.0),), max_points=2)
+        history = update_trail_history(history, (Body(data=earth, world_x=3.0, world_y=4.0),), max_points=2)
+        history = update_trail_history(history, (Body(data=earth, world_x=5.0, world_y=6.0),), max_points=2)
+        self.assertEqual(history["Earth"], ((3.0, 4.0), (5.0, 6.0)))
+
+    def test_trail_history_keeps_only_visible_bodies(self) -> None:
+        earth = get_solar_system_body("Earth")
+        mars = get_solar_system_body("Mars")
+        history = update_trail_history(
+            {},
+            (
+                Body(data=earth, world_x=1.0, world_y=1.0),
+                Body(data=mars, world_x=2.0, world_y=2.0),
+            ),
+        )
+        history = update_trail_history(history, (Body(data=earth, world_x=3.0, world_y=3.0),))
+        self.assertIn("Earth", history)
+        self.assertNotIn("Mars", history)
+
+    def test_body_label_anchor_offsets_by_radius_and_padding(self) -> None:
+        center = (100.0, 80.0)
+        radius = 12.0
+        anchor = body_label_anchor(center, radius)
+        self.assertEqual(anchor[0], center[0] + radius + LABEL_OFFSET_PX)
+        self.assertEqual(anchor[1], center[1] - radius - LABEL_OFFSET_PX)
+
+    def test_trail_history_rejects_non_positive_max_points(self) -> None:
+        with self.assertRaises(ValueError):
+            update_trail_history({}, (), max_points=0)
