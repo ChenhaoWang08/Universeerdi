@@ -32,3 +32,4 @@ PR16 Lorentz gamma is a read-only inspector metric and does not alter Newtonian 
 PR17 mode/preset controls switch active simulation view and render policy without changing Newtonian equations or source dataset values.
 PR18 solar mass multiplier and absorption are runtime experiment controls layered on stepping/state flow and do not change Newtonian equation definitions or source constants.
 PR19 camera view presets switch camera bounds/zoom behavior only and do not change simulation state, source constants, or Newtonian equations.
+PR20 fixed physics substeps split solar-system frame dt and run absorption per slice without replacing the integrator or changing Newtonian equations.

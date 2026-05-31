@@ -23,7 +23,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR16` added Lorentz factor as a read-only display metric.
 `PR17` added runtime simulation mode selection and render-scale presets.
 `PR18` added an experimental solar mass multiplier with absorption.
-The current phase is `PR19`, which adds camera zoom range controls and view presets.
+`PR19` added camera zoom range controls and view presets.
+The current phase is `PR20`, which adds fixed physics substeps for high-gravity stability.
 
 Primary launch command:
 
@@ -94,10 +95,16 @@ PR19 camera view controls:
 - `Ctrl+0`: reset time scale to `x1.0`
 - camera view presets affect camera/rendering state only and do not alter physics state
 
+PR20 physics substep controls:
+- `=`: increase solar-system physics substeps
+- `-`: decrease solar-system physics substeps
+- substeps split frame dt and apply absorption after each slice in `solar_system` mode
+- this improves high-gravity experiment stability without changing Newtonian equations
+
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping
-- `[` or `-`: decrease time scale
-- `]` or `=`: increase time scale
+- `[`: decrease time scale
+- `]`: increase time scale
 - `Ctrl+0`: reset time scale to `x1.0`
 
 Review workflow:

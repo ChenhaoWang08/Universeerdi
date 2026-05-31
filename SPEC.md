@@ -24,29 +24,30 @@
 `PR16` added Lorentz factor as a read-only display metric.
 `PR17` added runtime mode selection and render-scale presets.
 `PR18` added solar mass multiplier experiment with absorption.
-The active work is now `PR19`, which adds camera zoom range controls and view presets.
+`PR19` added camera zoom range controls and view presets.
+The active work is now `PR20`, which adds fixed physics substeps for high-gravity stability.
 
-## PR19 Scope
+## PR20 Scope
 
-`PR19` should:
+`PR20` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add runtime camera view presets: `normal`, `overview`, `close`
-- add runtime controls to cycle and reset camera view without source edits
-- keep camera controls isolated to camera/rendering state
-- preserve mode/scale/overlay/time/fullscreen/selection compatibility
-- add deterministic non-window tests for camera preset behavior
+- add fixed substep choices for solar-system stepping
+- split frame `dt` into smaller physics slices in solar-system mode
+- apply existing absorption rule after each substep
+- preserve mode/scale/overlay/time/fullscreen/selection/camera-view compatibility
+- add deterministic non-window tests for substep behavior
 
-## PR19 Non-Goals
+## PR20 Non-Goals
 
-`PR19` must not include:
+`PR20` must not include:
 
 - Newtonian equation changes
 - mutation of `solar_system_data.py` constants
-- solar mass multiplier behavior changes
-- absorption behavior changes
-- physics substeps or adaptive integrator changes
+- replacing the existing integrator
+- adaptive timestep logic
+- source solar-system data changes
 - mass-based grid distortion
 - high-precision ephemeris/JPL integrations
 - networking or external services
@@ -68,3 +69,4 @@ The active work is now `PR19`, which adds camera zoom range controls and view pr
 - `PR17` runtime mode/scale controls affect active view/state wiring only and do not alter Newtonian equations or source dataset constants.
 - `PR18` runtime Sun mass multiplier and absorption remain experimental and do not alter Newtonian equation definitions or source constants.
 - `PR19` camera view presets and reset controls affect camera/rendering state only and do not alter physics state, source data, or PR18 experiment behavior.
+- `PR20` fixed physics substeps split frame dt into multiple Newtonian slices in solar-system mode and apply absorption after each slice without changing equations or replacing the integrator.

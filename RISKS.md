@@ -14,6 +14,7 @@
 | Solar mass multiplier could be mistaken for source-data mutation. | Keep multiplier runtime-only in stepping path and restore baseline Sun mass in stored state. |
 | Simple absorption may be mistaken for physically realistic collision modeling. | Document absorption as an experimental visualization rule, not fluid dynamics or GR model. |
 | Camera view presets could accidentally reset non-camera runtime state. | Restrict preset application to camera fields only and verify mode/time/experiment compatibility with tests and viewer smoke check. |
+| Large frame dt under high gravity can skip over absorption checks. | Split solar-system frame dt into fixed substeps and apply absorption after each slice with deterministic tests. |
 | Escape behavior could regress windowed quit flow. | Keep conditional logic explicit: escape fullscreen first, otherwise preserve existing quit behavior. |
 | Windowed size may be lost after fullscreen toggle. | Track and restore last known windowed size in a pure display-mode state model. |
 | Selection/inspector behavior may regress while touching render path. | Preserve existing pipelines and run compatibility tests with full suite. |

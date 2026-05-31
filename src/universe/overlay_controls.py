@@ -11,7 +11,7 @@ OVERLAY_LEFT = 16
 OVERLAY_TOP = 16
 OVERLAY_MIN_WIDTH = 180
 OVERLAY_MAX_WIDTH = 260
-OVERLAY_HEIGHT = 192
+OVERLAY_HEIGHT = 220
 CONTROL_LEFT_PADDING = 16
 CONTROL_WIDTH_PADDING = 32
 LABELS_ROW_TOP = 18
@@ -20,6 +20,7 @@ TIME_STATUS_ROW_TOP = 74
 MODE_SCALE_STATUS_ROW_TOP = 102
 EXPERIMENT_STATUS_ROW_TOP = 130
 CAMERA_VIEW_STATUS_ROW_TOP = 158
+PHYSICS_SUBSTEPS_STATUS_ROW_TOP = 186
 CONTROL_ROW_HEIGHT = 22
 CHECKBOX_CHECKED_TEXT = "[X]"
 CHECKBOX_UNCHECKED_TEXT = "[ ]"
@@ -40,6 +41,7 @@ class OverlayControlRects:
     mode_scale_status_rect: Rect
     experiment_status_rect: Rect
     camera_view_status_rect: Rect
+    physics_substeps_status_rect: Rect
 
 
 def overlay_panel_rect(viewport_size: Size) -> Rect:
@@ -78,6 +80,12 @@ def build_overlay_control_rects(viewport_size: Size) -> OverlayControlRects:
         camera_view_status_rect=(
             control_left,
             top + CAMERA_VIEW_STATUS_ROW_TOP,
+            control_width,
+            CONTROL_ROW_HEIGHT,
+        ),
+        physics_substeps_status_rect=(
+            control_left,
+            top + PHYSICS_SUBSTEPS_STATUS_ROW_TOP,
             control_width,
             CONTROL_ROW_HEIGHT,
         ),

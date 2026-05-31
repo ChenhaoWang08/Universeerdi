@@ -23,6 +23,12 @@ from .universe.display_modes import (
     update_windowed_size,
 )
 from .universe.overlay_controls import OverlayControlsState, handle_overlay_click
+from .universe.physics_substeps import (
+    PhysicsSubstepState,
+    decrease_physics_substeps,
+    increase_physics_substeps,
+    physics_substeps_status_text,
+)
 from .universe.rendering import (
     Camera,
     body_contains_screen_point,
@@ -93,6 +99,7 @@ def main() -> int:
     selection_state = SelectionState()
     time_controls = TimeControlState()
     solar_mass_experiment_state = SolarMassExperimentState()
+    physics_substep_state = PhysicsSubstepState()
     trail_history = {}
     dragging = False
 
@@ -121,14 +128,16 @@ def main() -> int:
                     time_controls = toggle_pause(time_controls)
                 elif event.type == pygame.KEYDOWN and event.key in (
                     pygame.K_LEFTBRACKET,
-                    pygame.K_MINUS,
                 ):
                     time_controls = decrease_time_scale(time_controls)
                 elif event.type == pygame.KEYDOWN and event.key in (
                     pygame.K_RIGHTBRACKET,
-                    pygame.K_EQUALS,
                 ):
                     time_controls = increase_time_scale(time_controls)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_MINUS:
+                    physics_substep_state = decrease_physics_substeps(physics_substep_state)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_EQUALS:
+                    physics_substep_state = increase_physics_substeps(physics_substep_state)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_0:
                     if event.mod & pygame.KMOD_CTRL:
                         time_controls = reset_time_scale(time_controls)
@@ -227,6 +236,7 @@ def main() -> int:
                         simulation_dt_seconds,
                         solar_mass_multiplier=solar_mass_experiment_state.solar_mass_multiplier,
                         absorb_into_sun=True,
+                        physics_substeps=physics_substep_state.substeps,
                     )
                 bodies = solar_system_to_render_bodies(
                     solar_system_state,
@@ -267,6 +277,7 @@ def main() -> int:
                     active_body_count=len(current_physics_bodies),
                 ),
                 camera_view_status_text=camera_view_status_text(camera_view_state),
+                physics_substeps_status_text=physics_substeps_status_text(physics_substep_state),
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,
             )

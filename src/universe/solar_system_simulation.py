@@ -76,20 +76,25 @@ def step_solar_system_simulation_state(
     *,
     solar_mass_multiplier: float = 1.0,
     absorb_into_sun: bool = True,
+    physics_substeps: int = 1,
 ) -> SolarSystemSimulationState:
     if solar_mass_multiplier <= 0.0:
         raise ValueError("solar_mass_multiplier must be positive")
+    if physics_substeps < 1:
+        raise ValueError("physics_substeps must be >= 1")
 
-    stepping_bodies = _with_effective_solar_mass(
-        state.physics_bodies, solar_mass_multiplier=solar_mass_multiplier
-    )
-    stepped = step_bodies(stepping_bodies, dt_seconds=dt_seconds)
-    restored = _with_baseline_solar_mass(stepped)
-    if absorb_into_sun:
-        restored = _apply_solar_absorption(restored)
-    return SolarSystemSimulationState(
-        physics_bodies=restored
-    )
+    current_bodies = state.physics_bodies
+    substep_dt_seconds = dt_seconds / float(physics_substeps)
+    for _ in range(physics_substeps):
+        stepping_bodies = _with_effective_solar_mass(
+            current_bodies, solar_mass_multiplier=solar_mass_multiplier
+        )
+        stepped = step_bodies(stepping_bodies, dt_seconds=substep_dt_seconds)
+        restored = _with_baseline_solar_mass(stepped)
+        if absorb_into_sun:
+            restored = _apply_solar_absorption(restored)
+        current_bodies = restored
+    return SolarSystemSimulationState(physics_bodies=current_bodies)
 
 
 def solar_system_to_render_bodies(
