@@ -9,6 +9,7 @@ from .universe.demo_simulation import (
     create_controlled_demo_state,
     step_controlled_demo_state,
 )
+from .universe.overlay_controls import OverlayControlsState, handle_overlay_click
 from .universe.physics import step_placeholder_bodies
 from .universe.rendering import (
     Camera,
@@ -21,8 +22,6 @@ from .universe.simulation import DEFAULT_WINDOW_SIZE, MIN_WINDOW_SIZE, create_pl
 
 SimulationMode = Literal["placeholder", "controlled_demo"]
 DEFAULT_SIMULATION_MODE: SimulationMode = "controlled_demo"
-SHOW_DEMO_TRAILS = True
-SHOW_DEMO_LABELS = True
 
 
 def main() -> int:
@@ -40,6 +39,7 @@ def main() -> int:
         bodies = controlled_demo_to_render_bodies(demo_state)
     else:
         bodies = create_placeholder_bodies()
+    overlay_controls = OverlayControlsState()
     trail_history = {}
     dragging = False
 
@@ -56,7 +56,15 @@ def main() -> int:
                     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        dragging = _can_start_drag(bodies, camera, event.pos, screen.get_size())
+                        overlay_controls, was_overlay_click = handle_overlay_click(
+                            overlay_controls,
+                            event.pos,
+                            screen.get_size(),
+                        )
+                        if was_overlay_click:
+                            dragging = False
+                        else:
+                            dragging = _can_start_drag(bodies, camera, event.pos, screen.get_size())
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     dragging = False
                 elif event.type == pygame.MOUSEMOTION and dragging:
@@ -72,7 +80,7 @@ def main() -> int:
                 bodies = controlled_demo_to_render_bodies(demo_state)
             else:
                 bodies = step_placeholder_bodies(bodies, delta_seconds)
-            if DEFAULT_SIMULATION_MODE == "controlled_demo" and SHOW_DEMO_TRAILS:
+            if DEFAULT_SIMULATION_MODE == "controlled_demo":
                 trail_history = update_trail_history(trail_history, bodies)
             else:
                 trail_history = {}
@@ -83,8 +91,9 @@ def main() -> int:
                 camera,
                 bodies,
                 trail_history=trail_history,
-                show_trails=DEFAULT_SIMULATION_MODE == "controlled_demo" and SHOW_DEMO_TRAILS,
-                show_labels=DEFAULT_SIMULATION_MODE == "controlled_demo" and SHOW_DEMO_LABELS,
+                show_trails=DEFAULT_SIMULATION_MODE == "controlled_demo" and overlay_controls.show_trails,
+                show_labels=DEFAULT_SIMULATION_MODE == "controlled_demo" and overlay_controls.show_labels,
+                overlay_controls=overlay_controls,
             )
             pygame.display.flip()
     finally:

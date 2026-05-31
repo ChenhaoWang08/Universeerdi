@@ -5,6 +5,12 @@ from math import floor, log10
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from .body import Body
+from .overlay_controls import (
+    OverlayControlsState,
+    build_overlay_control_rects,
+    is_point_in_overlay_panel,
+    overlay_panel_rect,
+)
 
 Point = Tuple[float, float]
 Size = Tuple[int, int]
@@ -19,6 +25,8 @@ UI_PANEL_BORDER = (208, 212, 220)
 UI_TEXT_LINE = (168, 172, 180)
 BODY_OUTLINE_COLOR = (244, 246, 250)
 LABEL_TEXT_COLOR = (236, 240, 248)
+TOGGLE_ON_COLOR = (151, 215, 160)
+TOGGLE_OFF_COLOR = (205, 126, 126)
 
 MIN_GRID_PIXELS = 48.0
 MAX_GRID_PIXELS = 160.0
@@ -140,15 +148,11 @@ def build_grid_segments(
 
 
 def ui_placeholder_rect(viewport_size: Size) -> Tuple[int, int, int, int]:
-    width = min(260, viewport_size[0] - 32)
-    height = 108
-    return (16, 16, max(width, 180), height)
+    return overlay_panel_rect(viewport_size)
 
 
 def is_point_in_ui_placeholder(point: Point, viewport_size: Size) -> bool:
-    left, top, width, height = ui_placeholder_rect(viewport_size)
-    x, y = point
-    return left <= x <= left + width and top <= y <= top + height
+    return is_point_in_overlay_panel(point, viewport_size)
 
 
 def body_contains_screen_point(
@@ -176,13 +180,14 @@ def draw_scene_with_overlays(
     trail_history: Optional[TrailHistory] = None,
     show_trails: bool = False,
     show_labels: bool = False,
+    overlay_controls: Optional[OverlayControlsState] = None,
 ) -> None:
     surface.fill(BACKGROUND_COLOR)
     draw_grid(surface, pygame_module, camera)
     if show_trails and trail_history:
         draw_trails(surface, pygame_module, camera, bodies, trail_history)
     draw_bodies(surface, pygame_module, camera, bodies, show_labels=show_labels)
-    draw_ui_placeholder(surface, pygame_module)
+    draw_ui_placeholder(surface, pygame_module, overlay_controls=overlay_controls)
 
 
 def draw_grid(surface: object, pygame_module: object, camera: Camera) -> None:
@@ -275,37 +280,59 @@ def body_label_anchor(center: Point, radius_px: float) -> Point:
     )
 
 
-def draw_ui_placeholder(surface: object, pygame_module: object) -> None:
+def draw_ui_placeholder(
+    surface: object,
+    pygame_module: object,
+    *,
+    overlay_controls: Optional[OverlayControlsState] = None,
+) -> None:
     viewport_size = surface.get_size()
-    left, top, width, height = ui_placeholder_rect(viewport_size)
+    rects = build_overlay_control_rects(viewport_size)
+    left, top, width, height = rects.panel_rect
 
     panel = pygame_module.Surface((width, height), pygame_module.SRCALPHA)
     panel.fill(UI_PANEL_FILL)
     surface.blit(panel, (left, top))
     pygame_module.draw.rect(surface, UI_PANEL_BORDER, (left, top, width, height), 2, border_radius=8)
 
-    checkbox_size = 16
-    row_height = 28
-    first_row_y = top + 18
-
-    for index in range(3):
-        row_y = first_row_y + (index * row_height)
-        pygame_module.draw.rect(
-            surface,
-            UI_PANEL_BORDER,
-            (left + 16, row_y, checkbox_size, checkbox_size),
-            2,
-            border_radius=4,
-        )
-        pygame_module.draw.line(
-            surface,
-            UI_TEXT_LINE,
-            (left + 44, row_y + 8),
-            (left + width - 18, row_y + 8),
-            2,
-        )
+    state = overlay_controls or OverlayControlsState()
+    font = pygame_module.font.Font(None, 24)
+    _draw_toggle_row(
+        surface,
+        pygame_module,
+        font,
+        rects.labels_rect,
+        "Labels",
+        state.show_labels,
+    )
+    _draw_toggle_row(
+        surface,
+        pygame_module,
+        font,
+        rects.trails_rect,
+        "Trails",
+        state.show_trails,
+    )
 
 
 def _is_major_line(value: float, major_spacing: float) -> bool:
     rounded = round(value / major_spacing)
     return abs(value - (rounded * major_spacing)) <= major_spacing * 1e-6
+
+
+def _draw_toggle_row(
+    surface: object,
+    pygame_module: object,
+    font: object,
+    row_rect: Tuple[int, int, int, int],
+    label: str,
+    enabled: bool,
+) -> None:
+    left, top, width, height = row_rect
+    pygame_module.draw.rect(surface, UI_PANEL_BORDER, row_rect, 1, border_radius=4)
+    status_text = "ON" if enabled else "OFF"
+    status_color = TOGGLE_ON_COLOR if enabled else TOGGLE_OFF_COLOR
+    label_surface = font.render(label, True, LABEL_TEXT_COLOR)
+    status_surface = font.render(status_text, True, status_color)
+    surface.blit(label_surface, (left + 8, top + 3))
+    surface.blit(status_surface, (left + width - 40, top + 3))
