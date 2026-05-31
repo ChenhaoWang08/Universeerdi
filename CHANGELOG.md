@@ -20,7 +20,8 @@
 - `PR16`: add Lorentz factor as an optional/read-only computed display metric.
 - `PR17`: add runtime simulation mode selection and render-scale presets.
 - `PR18`: add solar mass multiplier experiment with absorption.
+- `PR19`: add camera zoom range controls and view presets.
 
 ## In Progress
 
-- `PR19`: add camera zoom range controls and view presets.
+- `PR20`: add physics substeps for high-gravity stability.

@@ -1,26 +1,26 @@
-# PR19: Add camera zoom range controls and view presets
+# PR20: Add physics substeps for high-gravity stability
 
 ## Objective
 
-Add runtime camera view controls so users can switch between useful zoom/view presets without editing source code.
+Add fixed physics substeps for `solar_system` stepping so high-gravity experiments are more stable and less likely to skip Sun absorption in one large frame step.
 
 ## Scope
 
-- add pure camera view preset state for `normal`, `overview`, and `close`
-- support deterministic preset cycling
-- support reset to current preset defaults
-- make camera zoom step configurable per camera state
-- expose camera view status in the overlay
+- add pure substep state model with fixed values
+- add runtime controls to increase/decrease substeps
+- split `solar_system` frame `dt` into `N` substeps
+- apply existing absorption rule after each substep
+- keep controlled demo mode behavior unchanged
 - keep behavior deterministic and testable without opening a window
-- preserve compatibility with mode/scale/time/fullscreen/selection/solar-mass controls
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no new physics integrator or substep logic
-- no changes to `solar_system_data.py`
-- no solar mass multiplier behavior changes
-- no absorption behavior changes
+- no new integrator
+- no adaptive timestep
+- no source data mutation in `solar_system_data.py`
+- no solar mass multiplier semantic changes
+- no absorption radius/collision-model changes
 - no focus-body camera follow
 - no UI framework
 - no network/API/JPL integration
@@ -28,11 +28,12 @@ Add runtime camera view controls so users can switch between useful zoom/view pr
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/camera_views.py`
+- `src/universe/physics_substeps.py`
+- `src/universe/solar_system_simulation.py`
 - `src/universe/rendering.py`
 - `src/universe/overlay_controls.py`
-- `tests/test_camera_views.py`
-- `tests/test_camera.py`
+- `tests/test_physics_substeps.py`
+- `tests/test_solar_system_simulation.py`
 - `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
@@ -55,11 +56,10 @@ Add runtime camera view controls so users can switch between useful zoom/view pr
 
 - run `python3 -m src.main`
 - verify viewer launches
-- verify `B` cycles view preset status in overlay
-- verify `0` resets camera to current preset
-- verify camera drag and wheel zoom still work
-- verify mode/scale/solar-mass/time/fullscreen controls still work
+- verify `=` increases substeps and `-` decreases substeps
+- verify overlay shows `Substeps: N`
+- verify no traceback while switching mode/scale/camera/solar-mass/time/fullscreen controls
 
 ## Suggested Next PR
 
-`PR20: Add physics substeps for high-gravity stability`
+`PR21: Add focus body camera mode`

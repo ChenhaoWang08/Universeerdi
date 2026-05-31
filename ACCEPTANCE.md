@@ -1,25 +1,27 @@
-# PR19 Acceptance Criteria
+# PR20 Acceptance Criteria
 
-`PR19` is accepted only if all of the following are true:
+`PR20` is accepted only if all of the following are true:
 
 - `python3 -m src.main` remains the documented primary launch command
 - `controlled_demo` mode still works
 - `solar_system` mode still works
-- camera view presets exist: `normal`, `overview`, `close`
-- `B` cycles camera presets deterministically: `normal -> overview -> close -> normal`
-- `0` resets camera to the current preset defaults
-- camera view overlay status is visible and deterministic
-- camera zoom step is configurable per camera state
-- camera preset controls do not mutate physics state
-- selection/inspector/time/fullscreen/mode/scale/solar-mass controls remain compatible
+- default physics substeps is `1`
+- `=` increases physics substeps
+- `-` decreases physics substeps
+- overlay shows deterministic `Substeps: N` status
+- solar-system stepping accepts `physics_substeps`
+- `physics_substeps=1` preserves prior behavior
+- absorption is applied after each substep
+- invalid `physics_substeps` values are explicitly rejected
+- selection/inspector/time/fullscreen/mode/scale/solar-mass/camera-view controls remain compatible
 - Newtonian equations are unchanged
 - no new integrator is added
-- no physics substeps are added
-- solar mass multiplier and absorption behavior are unchanged
+- no adaptive timestep is added
+- solar mass multiplier semantics remain unchanged
 - source data in `solar_system_data.py` is unchanged
 - no mass-based grid distortion is added
 - no GR/geodesic claim is made
-- tests verify camera view logic without opening a window
+- tests verify substep logic without opening a window
 - existing physics/demo/solar_system/render_scale/time/display/selection/inspector/trails/overlay tests still pass
 - `scripts/check.sh` passes
 - `python3 -m pytest tests` passes

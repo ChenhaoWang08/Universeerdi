@@ -41,7 +41,8 @@
 - checkbox-style overlay controls for labels and trails
 - runtime simulation mode selection and render-scale presets
 - solar mass multiplier experiment with absorption
-- current PR focus: camera zoom range controls and view presets
+- camera zoom range controls and view presets
+- current PR focus: fixed physics substeps for high-gravity stability
 
 ## Phase E: Relativistic / Visual Effects
 
