@@ -390,7 +390,7 @@ def draw_selection_inspector(
 ) -> None:
     viewport_size = surface.get_size()
     panel_width = min(430, viewport_size[0] - 40)
-    panel_height = 182
+    panel_height = 332
     panel_left = viewport_size[0] - panel_width - 16
     panel_top = 16
 
@@ -407,6 +407,6 @@ def draw_selection_inspector(
 
     content_lines = lines or ("Selected Body", "Name: None", "Click a demo body to inspect.")
     font = pygame_module.font.Font(None, 22)
-    for line_index, line in enumerate(content_lines[:7]):
+    for line_index, line in enumerate(content_lines[:13]):
         text_surface = font.render(line, True, INSPECTOR_TEXT_COLOR)
         surface.blit(text_surface, (panel_left + 12, panel_top + 12 + (line_index * 24)))

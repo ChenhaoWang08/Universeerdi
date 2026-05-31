@@ -16,27 +16,29 @@
 `PR8` added a basic read-only demo body selection inspector.
 `PR9` added a `solar_system` simulation mode using existing dataset values and Newtonian stepping.
 `PR10` added runtime pause/resume, bounded time scale, and dt clamp controls.
-The active work is now `PR11`, which adds render scale policy and minimum/maximum visible radius clamps.
+`PR11` added render scale policy and minimum/maximum visible radius clamps.
+The active work is now `PR12`, which extends the read-only inspector for real solar-system body fields.
 
-## PR11 Scope
+## PR12 Scope
 
-`PR11` should:
+`PR12` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add explicit physical-to-render scale mapping
-- map physical positions to render/world coordinates through a clear policy
-- map physical radii to visible radii with min/max clamping
-- keep selection hit testing compatible with rendered radius
-- add deterministic non-window tests for render-scale behavior
+- extend selected-body inspector fields for solar-system bodies
+- include runtime physics fields and dataset-backed metadata in inspector display
+- keep source transparency explicit (local dataset, no live API)
+- keep selection/overlay/time-control compatibility
+- add deterministic non-window tests for inspector behavior
 
-## PR11 Non-Goals
+## PR12 Non-Goals
 
-`PR11` must not include:
+`PR12` must not include:
 
 - Newtonian equation changes
 - new physics integrators
-- physical mass/position/velocity/radius mutations for visual tuning
+- physical mass/position/velocity/radius mutations
+- body editing or dragging
 - long-term solar-system stability guarantees
 - Lorentz factor or relativity display
 - mass-based grid distortion
@@ -53,3 +55,4 @@ The active work is now `PR11`, which adds render scale policy and minimum/maximu
 - `solar_system` mode from PR9 remains deterministic initialization plus Newtonian stepping, not a precision ephemeris model.
 - `PR10` time controls affect stepping cadence only and do not modify Newtonian equations.
 - `PR11` keeps SI physics state unchanged and applies display-only render scale mapping.
+- `PR12` inspector is read-only and displays local dataset fields plus runtime physics values.

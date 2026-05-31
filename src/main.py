@@ -155,10 +155,16 @@ def main() -> int:
                 )
                 if selection_state.selected_body_name and selected_physics_body is None:
                     selection_state = SelectionState()
-                inspector_lines = format_body_inspector_lines(selected_physics_body)
+                inspector_lines = format_body_inspector_lines(
+                    selected_physics_body,
+                    simulation_mode=DEFAULT_SIMULATION_MODE,
+                )
             else:
                 trail_history = {}
-                inspector_lines = format_body_inspector_lines(None)
+                inspector_lines = format_body_inspector_lines(
+                    None,
+                    simulation_mode=DEFAULT_SIMULATION_MODE,
+                )
 
             draw_scene_with_overlays(
                 screen,

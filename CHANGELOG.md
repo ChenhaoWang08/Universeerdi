@@ -12,7 +12,8 @@
 - `PR8`: add read-only body selection inspector for controlled demo bodies.
 - `PR9`: add real solar-system simulation mode using existing body data and Newtonian stepping.
 - `PR10`: add pause/resume, bounded time scale, and dt clamp controls for runtime stepping.
+- `PR11`: add physical-to-render scale policy and minimum/maximum visible radius mapping.
 
 ## In Progress
 
-- `PR11`: add physical-to-render scale policy and minimum/maximum visible radius mapping.
+- `PR12`: extend read-only inspector for real solar-system body fields.
