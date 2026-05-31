@@ -8,7 +8,8 @@
 - `PR4`: add initial Newtonian N-body physics foundation.
 - `PR5`: connect physics foundation to a controlled demo simulation.
 - `PR6`: add visual trails and labels behind feature flags for controlled demo rendering.
+- `PR7`: add simple in-window toggle controls for labels and trails.
 
 ## In Progress
 
-- `PR7`: add simple in-window toggle controls for labels and trails.
+- `PR8`: add basic read-only body selection inspector for controlled demo bodies.

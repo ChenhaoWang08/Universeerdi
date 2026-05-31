@@ -9,10 +9,10 @@ The planned architecture for `universeerdi` is intentionally modular:
 - body model: stores physical celestial-body data in SI units plus display-only visual metadata
 - simulation layout: maps named bodies into placeholder world positions for the viewer without implying real orbital motion
 - controlled demo simulation: owns PR5 demo-only SI states and steps them through PR4 Newtonian physics
-- rendering: draws background, grid, bodies, and optional overlays (trails and labels)
-- overlay controls: manages PR7 top-left click hitboxes and runtime visibility toggles for labels/trails
+- rendering: draws background, grid, bodies, overlays, selection highlights, and inspector panel
+- overlay controls: manages top-left hitboxes and runtime visibility toggles for labels/trails
+- selection helpers: handle render-space body hit testing and inspector text formatting without Pygame dependencies
 - future solar-system runtime physics: will later connect real dataset motion with careful validation
-- future UI: may later add richer controls, but not in PR7
 
 Physical scale and visual scale must remain separate so realistic distances do not make the scene unusable.
 `visual_radius_px` exists only for visibility.

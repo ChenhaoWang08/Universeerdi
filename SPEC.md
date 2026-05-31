@@ -12,24 +12,26 @@
 `PR4` added a pure Newtonian N-body physics foundation.
 `PR5` connected the PR4 physics foundation to a controlled demo simulation path.
 `PR6` added visual trails and labels behind feature flags.
-The active work is now `PR7`, which adds simple clickable in-window toggle controls for those overlay flags.
+`PR7` added simple clickable in-window toggle controls for those overlay flags.
+The active work is now `PR8`, which adds a basic read-only demo body selection inspector.
 
-## PR7 Scope
+## PR8 Scope
 
-`PR7` should:
+`PR8` should:
 
-- add simple, clickable top-left controls for `Labels` and `Trails`
-- let users toggle overlay visibility during runtime
-- keep overlay state in rendering/runtime control layers only
-- keep simulation correctness and Newtonian physics unchanged
-- preserve camera drag, mouse-wheel zoom, and grid behavior
-- add deterministic non-window tests for overlay control logic
+- support selecting a rendered demo body by click hit testing
+- keep selection state in runtime/rendering control paths only
+- render a read-only inspector panel for the selected demo body
+- render a visual selection indicator for the selected body
+- preserve overlay toggle priority and camera input behavior
+- add deterministic non-window tests for selection logic and inspector formatting
 
-## PR7 Non-Goals
+## PR8 Non-Goals
 
-`PR7` must not include:
+`PR8` must not include:
 
 - Newtonian equation changes
+- body dragging or body editing
 - stable real solar-system orbit tuning
 - real ephemeris inputs or JPL Horizons runtime integration
 - hardcoded circular orbit animation

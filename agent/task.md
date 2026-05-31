@@ -1,21 +1,24 @@
-# PR7: Add simple in-window toggle controls for labels and trails
+# PR8: Add basic body selection inspector without changing physics simulation
 
 ## Objective
 
-Add simple clickable in-window controls for toggling labels and trails in controlled demo mode, while keeping physics correctness unchanged.
+Add a simple read-only inspector for selected controlled-demo bodies without changing physics correctness.
 
 ## Scope
 
-- add runtime overlay control state for `show_labels` and `show_trails`
-- render simple top-left controls for Labels and Trails ON/OFF
-- handle click interactions for toggle controls
-- ensure control clicks are consumed before camera drag logic
-- keep overlay toggles rendering-only and separate from physics state
-- add non-window tests for overlay control hitboxes and click behavior
+- add runtime selection state (`selected_body_name`)
+- add render-space body hit testing
+- support click-to-select behavior for demo bodies
+- add read-only inspector lines for selected body (name, mass, position, velocity)
+- add visual selection indicator around selected body
+- preserve input priority: overlay controls > body selection > camera drag
+- add non-window tests for selection and inspector formatting logic
 
 ## Non-Goals
 
-- no changes to Newtonian equations
+- no Newtonian equation changes
+- no body dragging
+- no body editing
 - no stable real solar-system tuning claims
 - no real ephemeris or JPL Horizons runtime integration
 - no hardcoded circular orbit animation
@@ -28,18 +31,19 @@ Add simple clickable in-window controls for toggling labels and trails in contro
 
 - launch with `python3 -m src.main`
 - preserve camera drag, zoom, and dynamic grid behavior
-- maintain bounded trail history
-- keep toggle state local to runtime/rendering control paths
+- keep selection/inspector state in runtime/rendering control paths only
 - keep automated tests non-windowed
 
 ## Allowed Files
 
 - `src/main.py`
 - `src/universe/rendering.py`
-- `src/universe/overlay_controls.py`
-- `src/universe/demo_simulation.py` only if needed for small handoff changes
-- `tests/test_grid.py`
+- `src/universe/selection.py`
+- `src/universe/overlay_controls.py` only if needed for input-priority integration
+- `src/universe/demo_simulation.py` only if needed for data handoff
+- `tests/test_selection.py`
 - `tests/test_overlay_controls.py`
+- `tests/test_demo_simulation.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -74,12 +78,14 @@ Add simple clickable in-window controls for toggling labels and trails in contro
 ## Manual Verification
 
 - run `python3 -m src.main`
-- verify Labels and Trails toggles are visible
-- verify clicking toggles changes overlay visibility
-- verify clicking controls does not pan the camera
-- verify dragging background still pans camera
-- verify scroll wheel zoom still works
+- verify viewer launches
+- verify overlay toggles remain visible and clickable
+- verify clicking demo bodies selects and highlights them
+- verify inspector panel updates with selected body data
+- verify clicking background clears selection
+- verify background drag still works
+- verify mouse-wheel zoom still works
 
-## Suggested Next PR
+## Suggested Next Work
 
-`PR8: Add a basic body selection inspector without changing physics simulation correctness`
+Demand-driven optimization or bugfix PRs defined by the human.

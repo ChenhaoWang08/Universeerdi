@@ -18,6 +18,12 @@ from .universe.rendering import (
     is_point_in_ui_placeholder,
     update_trail_history,
 )
+from .universe.selection import (
+    SelectionState,
+    format_body_inspector_lines,
+    get_selected_physics_body,
+    handle_body_selection_click,
+)
 from .universe.simulation import DEFAULT_WINDOW_SIZE, MIN_WINDOW_SIZE, create_placeholder_bodies
 
 SimulationMode = Literal["placeholder", "controlled_demo"]
@@ -40,6 +46,7 @@ def main() -> int:
     else:
         bodies = create_placeholder_bodies()
     overlay_controls = OverlayControlsState()
+    selection_state = SelectionState()
     trail_history = {}
     dragging = False
 
@@ -63,6 +70,18 @@ def main() -> int:
                         )
                         if was_overlay_click:
                             dragging = False
+                        elif DEFAULT_SIMULATION_MODE == "controlled_demo":
+                            selection_state, was_body_selection = handle_body_selection_click(
+                                selection_state,
+                                bodies,
+                                camera,
+                                event.pos,
+                                screen.get_size(),
+                            )
+                            if was_body_selection:
+                                dragging = False
+                            else:
+                                dragging = _can_start_drag(bodies, camera, event.pos, screen.get_size())
                         else:
                             dragging = _can_start_drag(bodies, camera, event.pos, screen.get_size())
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
@@ -82,8 +101,17 @@ def main() -> int:
                 bodies = step_placeholder_bodies(bodies, delta_seconds)
             if DEFAULT_SIMULATION_MODE == "controlled_demo":
                 trail_history = update_trail_history(trail_history, bodies)
+                assert demo_state is not None
+                selected_physics_body = get_selected_physics_body(
+                    demo_state.physics_bodies,
+                    selection_state.selected_body_name,
+                )
+                if selection_state.selected_body_name and selected_physics_body is None:
+                    selection_state = SelectionState()
+                inspector_lines = format_body_inspector_lines(selected_physics_body)
             else:
                 trail_history = {}
+                inspector_lines = format_body_inspector_lines(None)
 
             draw_scene_with_overlays(
                 screen,
@@ -94,6 +122,8 @@ def main() -> int:
                 show_trails=DEFAULT_SIMULATION_MODE == "controlled_demo" and overlay_controls.show_trails,
                 show_labels=DEFAULT_SIMULATION_MODE == "controlled_demo" and overlay_controls.show_labels,
                 overlay_controls=overlay_controls,
+                selected_body_name=selection_state.selected_body_name,
+                inspector_lines=inspector_lines,
             )
             pygame.display.flip()
     finally:

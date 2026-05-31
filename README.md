@@ -11,7 +11,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR4` added a pure Newtonian N-body physics foundation.
 `PR5` connected controlled demo motion to physics stepping.
 `PR6` added optional visual trails and labels.
-The current phase is `PR7`, which adds simple clickable in-window toggle controls for those overlays.
+`PR7` added clickable in-window overlay toggles.
+The current phase is `PR8`, which adds a read-only demo body selection inspector.
 
 Primary launch command:
 
@@ -28,7 +29,7 @@ python -m src.main
 Use the alternative only when `python` resolves to Python 3 on the local machine.
 
 Real solar-system constants remain separate from controlled demo bodies.
-PR7 controls affect rendering visibility only and do not alter physics equations.
+PR8 selection and inspector behavior is rendering/runtime-only and does not alter physics equations.
 
 Review workflow:
 
