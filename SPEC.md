@@ -18,29 +18,30 @@
 `PR10` added runtime pause/resume, bounded time scale, and dt clamp controls.
 `PR11` added render scale policy and minimum/maximum visible radius clamps.
 `PR12` extended the read-only inspector for real solar-system body fields.
-The active work is now `PR13`, which improves trail readability with dashed body-colored paths.
+`PR13` improved trail readability with dashed body-colored paths.
+The active work is now `PR14`, which adds fullscreen toggle while preserving resizable windowed mode.
 
-## PR13 Scope
+## PR14 Scope
 
-`PR13` should:
+`PR14` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- render trails using body color (or safe fallback)
-- support dashed trail rendering
-- keep trail history bounded
-- keep trails rendering-only
-- keep labels/selection/inspector/time-control compatibility
-- add deterministic non-window tests for trail helpers
+- start in windowed resizable mode
+- support fullscreen toggle via keyboard
+- exit fullscreen via Escape
+- preserve camera/overlay/labels/trails/selection/inspector/time-control compatibility
+- keep display changes rendering/window-only
+- add deterministic non-window tests for display mode state logic
 
-## PR13 Non-Goals
+## PR14 Non-Goals
 
-`PR13` must not include:
+`PR14` must not include:
 
 - Newtonian equation changes
 - new physics integrators
-- orbit prediction or orbit fitting
-- hardcoded circular orbit animation
+- save/load display settings
+- complex multi-monitor display manager
 - physical mass/position/velocity/radius mutations
 - long-term solar-system stability guarantees
 - Lorentz factor or relativity display
@@ -60,3 +61,4 @@ The active work is now `PR13`, which improves trail readability with dashed body
 - `PR11` keeps SI physics state unchanged and applies display-only render scale mapping.
 - `PR12` inspector is read-only and displays local dataset fields plus runtime physics values.
 - `PR13` trails visualize prior rendered positions only and do not affect simulation state.
+- `PR14` fullscreen/windowed toggles only change display mode and do not affect simulation state.

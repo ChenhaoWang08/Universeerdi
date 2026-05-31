@@ -1,25 +1,26 @@
-# PR13: Improve trails with dashed body-colored paths
+# PR14: Add fullscreen toggle while preserving resizable window mode
 
 ## Objective
 
-Improve trail readability with dashed body-colored paths while keeping trails rendering-only.
+Add fullscreen toggle support while preserving existing resizable windowed mode.
 
 ## Scope
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- render trails using body color or safe fallback
-- support dashed trail rendering
-- keep trail history bounded
-- preserve labels/selection/inspector/time-control compatibility
-- keep trails rendering-only
-- add non-window tests for trail helpers
+- start in windowed resizable mode
+- add F11 fullscreen toggle
+- add Escape-to-exit-fullscreen behavior
+- preserve camera/overlay/trails/labels/selection/inspector/time-control compatibility
+- keep display mode changes separate from simulation state
+- add non-window tests for display mode state logic
 
 ## Non-Goals
 
 - no Newtonian equation changes
 - no new integrator
-- no orbit prediction or hardcoded circular animation
+- no save/load display settings
+- no complex display manager
 - no physical mass/position/velocity/radius mutation
 - no body editing or dragging
 - no long-term stability guarantee claims
@@ -33,20 +34,22 @@ Improve trail readability with dashed body-colored paths while keeping trails re
 - launch with `python3 -m src.main`
 - preserve existing overlay/selection/time-control/camera behavior
 - keep physics stepping unchanged through existing simulation/physics path
-- keep trail geometry/history logic pure and testable
+- keep display mode logic pure and testable
 - keep automated tests non-windowed
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/rendering.py`
-- `src/universe/trails.py`
-- `src/universe/body.py` only if color access compatibility is needed
+- `src/universe/display_modes.py`
+- `src/universe/rendering.py` only if status/surface compatibility needs it
+- `src/universe/overlay_controls.py` only if layout needs it
 - `tests/test_render_scale.py`
 - `tests/test_selection.py`
 - `tests/test_inspector.py`
 - `tests/test_time_controls.py`
 - `tests/test_trails.py`
+- `tests/test_overlay_controls.py`
+- `tests/test_display_modes.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -81,8 +84,8 @@ Improve trail readability with dashed body-colored paths while keeping trails re
 - run `python3 -m src.main`
 - verify viewer launches
 - verify no immediate traceback
-- optionally verify dashed trails, body-color trails, and show_trails toggle behavior
+- optionally verify F11 fullscreen toggle and windowed restore behavior
 
 ## Suggested Next PR
 
-`PR14: Add fullscreen toggle while preserving resizable window mode`
+`PR15: Convert overlay toggles into checkbox-style controls`

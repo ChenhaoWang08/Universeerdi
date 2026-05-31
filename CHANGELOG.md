@@ -14,7 +14,8 @@
 - `PR10`: add pause/resume, bounded time scale, and dt clamp controls for runtime stepping.
 - `PR11`: add physical-to-render scale policy and minimum/maximum visible radius mapping.
 - `PR12`: extend read-only inspector for real solar-system body fields.
+- `PR13`: improve trails with dashed body-colored paths.
 
 ## In Progress
 
-- `PR13`: improve trails with dashed body-colored paths.
+- `PR14`: add fullscreen toggle while preserving resizable windowed mode.

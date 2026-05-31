@@ -17,7 +17,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR10` added pause/resume, bounded time scale, and dt clamp controls for simulation stepping.
 `PR11` added physical-to-render scale policy and visible radius clamps.
 `PR12` extended the read-only inspector for real solar-system fields.
-The current phase is `PR13`, which improves trail readability with dashed body-colored paths.
+`PR13` improved trail readability with dashed body-colored paths.
+The current phase is `PR14`, which adds fullscreen toggle while preserving resizable windowed mode.
 
 Primary launch command:
 
@@ -51,6 +52,12 @@ Solar-system inspector values come from local `solar_system_data.py` plus runtim
 
 PR13 trails are rendering-only and body-colored.
 Trail history remains bounded and does not change physics simulation state.
+
+PR14 display controls:
+- `F11`: toggle fullscreen/windowed mode
+- `Escape`: exits fullscreen first; in windowed mode it keeps existing quit behavior
+
+PR14 display mode changes are rendering/window-only and do not affect physics simulation state.
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping
