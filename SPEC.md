@@ -13,33 +13,35 @@
 `PR5` connected the PR4 physics foundation to a controlled demo simulation path.
 `PR6` added visual trails and labels behind feature flags.
 `PR7` added simple clickable in-window toggle controls for those overlay flags.
-The active work is now `PR8`, which adds a basic read-only demo body selection inspector.
+`PR8` added a basic read-only demo body selection inspector.
+The active work is now `PR9`, which adds a `solar_system` simulation mode using existing dataset values and Newtonian stepping.
 
-## PR8 Scope
+## PR9 Scope
 
-`PR8` should:
+`PR9` should:
 
-- support selecting a rendered demo body by click hit testing
-- keep selection state in runtime/rendering control paths only
-- render a read-only inspector panel for the selected demo body
-- render a visual selection indicator for the selected body
-- preserve overlay toggle priority and camera input behavior
-- add deterministic non-window tests for selection logic and inspector formatting
+- keep `controlled_demo` mode working
+- add `solar_system` simulation mode
+- build `PhysicsBodyState` values from existing solar-system dataset fields
+- use deterministic SI initial conditions (Sun at origin, planets on +x, +y tangential velocity estimate)
+- step runtime motion through existing `step_bodies(...)`
+- keep selection, overlays, and inspector compatible with the new mode
+- add deterministic non-window tests for solar-system mode construction and stepping
 
-## PR8 Non-Goals
+## PR9 Non-Goals
 
-`PR8` must not include:
+`PR9` must not include:
 
+- high-precision ephemeris initialization
+- JPL Horizons runtime integration
+- hardcoded per-frame circular orbit animation
 - Newtonian equation changes
-- body dragging or body editing
-- stable real solar-system orbit tuning
-- real ephemeris inputs or JPL Horizons runtime integration
-- hardcoded circular orbit animation
+- long-term solar-system stability guarantees
 - Lorentz factor or relativity display
 - mass-based grid distortion
 - fullscreen mode
-- complex UI framework
-- networking, deployment, or external services
+- time controls
+- networking or external services
 
 ## Core Principles
 
@@ -47,4 +49,4 @@ The active work is now `PR8`, which adds a basic read-only demo body selection i
 - Real body constants must use SI units internally.
 - `visual_radius_px` is for display only and must not be treated as physical radius.
 - `mean_orbital_radius_m` must not be treated as screen pixels.
-- Controlled demo simulation is for verification only and is not a claim of real solar-system stability.
+- `solar_system` mode in PR9 is a deterministic initialization plus Newtonian stepping, not a precision ephemeris model.
