@@ -19,6 +19,7 @@ TRAILS_ROW_TOP = 46
 TIME_STATUS_ROW_TOP = 74
 MODE_SCALE_STATUS_ROW_TOP = 102
 EXPERIMENT_STATUS_ROW_TOP = 130
+CAMERA_VIEW_STATUS_ROW_TOP = 158
 CONTROL_ROW_HEIGHT = 22
 CHECKBOX_CHECKED_TEXT = "[X]"
 CHECKBOX_UNCHECKED_TEXT = "[ ]"
@@ -38,6 +39,7 @@ class OverlayControlRects:
     time_status_rect: Rect
     mode_scale_status_rect: Rect
     experiment_status_rect: Rect
+    camera_view_status_rect: Rect
 
 
 def overlay_panel_rect(viewport_size: Size) -> Rect:
@@ -70,6 +72,12 @@ def build_overlay_control_rects(viewport_size: Size) -> OverlayControlRects:
         experiment_status_rect=(
             control_left,
             top + EXPERIMENT_STATUS_ROW_TOP,
+            control_width,
+            CONTROL_ROW_HEIGHT,
+        ),
+        camera_view_status_rect=(
+            control_left,
+            top + CAMERA_VIEW_STATUS_ROW_TOP,
             control_width,
             CONTROL_ROW_HEIGHT,
         ),
