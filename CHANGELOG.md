@@ -9,7 +9,8 @@
 - `PR5`: connect physics foundation to a controlled demo simulation.
 - `PR6`: add visual trails and labels behind feature flags for controlled demo rendering.
 - `PR7`: add simple in-window toggle controls for labels and trails.
+- `PR8`: add read-only body selection inspector for controlled demo bodies.
 
 ## In Progress
 
-- `PR8`: add basic read-only body selection inspector for controlled demo bodies.
+- `PR9`: add real solar-system simulation mode using existing body data and Newtonian stepping.

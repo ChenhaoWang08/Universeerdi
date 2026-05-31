@@ -1,48 +1,52 @@
-# PR8: Add basic body selection inspector without changing physics simulation
+# PR9: Add real solar-system simulation mode using existing body data
 
 ## Objective
 
-Add a simple read-only inspector for selected controlled-demo bodies without changing physics correctness.
+Add a `solar_system` simulation mode that builds and steps physics states from existing solar-system dataset values.
 
 ## Scope
 
-- add runtime selection state (`selected_body_name`)
-- add render-space body hit testing
-- support click-to-select behavior for demo bodies
-- add read-only inspector lines for selected body (name, mass, position, velocity)
-- add visual selection indicator around selected body
-- preserve input priority: overlay controls > body selection > camera drag
-- add non-window tests for selection and inspector formatting logic
+- keep `controlled_demo` mode working
+- add `solar_system` mode as a separate runtime path
+- build `PhysicsBodyState` entries from real dataset values in SI units
+- use deterministic initial conditions (Sun at origin, planets on +x, +y tangential speed estimate)
+- step runtime motion via `step_bodies(...)`
+- keep overlays, selection, and inspector compatible
+- add non-window tests for builder and stepping logic
 
 ## Non-Goals
 
+- no high-precision ephemeris integration
+- no JPL Horizons runtime integration
+- no hardcoded per-frame circular orbit animation
 - no Newtonian equation changes
-- no body dragging
-- no body editing
-- no stable real solar-system tuning claims
-- no real ephemeris or JPL Horizons runtime integration
-- no hardcoded circular orbit animation
+- no long-term stability guarantee claims
 - no Lorentz factor
 - no grid distortion
 - no fullscreen mode
-- no UI framework
+- no time controls
 
 ## Required Design
 
 - launch with `python3 -m src.main`
-- preserve camera drag, zoom, and dynamic grid behavior
-- keep selection/inspector state in runtime/rendering control paths only
+- preserve existing control and render behavior for demo mode
+- keep physics state in SI units
+- keep data-source objects immutable from simulation builder behavior
 - keep automated tests non-windowed
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/rendering.py`
-- `src/universe/selection.py`
-- `src/universe/overlay_controls.py` only if needed for input-priority integration
-- `src/universe/demo_simulation.py` only if needed for data handoff
-- `tests/test_selection.py`
-- `tests/test_overlay_controls.py`
+- `src/universe/simulation.py`
+- `src/universe/demo_simulation.py` only if needed for mode compatibility
+- `src/universe/solar_system_simulation.py`
+- `src/universe/solar_system_data.py` only if needed for cleaner access
+- `src/universe/rendering.py` only if mode compatibility needs it
+- `src/universe/selection.py` only if graceful compatibility needs it
+- `src/universe/units.py` only if helper/constants additions are needed
+- `tests/test_solar_system_simulation.py`
+- `tests/test_simulation.py`
+- `tests/test_solar_system_data.py`
 - `tests/test_demo_simulation.py`
 - `README.md`
 - `SPEC.md`
@@ -51,6 +55,7 @@ Add a simple read-only inspector for selected controlled-demo bodies without cha
 - `CHANGELOG.md`
 - `ROADMAP.md`
 - `docs/architecture.md`
+- `docs/data-sources.md`
 - `agent/task.md`
 - `harness/scenarios/`
 - `harness/judges/`
@@ -79,13 +84,9 @@ Add a simple read-only inspector for selected controlled-demo bodies without cha
 
 - run `python3 -m src.main`
 - verify viewer launches
-- verify overlay toggles remain visible and clickable
-- verify clicking demo bodies selects and highlights them
-- verify inspector panel updates with selected body data
-- verify clicking background clears selection
-- verify background drag still works
-- verify mouse-wheel zoom still works
+- verify no immediate traceback
+- optionally switch to `solar_system` mode and confirm runtime still runs
 
-## Suggested Next Work
+## Suggested Next PR
 
-Demand-driven optimization or bugfix PRs defined by the human.
+`PR10: Add pause, resume, and time scale controls`

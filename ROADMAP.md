@@ -27,7 +27,7 @@
 - position update
 - time step
 - numerical stability
-- controlled demo simulation connected to PR4 physics foundation
+- current PR focus: solar_system mode using existing dataset initialization and Newtonian stepping
 
 ## Phase D: Rendering and UX
 
@@ -37,7 +37,6 @@
 - planet colors
 - time controls
 - pause and resume
-- current PR focus: read-only demo body selection inspector
 
 ## Phase E: Relativistic / Visual Effects
 

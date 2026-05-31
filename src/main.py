@@ -24,9 +24,15 @@ from .universe.selection import (
     get_selected_physics_body,
     handle_body_selection_click,
 )
+from .universe.solar_system_simulation import (
+    SolarSystemSimulationState,
+    create_solar_system_simulation_state,
+    solar_system_to_render_bodies,
+    step_solar_system_simulation_state,
+)
 from .universe.simulation import DEFAULT_WINDOW_SIZE, MIN_WINDOW_SIZE, create_placeholder_bodies
 
-SimulationMode = Literal["placeholder", "controlled_demo"]
+SimulationMode = Literal["placeholder", "controlled_demo", "solar_system"]
 DEFAULT_SIMULATION_MODE: SimulationMode = "controlled_demo"
 
 
@@ -40,9 +46,13 @@ def main() -> int:
 
     camera = Camera(center_x=260.0, center_y=0.0, zoom=1.0)
     demo_state: Optional[ControlledDemoState] = None
+    solar_system_state: Optional[SolarSystemSimulationState] = None
     if DEFAULT_SIMULATION_MODE == "controlled_demo":
         demo_state = create_controlled_demo_state()
         bodies = controlled_demo_to_render_bodies(demo_state)
+    elif DEFAULT_SIMULATION_MODE == "solar_system":
+        solar_system_state = create_solar_system_simulation_state()
+        bodies = solar_system_to_render_bodies(solar_system_state)
     else:
         bodies = create_placeholder_bodies()
     overlay_controls = OverlayControlsState()
@@ -70,7 +80,7 @@ def main() -> int:
                         )
                         if was_overlay_click:
                             dragging = False
-                        elif DEFAULT_SIMULATION_MODE == "controlled_demo":
+                        elif DEFAULT_SIMULATION_MODE in ("controlled_demo", "solar_system"):
                             selection_state, was_body_selection = handle_body_selection_click(
                                 selection_state,
                                 bodies,
@@ -92,18 +102,27 @@ def main() -> int:
                     camera.zoom_by_scroll(event.y, pygame.mouse.get_pos(), screen.get_size())
 
             delta_seconds = clock.tick(60) / 1000.0
+            current_physics_bodies = ()
             if DEFAULT_SIMULATION_MODE == "controlled_demo":
                 # Demo motion is physics-driven and intentionally separate from real dataset motion.
                 assert demo_state is not None
                 demo_state = step_controlled_demo_state(demo_state, delta_seconds)
                 bodies = controlled_demo_to_render_bodies(demo_state)
+                current_physics_bodies = demo_state.physics_bodies
+            elif DEFAULT_SIMULATION_MODE == "solar_system":
+                # PR9 solar_system mode uses deterministic initialization and Newtonian stepping.
+                assert solar_system_state is not None
+                solar_system_state = step_solar_system_simulation_state(
+                    solar_system_state, delta_seconds
+                )
+                bodies = solar_system_to_render_bodies(solar_system_state)
+                current_physics_bodies = solar_system_state.physics_bodies
             else:
                 bodies = step_placeholder_bodies(bodies, delta_seconds)
-            if DEFAULT_SIMULATION_MODE == "controlled_demo":
+            if DEFAULT_SIMULATION_MODE in ("controlled_demo", "solar_system"):
                 trail_history = update_trail_history(trail_history, bodies)
-                assert demo_state is not None
                 selected_physics_body = get_selected_physics_body(
-                    demo_state.physics_bodies,
+                    current_physics_bodies,
                     selection_state.selected_body_name,
                 )
                 if selection_state.selected_body_name and selected_physics_body is None:
@@ -119,8 +138,10 @@ def main() -> int:
                 camera,
                 bodies,
                 trail_history=trail_history,
-                show_trails=DEFAULT_SIMULATION_MODE == "controlled_demo" and overlay_controls.show_trails,
-                show_labels=DEFAULT_SIMULATION_MODE == "controlled_demo" and overlay_controls.show_labels,
+                show_trails=DEFAULT_SIMULATION_MODE in ("controlled_demo", "solar_system")
+                and overlay_controls.show_trails,
+                show_labels=DEFAULT_SIMULATION_MODE in ("controlled_demo", "solar_system")
+                and overlay_controls.show_labels,
                 overlay_controls=overlay_controls,
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,

@@ -2,9 +2,9 @@
 
 | Risk | Mitigation |
 | --- | --- |
-| Demo simulation may be mistaken for real solar-system stability. | Keep controlled-demo wording explicit in docs and inspector warning text. |
-| UI behavior may become overly complex while adding inspector interactions. | Keep PR8 inspector read-only and avoid adding editable controls or frameworks. |
-| Input priority regressions may break drag behavior. | Preserve explicit priority: overlay controls > body selection > camera drag. |
-| Selection hit testing might be inconsistent if tied to physical radius. | Use render-space hit testing with rendered radius and test deterministic selection logic. |
-| Tests may accidentally require a display. | Keep selection and inspector formatting logic in pure helpers tested without opening a window. |
+| Solar-system mode could be mistaken for precision ephemeris output. | Document PR9 initialization policy and explicitly state non-ephemeris, non-stability guarantees. |
+| Large SI distances may reduce viewer readability. | Keep physics in SI and use rendering scale conversion only for display compatibility. |
+| Input/render behavior may regress while adding a new mode. | Keep existing mode paths and run full non-window and runtime smoke checks. |
+| Approximate initial velocity policy may be misunderstood as per-frame circular animation. | Use circular-speed estimate for initialization only and step runtime through `step_bodies(...)`. |
+| Tests may accidentally require a display. | Keep solar-system builder and stepping tests pure and non-windowed. |
 | Rollback may delete files if too aggressive. | Keep `rollback.sh` informational only and require human review before destructive commands. |
