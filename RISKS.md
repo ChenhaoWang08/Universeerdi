@@ -7,6 +7,8 @@
 | Fullscreen mode switches may desynchronize internal size assumptions. | Centralize display-mode state and always derive rendering/input behavior from current surface size. |
 | Checkbox-style overlay refactor could break click hitbox routing. | Keep hitbox math in `overlay_controls.py` and verify click-consumed behavior with non-window tests. |
 | Checkbox/status row layout could become unreadable at runtime. | Keep overlay rows deterministic and compact; preserve dedicated status row and run manual viewer smoke check. |
+| Lorentz gamma display could be misread as full relativity simulation. | Document clearly that gamma is read-only display metric and is not fed into Newtonian stepping. |
+| Invalid speed input policy could be ambiguous near or above light speed. | Keep explicit helper behavior: `speed < 0` raises, `speed >= c` returns `inf`, and cover with tests. |
 | Escape behavior could regress windowed quit flow. | Keep conditional logic explicit: escape fullscreen first, otherwise preserve existing quit behavior. |
 | Windowed size may be lost after fullscreen toggle. | Track and restore last known windowed size in a pure display-mode state model. |
 | Selection/inspector behavior may regress while touching render path. | Preserve existing pipelines and run compatibility tests with full suite. |

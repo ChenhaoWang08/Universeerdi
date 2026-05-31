@@ -43,6 +43,12 @@ class InspectorTests(unittest.TestCase):
         lines = build_inspector_lines(body, simulation_mode="solar_system")
         self.assertTrue(any(line.startswith("Speed: ") for line in lines))
 
+    def test_inspector_includes_lorentz_gamma(self) -> None:
+        solar_state = create_solar_system_simulation_state()
+        body = get_selected_physics_body(solar_state.physics_bodies, "Earth")
+        lines = build_inspector_lines(body, simulation_mode="solar_system")
+        self.assertTrue(any(line.startswith("Lorentz gamma: ") for line in lines))
+
     def test_missing_optional_fields_use_safe_fallback_without_crash(self) -> None:
         unknown = PhysicsBodyState(
             name="UnknownBody",

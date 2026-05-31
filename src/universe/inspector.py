@@ -1,11 +1,12 @@
 from __future__ import annotations
 
-from math import sqrt
+from math import isinf, sqrt
 from typing import Literal, Optional, Tuple
 
 from .body import CelestialBody
 from .demo_simulation import DEMO_BODY_DATA_BY_NAME
 from .physics import PhysicsBodyState
+from .relativity import lorentz_factor_from_velocity
 from .solar_system_data import SOLAR_SYSTEM_BODY_MAP
 
 SimulationMode = Literal["placeholder", "controlled_demo", "solar_system"]
@@ -33,6 +34,10 @@ def build_inspector_lines(
     )
     speed_m_s = _speed(selected_physics_body)
     distance_m = _distance_from_origin(selected_physics_body)
+    gamma = lorentz_factor_from_velocity(
+        selected_physics_body.velocity_m_s.x,
+        selected_physics_body.velocity_m_s.y,
+    )
 
     radius_text = _radius_text(metadata, simulation_mode)
     lines = [
@@ -52,6 +57,7 @@ def build_inspector_lines(
             f"vy={_fmt_sci(selected_physics_body.velocity_m_s.y)} m/s"
         ),
         f"Speed: {_fmt_sci(speed_m_s)} m/s",
+        f"Lorentz gamma: {_fmt_gamma(gamma)}",
         f"Distance: {_fmt_sci(distance_m)} m",
     ]
 
@@ -122,3 +128,9 @@ def _seconds_to_days(seconds: float) -> float:
 
 def _fmt_sci(value: float) -> str:
     return f"{value:.3e}"
+
+
+def _fmt_gamma(value: float) -> str:
+    if isinf(value):
+        return "inf (v>=c)"
+    return f"{value:.9f}"
