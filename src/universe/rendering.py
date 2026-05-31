@@ -185,6 +185,7 @@ def draw_scene_with_overlays(
     show_trails: bool = False,
     show_labels: bool = False,
     overlay_controls: Optional[OverlayControlsState] = None,
+    time_status_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
     inspector_lines: Optional[Sequence[str]] = None,
 ) -> None:
@@ -200,7 +201,12 @@ def draw_scene_with_overlays(
         show_labels=show_labels,
         selected_body_name=selected_body_name,
     )
-    draw_ui_placeholder(surface, pygame_module, overlay_controls=overlay_controls)
+    draw_ui_placeholder(
+        surface,
+        pygame_module,
+        overlay_controls=overlay_controls,
+        time_status_text=time_status_text,
+    )
     draw_selection_inspector(surface, pygame_module, inspector_lines)
 
 
@@ -302,6 +308,7 @@ def draw_ui_placeholder(
     pygame_module: object,
     *,
     overlay_controls: Optional[OverlayControlsState] = None,
+    time_status_text: Optional[str] = None,
 ) -> None:
     viewport_size = surface.get_size()
     rects = build_overlay_control_rects(viewport_size)
@@ -330,6 +337,14 @@ def draw_ui_placeholder(
         "Trails",
         state.show_trails,
     )
+    if time_status_text is not None:
+        _draw_status_row(
+            surface,
+            pygame_module,
+            font,
+            rects.time_status_rect,
+            time_status_text,
+        )
 
 
 def _is_major_line(value: float, major_spacing: float) -> bool:
@@ -353,6 +368,19 @@ def _draw_toggle_row(
     status_surface = font.render(status_text, True, status_color)
     surface.blit(label_surface, (left + 8, top + 3))
     surface.blit(status_surface, (left + width - 40, top + 3))
+
+
+def _draw_status_row(
+    surface: object,
+    pygame_module: object,
+    font: object,
+    row_rect: Tuple[int, int, int, int],
+    text: str,
+) -> None:
+    left, top, _width, _height = row_rect
+    pygame_module.draw.rect(surface, UI_PANEL_BORDER, row_rect, 1, border_radius=4)
+    text_surface = font.render(text, True, UI_TEXT_LINE)
+    surface.blit(text_surface, (left + 8, top + 3))
 
 
 def draw_selection_inspector(

@@ -30,6 +30,15 @@ from .universe.solar_system_simulation import (
     solar_system_to_render_bodies,
     step_solar_system_simulation_state,
 )
+from .universe.time_controls import (
+    TimeControlState,
+    compute_simulation_dt,
+    decrease_time_scale,
+    format_time_status_text,
+    increase_time_scale,
+    reset_time_scale,
+    toggle_pause,
+)
 from .universe.simulation import DEFAULT_WINDOW_SIZE, MIN_WINDOW_SIZE, create_placeholder_bodies
 
 SimulationMode = Literal["placeholder", "controlled_demo", "solar_system"]
@@ -57,6 +66,7 @@ def main() -> int:
         bodies = create_placeholder_bodies()
     overlay_controls = OverlayControlsState()
     selection_state = SelectionState()
+    time_controls = TimeControlState()
     trail_history = {}
     dragging = False
 
@@ -68,6 +78,20 @@ def main() -> int:
                     running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
                     running = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
+                    time_controls = toggle_pause(time_controls)
+                elif event.type == pygame.KEYDOWN and event.key in (
+                    pygame.K_LEFTBRACKET,
+                    pygame.K_MINUS,
+                ):
+                    time_controls = decrease_time_scale(time_controls)
+                elif event.type == pygame.KEYDOWN and event.key in (
+                    pygame.K_RIGHTBRACKET,
+                    pygame.K_EQUALS,
+                ):
+                    time_controls = increase_time_scale(time_controls)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_0:
+                    time_controls = reset_time_scale(time_controls)
                 elif event.type == pygame.VIDEORESIZE:
                     size = _clamp_window_size(event.size)
                     screen = pygame.display.set_mode(size, pygame.RESIZABLE)
@@ -101,24 +125,28 @@ def main() -> int:
                 elif event.type == pygame.MOUSEWHEEL:
                     camera.zoom_by_scroll(event.y, pygame.mouse.get_pos(), screen.get_size())
 
-            delta_seconds = clock.tick(60) / 1000.0
+            frame_delta_seconds = clock.tick(60) / 1000.0
+            simulation_dt_seconds = compute_simulation_dt(time_controls, frame_delta_seconds)
             current_physics_bodies = ()
             if DEFAULT_SIMULATION_MODE == "controlled_demo":
                 # Demo motion is physics-driven and intentionally separate from real dataset motion.
                 assert demo_state is not None
-                demo_state = step_controlled_demo_state(demo_state, delta_seconds)
+                if simulation_dt_seconds > 0.0:
+                    demo_state = step_controlled_demo_state(demo_state, simulation_dt_seconds)
                 bodies = controlled_demo_to_render_bodies(demo_state)
                 current_physics_bodies = demo_state.physics_bodies
             elif DEFAULT_SIMULATION_MODE == "solar_system":
                 # PR9 solar_system mode uses deterministic initialization and Newtonian stepping.
                 assert solar_system_state is not None
-                solar_system_state = step_solar_system_simulation_state(
-                    solar_system_state, delta_seconds
-                )
+                if simulation_dt_seconds > 0.0:
+                    solar_system_state = step_solar_system_simulation_state(
+                        solar_system_state, simulation_dt_seconds
+                    )
                 bodies = solar_system_to_render_bodies(solar_system_state)
                 current_physics_bodies = solar_system_state.physics_bodies
             else:
-                bodies = step_placeholder_bodies(bodies, delta_seconds)
+                if simulation_dt_seconds > 0.0:
+                    bodies = step_placeholder_bodies(bodies, simulation_dt_seconds)
             if DEFAULT_SIMULATION_MODE in ("controlled_demo", "solar_system"):
                 trail_history = update_trail_history(trail_history, bodies)
                 selected_physics_body = get_selected_physics_body(
@@ -143,6 +171,7 @@ def main() -> int:
                 show_labels=DEFAULT_SIMULATION_MODE in ("controlled_demo", "solar_system")
                 and overlay_controls.show_labels,
                 overlay_controls=overlay_controls,
+                time_status_text=format_time_status_text(time_controls),
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,
             )

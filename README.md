@@ -13,7 +13,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR6` added optional visual trails and labels.
 `PR7` added clickable in-window overlay toggles.
 `PR8` added a read-only demo body selection inspector.
-The current phase is `PR9`, which adds a `solar_system` simulation mode using existing dataset values.
+`PR9` added a `solar_system` simulation mode using existing dataset values.
+The current phase is `PR10`, which adds pause/resume, bounded time scale, and dt clamp controls for simulation stepping.
 
 Primary launch command:
 
@@ -35,6 +36,15 @@ Simulation modes are currently selected by `DEFAULT_SIMULATION_MODE` in [src/mai
 
 PR9 `solar_system` mode uses deterministic initialization from existing data plus Newtonian stepping.
 It does not claim high-precision ephemeris positions or long-term orbital stability guarantees.
+
+PR10 time controls affect simulation stepping frequency only.
+PR10 does not change Newtonian physics equations.
+
+Keyboard time controls:
+- `Space`: pause/resume simulation stepping
+- `[` or `-`: decrease time scale
+- `]` or `=`: increase time scale
+- `0`: reset time scale to `x1.0`
 
 Review workflow:
 

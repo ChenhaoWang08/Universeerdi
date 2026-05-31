@@ -1,53 +1,49 @@
-# PR9: Add real solar-system simulation mode using existing body data
+# PR10: Add pause, resume, and time scale controls
 
 ## Objective
 
-Add a `solar_system` simulation mode that builds and steps physics states from existing solar-system dataset values.
+Add runtime pause/resume, bounded time scale, and dt clamp controls without changing Newtonian equations.
 
 ## Scope
 
 - keep `controlled_demo` mode working
-- add `solar_system` mode as a separate runtime path
-- build `PhysicsBodyState` entries from real dataset values in SI units
-- use deterministic initial conditions (Sun at origin, planets on +x, +y tangential speed estimate)
-- step runtime motion via `step_bodies(...)`
-- keep overlays, selection, and inspector compatible
-- add non-window tests for builder and stepping logic
+- keep `solar_system` mode working
+- add pause/resume state
+- add bounded time scale controls
+- clamp frame dt before scaling
+- display running/paused plus scale in overlay
+- add non-window tests for time controls
 
 ## Non-Goals
 
-- no high-precision ephemeris integration
-- no JPL Horizons runtime integration
-- no hardcoded per-frame circular orbit animation
 - no Newtonian equation changes
+- no new integrator
 - no long-term stability guarantee claims
 - no Lorentz factor
 - no grid distortion
 - no fullscreen mode
-- no time controls
+- no high-precision ephemeris/JPL integration
 
 ## Required Design
 
 - launch with `python3 -m src.main`
-- preserve existing control and render behavior for demo mode
-- keep physics state in SI units
-- keep data-source objects immutable from simulation builder behavior
+- preserve existing overlay/selection/camera behavior
+- keep physics stepping via existing simulation/physics path
+- keep time-control logic pure and testable
 - keep automated tests non-windowed
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/simulation.py`
-- `src/universe/demo_simulation.py` only if needed for mode compatibility
-- `src/universe/solar_system_simulation.py`
-- `src/universe/solar_system_data.py` only if needed for cleaner access
-- `src/universe/rendering.py` only if mode compatibility needs it
-- `src/universe/selection.py` only if graceful compatibility needs it
-- `src/universe/units.py` only if helper/constants additions are needed
-- `tests/test_solar_system_simulation.py`
-- `tests/test_simulation.py`
-- `tests/test_solar_system_data.py`
+- `src/universe/time_controls.py`
+- `src/universe/rendering.py`
+- `src/universe/overlay_controls.py` only if overlay layout needs adjustment
+- `src/universe/demo_simulation.py` only if dt handoff compatibility needs it
+- `src/universe/solar_system_simulation.py` only if dt handoff compatibility needs it
+- `tests/test_time_controls.py`
 - `tests/test_demo_simulation.py`
+- `tests/test_solar_system_simulation.py`
+- `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -55,10 +51,7 @@ Add a `solar_system` simulation mode that builds and steps physics states from e
 - `CHANGELOG.md`
 - `ROADMAP.md`
 - `docs/architecture.md`
-- `docs/data-sources.md`
 - `agent/task.md`
-- `harness/scenarios/`
-- `harness/judges/`
 
 ## Forbidden Files
 
@@ -85,8 +78,8 @@ Add a `solar_system` simulation mode that builds and steps physics states from e
 - run `python3 -m src.main`
 - verify viewer launches
 - verify no immediate traceback
-- optionally switch to `solar_system` mode and confirm runtime still runs
+- optionally verify pause/resume and time-scale keys in runtime
 
 ## Suggested Next PR
 
-`PR10: Add pause, resume, and time scale controls`
+`PR11: Add physical-to-render scale policy and minimum visible radius`
