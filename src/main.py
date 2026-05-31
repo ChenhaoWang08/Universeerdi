@@ -36,6 +36,13 @@ from .universe.selection import (
     get_selected_physics_body,
     handle_body_selection_click,
 )
+from .universe.solar_mass_experiment import (
+    SolarMassExperimentState,
+    decrease_solar_mass_multiplier,
+    increase_solar_mass_multiplier,
+    reset_solar_mass_multiplier,
+    solar_mass_experiment_status_text,
+)
 from .universe.simulation_modes import (
     SimulationModeState,
     simulation_mode_status_text,
@@ -77,6 +84,7 @@ def main() -> int:
     overlay_controls = OverlayControlsState()
     selection_state = SelectionState()
     time_controls = TimeControlState()
+    solar_mass_experiment_state = SolarMassExperimentState()
     trail_history = {}
     dragging = False
 
@@ -136,6 +144,18 @@ def main() -> int:
                             solar_system_state,
                             policy=render_scale_policy_for_preset(render_scale_preset_state.preset),
                         )
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_g:
+                    solar_mass_experiment_state = increase_solar_mass_multiplier(
+                        solar_mass_experiment_state
+                    )
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_h:
+                    solar_mass_experiment_state = decrease_solar_mass_multiplier(
+                        solar_mass_experiment_state
+                    )
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_r:
+                    solar_mass_experiment_state = reset_solar_mass_multiplier(
+                        solar_mass_experiment_state
+                    )
                 elif event.type == pygame.VIDEORESIZE:
                     if not display_mode_state.is_fullscreen:
                         size = _clamp_window_size(event.size)
@@ -189,7 +209,10 @@ def main() -> int:
                 assert solar_system_state is not None
                 if simulation_dt_seconds > 0.0:
                     solar_system_state = step_solar_system_simulation_state(
-                        solar_system_state, simulation_dt_seconds
+                        solar_system_state,
+                        simulation_dt_seconds,
+                        solar_mass_multiplier=solar_mass_experiment_state.solar_mass_multiplier,
+                        absorb_into_sun=True,
                     )
                 bodies = solar_system_to_render_bodies(
                     solar_system_state,
@@ -224,6 +247,10 @@ def main() -> int:
                 mode_scale_status_text=(
                     f"{simulation_mode_status_text(simulation_mode_state)}  |  "
                     f"{render_scale_preset_status_text(render_scale_preset_state)}"
+                ),
+                experiment_status_text=solar_mass_experiment_status_text(
+                    solar_mass_experiment_state,
+                    active_body_count=len(current_physics_bodies),
                 ),
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,

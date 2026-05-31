@@ -21,7 +21,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR14` added fullscreen toggle while preserving resizable windowed mode.
 `PR15` converted overlay toggles to checkbox-style controls.
 `PR16` added Lorentz factor as a read-only display metric.
-The current phase is `PR17`, which adds runtime simulation mode selection and render-scale presets.
+`PR17` added runtime simulation mode selection and render-scale presets.
+The current phase is `PR18`, which adds an experimental solar mass multiplier with absorption.
 
 Primary launch command:
 
@@ -78,6 +79,13 @@ PR17 runtime controls:
 - `M`: toggle simulation mode between `controlled_demo` and `solar_system`
 - `V`: cycle solar-system render-scale preset: `readable -> realistic -> overview`
 - Render-scale presets affect display only and do not mutate physics state or source data.
+
+PR18 solar experiment controls:
+- `G`: increase runtime Sun gravity multiplier
+- `H`: decrease runtime Sun gravity multiplier
+- `R`: reset Sun gravity multiplier to `x1.0`
+- non-Sun bodies entering the Sun physical radius are absorbed (removed)
+- this is an experimental Newtonian visualization feature, not collision fluid dynamics or GR
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

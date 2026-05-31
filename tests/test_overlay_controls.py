@@ -75,6 +75,14 @@ class OverlayControlsTests(unittest.TestCase):
         self.assertGreater(mode_scale_top, time_bottom)
         self.assertLessEqual(mode_scale_top + rects.mode_scale_status_rect[3], panel_bottom)
 
+    def test_experiment_status_row_is_positioned_below_mode_scale(self) -> None:
+        rects = build_overlay_control_rects((1280, 720))
+        mode_scale_bottom = rects.mode_scale_status_rect[1] + rects.mode_scale_status_rect[3]
+        experiment_top = rects.experiment_status_rect[1]
+        panel_bottom = rects.panel_rect[1] + rects.panel_rect[3]
+        self.assertGreater(experiment_top, mode_scale_bottom)
+        self.assertLessEqual(experiment_top + rects.experiment_status_rect[3], panel_bottom)
+
     def test_toggle_clicks_do_not_mutate_physics_state(self) -> None:
         demo_state = create_controlled_demo_state()
         before_positions = tuple(body.position_m for body in demo_state.physics_bodies)

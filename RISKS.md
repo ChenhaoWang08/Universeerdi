@@ -11,6 +11,8 @@
 | Invalid speed input policy could be ambiguous near or above light speed. | Keep explicit helper behavior: `speed < 0` raises, `speed >= c` returns `inf`, and cover with tests. |
 | Runtime mode switching could leave stale selection/trail state. | Reset selection and trail history when mode toggles, and verify with deterministic tests. |
 | Render-scale presets might be misread as physics changes. | Keep preset logic in rendering policy layer only and assert no mutation of physics state/dataset. |
+| Solar mass multiplier could be mistaken for source-data mutation. | Keep multiplier runtime-only in stepping path and restore baseline Sun mass in stored state. |
+| Simple absorption may be mistaken for physically realistic collision modeling. | Document absorption as an experimental visualization rule, not fluid dynamics or GR model. |
 | Escape behavior could regress windowed quit flow. | Keep conditional logic explicit: escape fullscreen first, otherwise preserve existing quit behavior. |
 | Windowed size may be lost after fullscreen toggle. | Track and restore last known windowed size in a pure display-mode state model. |
 | Selection/inspector behavior may regress while touching render path. | Preserve existing pipelines and run compatibility tests with full suite. |

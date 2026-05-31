@@ -22,31 +22,32 @@
 `PR14` added fullscreen toggle while preserving resizable windowed mode.
 `PR15` converted overlay toggles to checkbox-style controls.
 `PR16` added Lorentz factor as a read-only display metric.
-The active work is now `PR17`, which adds runtime mode selection and render-scale presets.
+`PR17` added runtime mode selection and render-scale presets.
+The active work is now `PR18`, which adds solar mass multiplier experiment with absorption.
 
-## PR17 Scope
+## PR18 Scope
 
-`PR17` should:
+`PR18` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add runtime simulation mode toggle (`M`) between `controlled_demo` and `solar_system`
-- add runtime render-scale preset cycle (`V`) for `solar_system`
-- include at least `readable`, `realistic`, and `overview` presets
-- pass selected render-scale policy into `solar_system_to_render_bodies(...)`
+- keep baseline solar-system source data unchanged
+- keep initial orbital velocity baseline tied to real Sun mass source values
+- add runtime Sun gravity multiplier state for solar-system stepping
+- apply multiplier only to runtime gravitational effect, not source constants
+- add simple absorption rule for non-Sun bodies entering Sun physical radius
 - preserve camera/overlay/labels/trails/selection/inspector/time-control compatibility
-- reset selection and trails safely on mode switch
-- keep this as runtime control and display-configuration work (no physics behavior change)
-- add deterministic non-window tests for mode and preset logic
+- keep this as experimental Newtonian visualization behavior
+- add deterministic non-window tests for multiplier and absorption behavior
 
-## PR17 Non-Goals
+## PR18 Non-Goals
 
-`PR17` must not include:
+`PR18` must not include:
 
 - Newtonian equation changes
 - new physics integrators
-- solar mass multiplier
-- absorption/collision experiment
+- mutation of `solar_system_data.py` constants
+- advanced collision/fragmentation/fluid dynamics
 - physical mass/position/velocity/radius mutations
 - long-term solar-system stability guarantees
 - mass-based grid distortion
@@ -68,3 +69,4 @@ The active work is now `PR17`, which adds runtime mode selection and render-scal
 - `PR15` checkbox-style overlay controls are display/input polish only and do not alter physics or simulation state.
 - `PR16` Lorentz gamma is a special-relativity display metric and is not used by Newtonian simulation.
 - `PR17` runtime mode/scale controls affect active view/state wiring only and do not alter Newtonian equations or source dataset constants.
+- `PR18` runtime Sun mass multiplier and absorption remain experimental and do not alter Newtonian equation definitions or source constants.
