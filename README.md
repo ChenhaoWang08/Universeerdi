@@ -16,7 +16,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR9` added a `solar_system` simulation mode using existing dataset values.
 `PR10` added pause/resume, bounded time scale, and dt clamp controls for simulation stepping.
 `PR11` added physical-to-render scale policy and visible radius clamps.
-The current phase is `PR12`, which extends the read-only inspector for real solar-system fields.
+`PR12` extended the read-only inspector for real solar-system fields.
+The current phase is `PR13`, which improves trail readability with dashed body-colored paths.
 
 Primary launch command:
 
@@ -47,6 +48,9 @@ Physics continues using SI units; rendering applies visual mapping plus minimum/
 
 PR12 inspector fields are display-only.
 Solar-system inspector values come from local `solar_system_data.py` plus runtime physics state (no live API calls).
+
+PR13 trails are rendering-only and body-colored.
+Trail history remains bounded and does not change physics simulation state.
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

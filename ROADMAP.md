@@ -37,7 +37,7 @@
 - planet colors
 - time controls
 - pause and resume
-- current PR focus: extend read-only inspector for real solar-system body fields
+- current PR focus: dashed body-colored trail readability improvements
 
 ## Phase E: Relativistic / Visual Effects
 

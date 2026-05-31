@@ -11,6 +11,11 @@ from .overlay_controls import (
     is_point_in_overlay_panel,
     overlay_panel_rect,
 )
+from .trails import (
+    build_dashed_polyline_segments,
+    resolve_trail_color,
+    update_trail_history_bounded,
+)
 
 Point = Tuple[float, float]
 Size = Tuple[int, int]
@@ -38,6 +43,8 @@ TARGET_GRID_PIXELS = 96.0
 ZOOM_STEP = 1.1
 TRAIL_MAX_POINTS = 120
 TRAIL_LINE_WIDTH = 2
+TRAIL_DASH_LENGTH = 10.0
+TRAIL_GAP_LENGTH = 7.0
 LABEL_OFFSET_PX = 10.0
 
 
@@ -259,22 +266,28 @@ def draw_trails(
         world_points = trail_history.get(body.name, ())
         if len(world_points) < 2:
             continue
-        screen_points = [
-            (
-                int(round(screen_point[0])),
-                int(round(screen_point[1])),
-            )
-            for screen_point in (
-                camera.world_to_screen(world_point, viewport_size)
-                for world_point in world_points
-            )
-        ]
-        if len(screen_points) >= 2:
-            pygame_module.draw.lines(
+        screen_points = tuple(
+            camera.world_to_screen(world_point, viewport_size)
+            for world_point in world_points
+        )
+        dashed_segments = build_dashed_polyline_segments(
+            screen_points,
+            dash_length=TRAIL_DASH_LENGTH,
+            gap_length=TRAIL_GAP_LENGTH,
+        )
+        trail_color = resolve_trail_color(body.color)
+        for segment_start, segment_end in dashed_segments:
+            pygame_module.draw.line(
                 surface,
-                body.color,
-                False,
-                screen_points,
+                trail_color,
+                (
+                    int(round(segment_start[0])),
+                    int(round(segment_start[1])),
+                ),
+                (
+                    int(round(segment_end[0])),
+                    int(round(segment_end[1])),
+                ),
                 TRAIL_LINE_WIDTH,
             )
 
@@ -284,15 +297,12 @@ def update_trail_history(
     bodies: Sequence[Body],
     max_points: int = TRAIL_MAX_POINTS,
 ) -> TrailHistory:
-    if max_points <= 0:
-        raise ValueError("max_points must be positive")
-
-    next_history: TrailHistory = {}
-    for body in bodies:
-        previous_points = trail_history.get(body.name, ())
-        combined = previous_points + (body.position,)
-        next_history[body.name] = combined[-max_points:]
-    return next_history
+    points_by_name = {body.name: body.position for body in bodies}
+    return update_trail_history_bounded(
+        trail_history,
+        points_by_name,
+        max_points=max_points,
+    )
 
 
 def body_label_anchor(center: Point, radius_px: float) -> Point:
