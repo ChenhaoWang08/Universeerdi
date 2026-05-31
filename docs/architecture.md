@@ -14,6 +14,7 @@ The planned architecture for `universeerdi` is intentionally modular:
 - rendering: draws background, grid, bodies, overlays, selection highlights, and inspector panel
 - overlay controls: manages top-left hitboxes and runtime visibility toggles for labels/trails
 - selection helpers: handle render-space body hit testing and inspector text formatting without Pygame dependencies
+- inspector helpers: assemble read-only body-inspector lines from runtime physics values and local dataset metadata
 
 Physical scale and visual scale must remain separate so realistic distances do not make the scene unusable.
 `visual_radius_px` exists only for visibility.
@@ -21,3 +22,4 @@ Physical scale and visual scale must remain separate so realistic distances do n
 PR9 solar-system mode uses deterministic initialization and does not provide precision ephemeris guarantees.
 PR10 time controls change stepping cadence only and do not modify Newtonian equations.
 PR11 keeps physics in SI units and applies display-only position/radius mapping for readability.
+PR12 inspector remains display-only and shows local dataset fields without runtime network fetching.

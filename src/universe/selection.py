@@ -1,10 +1,10 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
-from math import sqrt
 from typing import Optional, Sequence, Tuple
 
 from .body import Body
+from .inspector import SimulationMode, build_inspector_lines
 from .physics import PhysicsBodyState
 
 Point = Tuple[float, float]
@@ -70,21 +70,12 @@ def get_selected_physics_body(
     return None
 
 
-def format_body_inspector_lines(body: Optional[PhysicsBodyState]) -> Tuple[str, ...]:
-    if body is None:
-        return (
-            "Selected Body",
-            "Name: None",
-            "Click a demo body to inspect.",
-        )
-
-    speed = sqrt((body.velocity_m_s.x**2) + (body.velocity_m_s.y**2))
-    return (
-        "Selected Body",
-        f"Name: {body.name}",
-        f"Mass: {body.mass_kg:.3e} kg",
-        f"Position: x={body.position_m.x:.3f} m, y={body.position_m.y:.3f} m",
-        f"Velocity: vx={body.velocity_m_s.x:.3f} m/s, vy={body.velocity_m_s.y:.3f} m/s",
-        f"Speed: {speed:.3f} m/s",
-        "Demo-only inspector (not real solar-system validation).",
+def format_body_inspector_lines(
+    body: Optional[PhysicsBodyState],
+    *,
+    simulation_mode: SimulationMode = "controlled_demo",
+) -> Tuple[str, ...]:
+    return build_inspector_lines(
+        body,
+        simulation_mode=simulation_mode,
     )

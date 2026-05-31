@@ -37,7 +37,7 @@
 - planet colors
 - time controls
 - pause and resume
-- current PR focus: physical-to-render scale policy and minimum/maximum visible radius clamps
+- current PR focus: extend read-only inspector for real solar-system body fields
 
 ## Phase E: Relativistic / Visual Effects
 

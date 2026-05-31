@@ -28,3 +28,8 @@ NSSDCA note:
 - the public status page used during implementation was:
   `https://www.nasa.gov/nssdc/`
 - because of that outage, JPL Solar System Dynamics and NASA Science were used as the active official sources
+
+Inspector transparency policy (PR12):
+
+- inspector fields for `solar_system` mode come from local `src/universe/solar_system_data.py` constants plus runtime physics state
+- no live network fetch, no external API call, and no JPL Horizons runtime integration is performed by the inspector

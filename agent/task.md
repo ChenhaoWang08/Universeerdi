@@ -1,24 +1,25 @@
-# PR11: Add physical-to-render scale policy and minimum visible radius
+# PR12: Extend inspector for real solar-system body fields
 
 ## Objective
 
-Add explicit display-only render scaling for physical position/radius mapping without changing Newtonian equations.
+Extend the read-only selected-body inspector with real solar-system fields and source transparency.
 
 ## Scope
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add render-scale policy model
-- map physical position to render/world coordinates
-- map physical radius to visible radius with min/max clamps
-- keep selection compatibility with rendered radius
-- add non-window tests for render-scale behavior
+- extend inspector output for selected bodies
+- include mode, source, and local-dataset-backed solar-system fields where available
+- preserve selection/overlay/time-control compatibility
+- keep inspector read-only
+- add non-window tests for inspector behavior
 
 ## Non-Goals
 
 - no Newtonian equation changes
 - no new integrator
-- no physical mass/position/velocity/radius mutation for visual tuning
+- no physical mass/position/velocity/radius mutation
+- no body editing or dragging
 - no long-term stability guarantee claims
 - no Lorentz factor
 - no grid distortion
@@ -30,7 +31,7 @@ Add explicit display-only render scaling for physical position/radius mapping wi
 - launch with `python3 -m src.main`
 - preserve existing overlay/selection/time-control/camera behavior
 - keep physics stepping unchanged through existing simulation/physics path
-- keep render-scale logic pure and testable
+- keep inspector logic pure and testable
 - keep automated tests non-windowed
 
 ## Allowed Files
@@ -38,13 +39,15 @@ Add explicit display-only render scaling for physical position/radius mapping wi
 - `src/main.py`
 - `src/universe/rendering.py`
 - `src/universe/selection.py`
-- `src/universe/render_scale.py`
-- `src/universe/body.py` only if render-radius metadata exposure is needed
+- `src/universe/inspector.py`
+- `src/universe/body.py` only if inspector metadata exposure is needed
 - `src/universe/demo_simulation.py`
 - `src/universe/solar_system_simulation.py`
-- `tests/test_render_scale.py`
-- `tests/test_demo_simulation.py`
+- `src/universe/solar_system_data.py` only if metadata access cleanup is needed
+- `tests/test_inspector.py`
 - `tests/test_solar_system_simulation.py`
+- `tests/test_solar_system_data.py`
+- `tests/test_render_scale.py`
 - `tests/test_selection.py`
 - `README.md`
 - `SPEC.md`
@@ -80,8 +83,8 @@ Add explicit display-only render scaling for physical position/radius mapping wi
 - run `python3 -m src.main`
 - verify viewer launches
 - verify no immediate traceback
-- optionally verify readable solar-system rendering and selection compatibility
+- optionally verify controlled_demo and solar_system inspector field display
 
 ## Suggested Next PR
 
-`PR12: Extend inspector for real solar-system body fields`
+`PR13: Improve trails with dashed body-colored paths`

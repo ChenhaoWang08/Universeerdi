@@ -15,7 +15,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR8` added a read-only demo body selection inspector.
 `PR9` added a `solar_system` simulation mode using existing dataset values.
 `PR10` added pause/resume, bounded time scale, and dt clamp controls for simulation stepping.
-The current phase is `PR11`, which adds physical-to-render scale policy and visible radius clamps.
+`PR11` added physical-to-render scale policy and visible radius clamps.
+The current phase is `PR12`, which extends the read-only inspector for real solar-system fields.
 
 Primary launch command:
 
@@ -43,6 +44,9 @@ PR10 does not change Newtonian physics equations.
 
 PR11 separates physical simulation units from rendering scale.
 Physics continues using SI units; rendering applies visual mapping plus minimum/maximum visible radii.
+
+PR12 inspector fields are display-only.
+Solar-system inspector values come from local `solar_system_data.py` plus runtime physics state (no live API calls).
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping
