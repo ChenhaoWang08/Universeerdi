@@ -18,6 +18,8 @@ LABELS_ROW_TOP = 18
 TRAILS_ROW_TOP = 46
 TIME_STATUS_ROW_TOP = 74
 CONTROL_ROW_HEIGHT = 22
+CHECKBOX_CHECKED_TEXT = "[X]"
+CHECKBOX_UNCHECKED_TEXT = "[ ]"
 
 
 @dataclass(frozen=True)
@@ -77,3 +79,8 @@ def handle_overlay_click(
 
 def is_point_in_overlay_panel(point: Point, viewport_size: Size) -> bool:
     return is_point_in_rect(point, overlay_panel_rect(viewport_size))
+
+
+def checkbox_label_text(label: str, enabled: bool) -> str:
+    marker = CHECKBOX_CHECKED_TEXT if enabled else CHECKBOX_UNCHECKED_TEXT
+    return f"{marker} {label}"

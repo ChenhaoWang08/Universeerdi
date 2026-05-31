@@ -18,7 +18,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR11` added physical-to-render scale policy and visible radius clamps.
 `PR12` extended the read-only inspector for real solar-system fields.
 `PR13` improved trail readability with dashed body-colored paths.
-The current phase is `PR14`, which adds fullscreen toggle while preserving resizable windowed mode.
+`PR14` added fullscreen toggle while preserving resizable windowed mode.
+The current phase is `PR15`, which converts overlay toggles to checkbox-style controls.
 
 Primary launch command:
 
@@ -58,6 +59,11 @@ PR14 display controls:
 - `Escape`: exits fullscreen first; in windowed mode it keeps existing quit behavior
 
 PR14 display mode changes are rendering/window-only and do not affect physics simulation state.
+
+PR15 overlay controls:
+- `[X] Labels` toggles label visibility
+- `[X] Trails` toggles trail visibility
+- PR15 is UI polish only and does not change physics equations or simulation behavior
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

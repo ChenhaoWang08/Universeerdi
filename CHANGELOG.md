@@ -15,7 +15,8 @@
 - `PR11`: add physical-to-render scale policy and minimum/maximum visible radius mapping.
 - `PR12`: extend read-only inspector for real solar-system body fields.
 - `PR13`: improve trails with dashed body-colored paths.
+- `PR14`: add fullscreen toggle while preserving resizable windowed mode.
 
 ## In Progress
 
-- `PR14`: add fullscreen toggle while preserving resizable windowed mode.
+- `PR15`: convert overlay label/trail toggles into checkbox-style controls (UI polish only).

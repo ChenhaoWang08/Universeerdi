@@ -1,55 +1,42 @@
-# PR14: Add fullscreen toggle while preserving resizable window mode
+# PR15: Convert overlay toggles into checkbox-style controls
 
 ## Objective
 
-Add fullscreen toggle support while preserving existing resizable windowed mode.
+Convert overlay Labels/Trails toggles into checkbox-style controls while preserving existing behavior.
 
 ## Scope
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- start in windowed resizable mode
-- add F11 fullscreen toggle
-- add Escape-to-exit-fullscreen behavior
-- preserve camera/overlay/trails/labels/selection/inspector/time-control compatibility
-- keep display mode changes separate from simulation state
-- add non-window tests for display mode state logic
+- render Labels toggle as checkbox-style text (for example `[X] Labels`)
+- render Trails toggle as checkbox-style text (for example `[ ] Trails`)
+- preserve existing toggle semantics and click hitbox behavior
+- preserve overlay click priority over selection and camera drag
+- keep time/display status visible in overlay
+- add non-window tests for checkbox label logic and overlay compatibility
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no new integrator
-- no save/load display settings
-- no complex display manager
-- no physical mass/position/velocity/radius mutation
+- no new physics integrator
+- no simulation-mode default changes
 - no body editing or dragging
-- no long-term stability guarantee claims
+- no save/load settings
+- no UI framework
 - no Lorentz factor
 - no grid distortion
-- no fullscreen mode
-- no high-precision ephemeris/JPL integration
-
-## Required Design
-
-- launch with `python3 -m src.main`
-- preserve existing overlay/selection/time-control/camera behavior
-- keep physics stepping unchanged through existing simulation/physics path
-- keep display mode logic pure and testable
-- keep automated tests non-windowed
+- no ephemeris/JPL integration
+- no networking or external API runtime behavior
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/display_modes.py`
-- `src/universe/rendering.py` only if status/surface compatibility needs it
-- `src/universe/overlay_controls.py` only if layout needs it
-- `tests/test_render_scale.py`
-- `tests/test_selection.py`
-- `tests/test_inspector.py`
-- `tests/test_time_controls.py`
-- `tests/test_trails.py`
+- `src/universe/overlay_controls.py`
+- `src/universe/rendering.py`
+- `src/universe/checkbox_controls.py` (only if needed)
 - `tests/test_overlay_controls.py`
-- `tests/test_display_modes.py`
+- `tests/test_display_modes.py` (only if needed)
+- `tests/test_time_controls.py` (only if needed)
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -58,18 +45,6 @@ Add fullscreen toggle support while preserving existing resizable windowed mode.
 - `ROADMAP.md`
 - `docs/architecture.md`
 - `agent/task.md`
-
-## Forbidden Files
-
-- `.env`
-- `.env.*`
-- `secrets/`
-- deployment files
-- `.github/workflows/`
-- external API configuration
-- binary assets
-- credentials
-- tokens
 
 ## Verification
 
@@ -83,9 +58,10 @@ Add fullscreen toggle support while preserving existing resizable windowed mode.
 
 - run `python3 -m src.main`
 - verify viewer launches
-- verify no immediate traceback
-- optionally verify F11 fullscreen toggle and windowed restore behavior
+- verify checkbox controls render in overlay
+- verify labels/trails toggles still work
+- verify time/display status remains visible
 
 ## Suggested Next PR
 
-`PR15: Convert overlay toggles into checkbox-style controls`
+`PR16: Add Lorentz factor display as an optional computed metric`

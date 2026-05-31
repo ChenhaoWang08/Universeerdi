@@ -8,6 +8,7 @@ from .body import Body
 from .overlay_controls import (
     OverlayControlsState,
     build_overlay_control_rects,
+    checkbox_label_text,
     is_point_in_overlay_panel,
     overlay_panel_rect,
 )
@@ -370,14 +371,12 @@ def _draw_toggle_row(
     label: str,
     enabled: bool,
 ) -> None:
-    left, top, width, height = row_rect
+    left, top, _width, _height = row_rect
     pygame_module.draw.rect(surface, UI_PANEL_BORDER, row_rect, 1, border_radius=4)
-    status_text = "ON" if enabled else "OFF"
-    status_color = TOGGLE_ON_COLOR if enabled else TOGGLE_OFF_COLOR
-    label_surface = font.render(label, True, LABEL_TEXT_COLOR)
-    status_surface = font.render(status_text, True, status_color)
-    surface.blit(label_surface, (left + 8, top + 3))
-    surface.blit(status_surface, (left + width - 40, top + 3))
+    checkbox_text = checkbox_label_text(label, enabled)
+    row_color = TOGGLE_ON_COLOR if enabled else TOGGLE_OFF_COLOR
+    checkbox_surface = font.render(checkbox_text, True, row_color)
+    surface.blit(checkbox_surface, (left + 8, top + 3))
 
 
 def _draw_status_row(
