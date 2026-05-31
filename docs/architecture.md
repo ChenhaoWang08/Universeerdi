@@ -27,3 +27,4 @@ PR11 keeps physics in SI units and applies display-only position/radius mapping 
 PR12 inspector remains display-only and shows local dataset fields without runtime network fetching.
 PR13 keeps trails rendering-only and does not alter simulation state or physics equations.
 PR14 fullscreen toggle changes display mode only and does not alter simulation state or physics equations.
+PR15 checkbox-style overlay controls remain display/input polish only and do not alter simulation state or physics equations.

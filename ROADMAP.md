@@ -37,7 +37,8 @@
 - planet colors
 - time controls
 - pause and resume
-- current PR focus: fullscreen toggle while preserving resizable window mode
+- fullscreen toggle while preserving resizable window mode
+- current PR focus: checkbox-style overlay controls for labels and trails
 
 ## Phase E: Relativistic / Visual Effects
 

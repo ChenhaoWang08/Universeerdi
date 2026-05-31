@@ -19,34 +19,33 @@
 `PR11` added render scale policy and minimum/maximum visible radius clamps.
 `PR12` extended the read-only inspector for real solar-system body fields.
 `PR13` improved trail readability with dashed body-colored paths.
-The active work is now `PR14`, which adds fullscreen toggle while preserving resizable windowed mode.
+`PR14` added fullscreen toggle while preserving resizable windowed mode.
+The active work is now `PR15`, which converts overlay toggles to checkbox-style controls.
 
-## PR14 Scope
+## PR15 Scope
 
-`PR14` should:
+`PR15` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- start in windowed resizable mode
-- support fullscreen toggle via keyboard
-- exit fullscreen via Escape
+- render Labels and Trails controls as checkbox-style rows (for example `[X] Labels`)
+- preserve existing toggle semantics and hitbox behavior
 - preserve camera/overlay/labels/trails/selection/inspector/time-control compatibility
-- keep display changes rendering/window-only
-- add deterministic non-window tests for display mode state logic
+- keep this as UI polish only (no simulation or physics behavior change)
+- add deterministic non-window tests for checkbox label and overlay behavior
 
-## PR14 Non-Goals
+## PR15 Non-Goals
 
-`PR14` must not include:
+`PR15` must not include:
 
 - Newtonian equation changes
 - new physics integrators
-- save/load display settings
-- complex multi-monitor display manager
+- save/load settings
+- complex UI framework
 - physical mass/position/velocity/radius mutations
 - long-term solar-system stability guarantees
 - Lorentz factor or relativity display
 - mass-based grid distortion
-- fullscreen mode
 - high-precision ephemeris/JPL integrations
 - networking or external services
 
@@ -62,3 +61,4 @@ The active work is now `PR14`, which adds fullscreen toggle while preserving res
 - `PR12` inspector is read-only and displays local dataset fields plus runtime physics values.
 - `PR13` trails visualize prior rendered positions only and do not affect simulation state.
 - `PR14` fullscreen/windowed toggles only change display mode and do not affect simulation state.
+- `PR15` checkbox-style overlay controls are display/input polish only and do not alter physics or simulation state.

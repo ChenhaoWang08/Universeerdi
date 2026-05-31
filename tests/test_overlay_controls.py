@@ -4,6 +4,7 @@ from src.universe.demo_simulation import create_controlled_demo_state
 from src.universe.overlay_controls import (
     OverlayControlsState,
     build_overlay_control_rects,
+    checkbox_label_text,
     handle_overlay_click,
 )
 
@@ -49,6 +50,22 @@ class OverlayControlsTests(unittest.TestCase):
         first = build_overlay_control_rects((1280, 720))
         second = build_overlay_control_rects((1280, 720))
         self.assertEqual(first, second)
+
+    def test_checkbox_label_text_reflects_checked_state(self) -> None:
+        self.assertEqual(checkbox_label_text("Labels", True), "[X] Labels")
+
+    def test_checkbox_label_text_reflects_unchecked_state(self) -> None:
+        self.assertEqual(checkbox_label_text("Trails", False), "[ ] Trails")
+
+    def test_time_status_row_is_positioned_below_checkbox_rows(self) -> None:
+        rects = build_overlay_control_rects((1280, 720))
+        labels_bottom = rects.labels_rect[1] + rects.labels_rect[3]
+        trails_bottom = rects.trails_rect[1] + rects.trails_rect[3]
+        time_top = rects.time_status_rect[1]
+        panel_bottom = rects.panel_rect[1] + rects.panel_rect[3]
+        self.assertGreater(time_top, labels_bottom)
+        self.assertGreater(time_top, trails_bottom)
+        self.assertLessEqual(time_top + rects.time_status_rect[3], panel_bottom)
 
     def test_toggle_clicks_do_not_mutate_physics_state(self) -> None:
         demo_state = create_controlled_demo_state()
