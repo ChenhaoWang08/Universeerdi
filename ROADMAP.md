@@ -37,7 +37,7 @@
 - planet colors
 - time controls
 - pause and resume
-- current PR focus: pause/resume, bounded time scale, and dt clamp runtime controls
+- current PR focus: physical-to-render scale policy and minimum/maximum visible radius clamps
 
 ## Phase E: Relativistic / Visual Effects
 

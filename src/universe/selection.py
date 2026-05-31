@@ -29,7 +29,7 @@ def select_body_at_screen_point(
 
     for body in bodies:
         body_x, body_y = camera.world_to_screen(body.position, viewport_size)
-        radius = max(6.0, body.draw_radius * camera.zoom)
+        radius = max(1.0, body.draw_radius * camera.zoom)
         delta_x = point_x - body_x
         delta_y = point_y - body_y
         distance_squared = (delta_x * delta_x) + (delta_y * delta_y)

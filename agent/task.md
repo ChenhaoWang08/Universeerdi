@@ -1,23 +1,24 @@
-# PR10: Add pause, resume, and time scale controls
+# PR11: Add physical-to-render scale policy and minimum visible radius
 
 ## Objective
 
-Add runtime pause/resume, bounded time scale, and dt clamp controls without changing Newtonian equations.
+Add explicit display-only render scaling for physical position/radius mapping without changing Newtonian equations.
 
 ## Scope
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add pause/resume state
-- add bounded time scale controls
-- clamp frame dt before scaling
-- display running/paused plus scale in overlay
-- add non-window tests for time controls
+- add render-scale policy model
+- map physical position to render/world coordinates
+- map physical radius to visible radius with min/max clamps
+- keep selection compatibility with rendered radius
+- add non-window tests for render-scale behavior
 
 ## Non-Goals
 
 - no Newtonian equation changes
 - no new integrator
+- no physical mass/position/velocity/radius mutation for visual tuning
 - no long-term stability guarantee claims
 - no Lorentz factor
 - no grid distortion
@@ -27,23 +28,24 @@ Add runtime pause/resume, bounded time scale, and dt clamp controls without chan
 ## Required Design
 
 - launch with `python3 -m src.main`
-- preserve existing overlay/selection/camera behavior
-- keep physics stepping via existing simulation/physics path
-- keep time-control logic pure and testable
+- preserve existing overlay/selection/time-control/camera behavior
+- keep physics stepping unchanged through existing simulation/physics path
+- keep render-scale logic pure and testable
 - keep automated tests non-windowed
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/time_controls.py`
 - `src/universe/rendering.py`
-- `src/universe/overlay_controls.py` only if overlay layout needs adjustment
-- `src/universe/demo_simulation.py` only if dt handoff compatibility needs it
-- `src/universe/solar_system_simulation.py` only if dt handoff compatibility needs it
-- `tests/test_time_controls.py`
+- `src/universe/selection.py`
+- `src/universe/render_scale.py`
+- `src/universe/body.py` only if render-radius metadata exposure is needed
+- `src/universe/demo_simulation.py`
+- `src/universe/solar_system_simulation.py`
+- `tests/test_render_scale.py`
 - `tests/test_demo_simulation.py`
 - `tests/test_solar_system_simulation.py`
-- `tests/test_overlay_controls.py`
+- `tests/test_selection.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -78,8 +80,8 @@ Add runtime pause/resume, bounded time scale, and dt clamp controls without chan
 - run `python3 -m src.main`
 - verify viewer launches
 - verify no immediate traceback
-- optionally verify pause/resume and time-scale keys in runtime
+- optionally verify readable solar-system rendering and selection compatibility
 
 ## Suggested Next PR
 
-`PR11: Add physical-to-render scale policy and minimum visible radius`
+`PR12: Extend inspector for real solar-system body fields`

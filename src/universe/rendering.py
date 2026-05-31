@@ -163,7 +163,7 @@ def body_contains_screen_point(
     body: Body, camera: Camera, point: Point, viewport_size: Size
 ) -> bool:
     body_x, body_y = camera.world_to_screen(body.position, viewport_size)
-    radius = max(6.0, body.draw_radius * camera.zoom)
+    radius = max(1.0, body.draw_radius * camera.zoom)
     point_x, point_y = point
     return ((point_x - body_x) ** 2) + ((point_y - body_y) ** 2) <= radius ** 2
 
@@ -236,7 +236,7 @@ def draw_bodies(
     for body in bodies:
         center_x, center_y = camera.world_to_screen(body.position, viewport_size)
         screen_center = (int(round(center_x)), int(round(center_y)))
-        radius = max(6, int(round(body.draw_radius * camera.zoom)))
+        radius = max(1, int(round(body.draw_radius * camera.zoom)))
         pygame_module.draw.circle(surface, body.color, screen_center, radius)
         pygame_module.draw.circle(surface, BODY_OUTLINE_COLOR, screen_center, radius, 2)
         if selected_body_name == body.name:
