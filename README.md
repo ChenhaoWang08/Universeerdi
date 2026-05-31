@@ -22,7 +22,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR15` converted overlay toggles to checkbox-style controls.
 `PR16` added Lorentz factor as a read-only display metric.
 `PR17` added runtime simulation mode selection and render-scale presets.
-The current phase is `PR18`, which adds an experimental solar mass multiplier with absorption.
+`PR18` added an experimental solar mass multiplier with absorption.
+The current phase is `PR19`, which adds camera zoom range controls and view presets.
 
 Primary launch command:
 
@@ -87,11 +88,17 @@ PR18 solar experiment controls:
 - non-Sun bodies entering the Sun physical radius are absorbed (removed)
 - this is an experimental Newtonian visualization feature, not collision fluid dynamics or GR
 
+PR19 camera view controls:
+- `B`: cycle camera view preset: `normal -> overview -> close`
+- `0`: reset camera to the current view preset defaults
+- `Ctrl+0`: reset time scale to `x1.0`
+- camera view presets affect camera/rendering state only and do not alter physics state
+
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping
 - `[` or `-`: decrease time scale
 - `]` or `=`: increase time scale
-- `0`: reset time scale to `x1.0`
+- `Ctrl+0`: reset time scale to `x1.0`
 
 Review workflow:
 

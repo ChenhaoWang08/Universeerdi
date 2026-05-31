@@ -1,41 +1,38 @@
-# PR18: Add solar mass multiplier experiment with absorption
+# PR19: Add camera zoom range controls and view presets
 
 ## Objective
 
-Add an experimental runtime Sun gravity multiplier for `solar_system` mode and a simple absorption rule for bodies entering Sun radius.
+Add runtime camera view controls so users can switch between useful zoom/view presets without editing source code.
 
 ## Scope
 
-- keep baseline source dataset unchanged
-- keep baseline initial velocity policy based on baseline Sun mass
-- add runtime Sun gravity multiplier controls in app loop
-- apply multiplier only during solar-system stepping
-- restore baseline Sun mass in stored simulation state
-- absorb non-Sun bodies that enter Sun physical radius
-- show experiment status in overlay
+- add pure camera view preset state for `normal`, `overview`, and `close`
+- support deterministic preset cycling
+- support reset to current preset defaults
+- make camera zoom step configurable per camera state
+- expose camera view status in the overlay
 - keep behavior deterministic and testable without opening a window
+- preserve compatibility with mode/scale/time/fullscreen/selection/solar-mass controls
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no new integrator
-- no mutation of `solar_system_data.py` constants
-- no realistic collision/fluid dynamics
-- no GR/geodesic/spacetime modeling
-- no mass-based grid distortion
-- no save/load settings
+- no new physics integrator or substep logic
+- no changes to `solar_system_data.py`
+- no solar mass multiplier behavior changes
+- no absorption behavior changes
+- no focus-body camera follow
 - no UI framework
 - no network/API/JPL integration
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/solar_mass_experiment.py`
-- `src/universe/solar_system_simulation.py`
+- `src/universe/camera_views.py`
 - `src/universe/rendering.py`
 - `src/universe/overlay_controls.py`
-- `tests/test_solar_mass_experiment.py`
-- `tests/test_solar_system_simulation.py`
+- `tests/test_camera_views.py`
+- `tests/test_camera.py`
 - `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
@@ -49,18 +46,20 @@ Add an experimental runtime Sun gravity multiplier for `solar_system` mode and a
 ## Verification
 
 - run `bash -n scripts/check.sh scripts/test.sh scripts/inspect-diff.sh scripts/rollback.sh`
-- run `scripts/check.sh`
-- run `scripts/test.sh`
-- run `scripts/inspect-diff.sh`
+- run `./scripts/test.sh`
+- run `./scripts/check.sh`
+- run `./scripts/inspect-diff.sh`
 - run `python3 -m pytest tests`
 
 ## Manual Verification
 
 - run `python3 -m src.main`
 - verify viewer launches
-- verify Sun gravity controls affect solar-system behavior
-- verify absorption and body-count behavior are visible
+- verify `B` cycles view preset status in overlay
+- verify `0` resets camera to current preset
+- verify camera drag and wheel zoom still work
+- verify mode/scale/solar-mass/time/fullscreen controls still work
 
 ## Suggested Next PR
 
-`PR19: Add camera zoom range controls / view presets`
+`PR20: Add physics substeps for high-gravity stability`

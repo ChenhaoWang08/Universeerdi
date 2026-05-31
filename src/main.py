@@ -3,6 +3,12 @@ from __future__ import annotations
 from typing import Optional, Sequence
 
 from .universe.body import Body
+from .universe.camera_views import (
+    CameraViewState,
+    apply_camera_view_preset,
+    camera_view_status_text,
+    cycle_camera_view_preset,
+)
 from .universe.demo_simulation import (
     ControlledDemoState,
     controlled_demo_to_render_bodies,
@@ -76,6 +82,8 @@ def main() -> int:
     clock = pygame.time.Clock()
 
     camera = Camera(center_x=260.0, center_y=0.0, zoom=1.0)
+    camera_view_state = CameraViewState()
+    apply_camera_view_preset(camera, camera_view_state)
     demo_state: Optional[ControlledDemoState] = create_controlled_demo_state()
     solar_system_state: Optional[SolarSystemSimulationState] = None
     simulation_mode_state = SimulationModeState()
@@ -122,7 +130,13 @@ def main() -> int:
                 ):
                     time_controls = increase_time_scale(time_controls)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_0:
-                    time_controls = reset_time_scale(time_controls)
+                    if event.mod & pygame.KMOD_CTRL:
+                        time_controls = reset_time_scale(time_controls)
+                    else:
+                        apply_camera_view_preset(camera, camera_view_state)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_b:
+                    camera_view_state = cycle_camera_view_preset(camera_view_state)
+                    apply_camera_view_preset(camera, camera_view_state)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_m:
                     simulation_mode_state = toggle_simulation_mode(simulation_mode_state)
                     if simulation_mode_state.mode == "controlled_demo":
@@ -252,6 +266,7 @@ def main() -> int:
                     solar_mass_experiment_state,
                     active_body_count=len(current_physics_bodies),
                 ),
+                camera_view_status_text=camera_view_status_text(camera_view_state),
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,
             )

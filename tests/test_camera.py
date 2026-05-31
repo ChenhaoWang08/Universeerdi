@@ -27,3 +27,27 @@ class CameraTests(unittest.TestCase):
         camera = Camera(zoom=1.5)
         camera.zoom_by_scroll(1, (400.0, 300.0), (800, 600))
         self.assertLess(camera.zoom, 1.5)
+
+    def test_zoom_step_is_camera_configurable(self) -> None:
+        slow = Camera(zoom=1.0, zoom_step=1.05)
+        fast = Camera(zoom=1.0, zoom_step=1.3)
+        anchor = (400.0, 300.0)
+        viewport = (800, 600)
+        slow.zoom_by_scroll(-1, anchor, viewport)
+        fast.zoom_by_scroll(-1, anchor, viewport)
+        self.assertGreater(fast.zoom, slow.zoom)
+
+    def test_invalid_zoom_step_is_rejected(self) -> None:
+        camera = Camera(zoom=1.0, zoom_step=1.0)
+        with self.assertRaises(ValueError):
+            camera.zoom_by_scroll(-1, (400.0, 300.0), (800, 600))
+
+    def test_invalid_min_zoom_is_rejected(self) -> None:
+        camera = Camera(zoom=1.0, min_zoom=0.0)
+        with self.assertRaises(ValueError):
+            camera.zoom_by_scroll(-1, (400.0, 300.0), (800, 600))
+
+    def test_invalid_max_zoom_is_rejected(self) -> None:
+        camera = Camera(zoom=1.0, min_zoom=2.0, max_zoom=1.0)
+        with self.assertRaises(ValueError):
+            camera.zoom_by_scroll(-1, (400.0, 300.0), (800, 600))

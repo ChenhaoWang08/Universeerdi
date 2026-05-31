@@ -23,33 +23,30 @@
 `PR15` converted overlay toggles to checkbox-style controls.
 `PR16` added Lorentz factor as a read-only display metric.
 `PR17` added runtime mode selection and render-scale presets.
-The active work is now `PR18`, which adds solar mass multiplier experiment with absorption.
+`PR18` added solar mass multiplier experiment with absorption.
+The active work is now `PR19`, which adds camera zoom range controls and view presets.
 
-## PR18 Scope
+## PR19 Scope
 
-`PR18` should:
+`PR19` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- keep baseline solar-system source data unchanged
-- keep initial orbital velocity baseline tied to real Sun mass source values
-- add runtime Sun gravity multiplier state for solar-system stepping
-- apply multiplier only to runtime gravitational effect, not source constants
-- add simple absorption rule for non-Sun bodies entering Sun physical radius
-- preserve camera/overlay/labels/trails/selection/inspector/time-control compatibility
-- keep this as experimental Newtonian visualization behavior
-- add deterministic non-window tests for multiplier and absorption behavior
+- add runtime camera view presets: `normal`, `overview`, `close`
+- add runtime controls to cycle and reset camera view without source edits
+- keep camera controls isolated to camera/rendering state
+- preserve mode/scale/overlay/time/fullscreen/selection compatibility
+- add deterministic non-window tests for camera preset behavior
 
-## PR18 Non-Goals
+## PR19 Non-Goals
 
-`PR18` must not include:
+`PR19` must not include:
 
 - Newtonian equation changes
-- new physics integrators
 - mutation of `solar_system_data.py` constants
-- advanced collision/fragmentation/fluid dynamics
-- physical mass/position/velocity/radius mutations
-- long-term solar-system stability guarantees
+- solar mass multiplier behavior changes
+- absorption behavior changes
+- physics substeps or adaptive integrator changes
 - mass-based grid distortion
 - high-precision ephemeris/JPL integrations
 - networking or external services
@@ -70,3 +67,4 @@ The active work is now `PR18`, which adds solar mass multiplier experiment with 
 - `PR16` Lorentz gamma is a special-relativity display metric and is not used by Newtonian simulation.
 - `PR17` runtime mode/scale controls affect active view/state wiring only and do not alter Newtonian equations or source dataset constants.
 - `PR18` runtime Sun mass multiplier and absorption remain experimental and do not alter Newtonian equation definitions or source constants.
+- `PR19` camera view presets and reset controls affect camera/rendering state only and do not alter physics state, source data, or PR18 experiment behavior.

@@ -41,7 +41,6 @@ INSPECTOR_TEXT_COLOR = (238, 241, 248)
 MIN_GRID_PIXELS = 48.0
 MAX_GRID_PIXELS = 160.0
 TARGET_GRID_PIXELS = 96.0
-ZOOM_STEP = 1.1
 TRAIL_MAX_POINTS = 120
 TRAIL_LINE_WIDTH = 2
 TRAIL_DASH_LENGTH = 10.0
@@ -56,6 +55,7 @@ class Camera:
     zoom: float = 1.0
     min_zoom: float = 0.2
     max_zoom: float = 4.0
+    zoom_step: float = 1.15
 
     def world_to_screen(self, position: Point, viewport_size: Size) -> Point:
         width, height = viewport_size
@@ -80,13 +80,19 @@ class Camera:
     ) -> None:
         if steps == 0:
             return
+        if self.zoom_step <= 1.0:
+            raise ValueError("zoom_step must be > 1.0")
+        if self.min_zoom <= 0.0:
+            raise ValueError("min_zoom must be positive")
+        if self.max_zoom < self.min_zoom:
+            raise ValueError("max_zoom must be >= min_zoom")
 
         anchor_before = self.screen_to_world(anchor_screen, viewport_size)
 
         if steps > 0:
-            next_zoom = self.zoom / (ZOOM_STEP ** steps)
+            next_zoom = self.zoom / (self.zoom_step ** steps)
         else:
-            next_zoom = self.zoom * (ZOOM_STEP ** abs(steps))
+            next_zoom = self.zoom * (self.zoom_step ** abs(steps))
 
         self.zoom = max(self.min_zoom, min(self.max_zoom, next_zoom))
 
@@ -196,6 +202,7 @@ def draw_scene_with_overlays(
     time_status_text: Optional[str] = None,
     mode_scale_status_text: Optional[str] = None,
     experiment_status_text: Optional[str] = None,
+    camera_view_status_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
     inspector_lines: Optional[Sequence[str]] = None,
 ) -> None:
@@ -218,6 +225,7 @@ def draw_scene_with_overlays(
         time_status_text=time_status_text,
         mode_scale_status_text=mode_scale_status_text,
         experiment_status_text=experiment_status_text,
+        camera_view_status_text=camera_view_status_text,
     )
     draw_selection_inspector(surface, pygame_module, inspector_lines)
 
@@ -326,6 +334,7 @@ def draw_ui_placeholder(
     time_status_text: Optional[str] = None,
     mode_scale_status_text: Optional[str] = None,
     experiment_status_text: Optional[str] = None,
+    camera_view_status_text: Optional[str] = None,
 ) -> None:
     viewport_size = surface.get_size()
     rects = build_overlay_control_rects(viewport_size)
@@ -377,6 +386,14 @@ def draw_ui_placeholder(
             font,
             rects.experiment_status_rect,
             experiment_status_text,
+        )
+    if camera_view_status_text is not None:
+        _draw_status_row(
+            surface,
+            pygame_module,
+            font,
+            rects.camera_view_status_rect,
+            camera_view_status_text,
         )
 
 
