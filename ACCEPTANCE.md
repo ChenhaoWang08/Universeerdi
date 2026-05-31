@@ -1,21 +1,22 @@
-# PR9 Acceptance Criteria
+# PR10 Acceptance Criteria
 
-`PR9` is accepted only if all of the following are true:
+`PR10` is accepted only if all of the following are true:
 
 - `python3 -m src.main` remains the documented primary launch command
-- `solar_system` mode exists
 - `controlled_demo` mode still works
-- solar-system body states are built from existing dataset values
-- Sun starts at or near origin
-- planets start with nonzero meter-scale positions
-- planet velocities are finite
-- runtime motion comes from `step_bodies(...)`
-- no hardcoded per-frame circular orbit animation is introduced
-- source dataset is not mutated
+- `solar_system` mode still works
+- pause/resume state exists and is runtime-usable
+- time scale exists with lower and upper bounds
+- frame dt is clamped before simulation stepping
+- paused mode prevents stepping (or applies zero simulation dt)
+- overlay shows running/paused state and current scale
+- keyboard controls for pause/resume and scale are documented
+- runtime stepping still comes from existing simulation/physics path
 - Newtonian equations are unchanged
+- no new integrator is added
 - no ephemeris/JPL/network runtime integration is added
 - no long-term stability claim is made
-- tests verify solar-system mode without opening a window
+- tests verify time-control logic without opening a window
 - existing physics/demo/overlay/selection tests still pass
 - `scripts/check.sh` passes
 - `python3 -m pytest tests` passes

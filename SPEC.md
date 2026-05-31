@@ -14,33 +14,32 @@
 `PR6` added visual trails and labels behind feature flags.
 `PR7` added simple clickable in-window toggle controls for those overlay flags.
 `PR8` added a basic read-only demo body selection inspector.
-The active work is now `PR9`, which adds a `solar_system` simulation mode using existing dataset values and Newtonian stepping.
+`PR9` added a `solar_system` simulation mode using existing dataset values and Newtonian stepping.
+The active work is now `PR10`, which adds runtime pause/resume, bounded time scale, and dt clamp controls.
 
-## PR9 Scope
+## PR10 Scope
 
-`PR9` should:
+`PR10` should:
 
 - keep `controlled_demo` mode working
-- add `solar_system` simulation mode
-- build `PhysicsBodyState` values from existing solar-system dataset fields
-- use deterministic SI initial conditions (Sun at origin, planets on +x, +y tangential velocity estimate)
-- step runtime motion through existing `step_bodies(...)`
-- keep selection, overlays, and inspector compatible with the new mode
-- add deterministic non-window tests for solar-system mode construction and stepping
+- keep `solar_system` mode working
+- add runtime pause/resume controls
+- add bounded time scale controls
+- clamp frame dt before simulation stepping
+- show running/paused state and scale in overlay
+- add deterministic non-window tests for time-control behavior
 
-## PR9 Non-Goals
+## PR10 Non-Goals
 
-`PR9` must not include:
+`PR10` must not include:
 
-- high-precision ephemeris initialization
-- JPL Horizons runtime integration
-- hardcoded per-frame circular orbit animation
 - Newtonian equation changes
+- new physics integrators
 - long-term solar-system stability guarantees
 - Lorentz factor or relativity display
 - mass-based grid distortion
 - fullscreen mode
-- time controls
+- high-precision ephemeris/JPL integrations
 - networking or external services
 
 ## Core Principles
@@ -49,4 +48,5 @@ The active work is now `PR9`, which adds a `solar_system` simulation mode using 
 - Real body constants must use SI units internally.
 - `visual_radius_px` is for display only and must not be treated as physical radius.
 - `mean_orbital_radius_m` must not be treated as screen pixels.
-- `solar_system` mode in PR9 is a deterministic initialization plus Newtonian stepping, not a precision ephemeris model.
+- `solar_system` mode from PR9 remains deterministic initialization plus Newtonian stepping, not a precision ephemeris model.
+- `PR10` time controls affect stepping cadence only and do not modify Newtonian equations.

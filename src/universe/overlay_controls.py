@@ -11,11 +11,12 @@ OVERLAY_LEFT = 16
 OVERLAY_TOP = 16
 OVERLAY_MIN_WIDTH = 180
 OVERLAY_MAX_WIDTH = 260
-OVERLAY_HEIGHT = 108
+OVERLAY_HEIGHT = 136
 CONTROL_LEFT_PADDING = 16
 CONTROL_WIDTH_PADDING = 32
 LABELS_ROW_TOP = 18
 TRAILS_ROW_TOP = 46
+TIME_STATUS_ROW_TOP = 74
 CONTROL_ROW_HEIGHT = 22
 
 
@@ -30,6 +31,7 @@ class OverlayControlRects:
     panel_rect: Rect
     labels_rect: Rect
     trails_rect: Rect
+    time_status_rect: Rect
 
 
 def overlay_panel_rect(viewport_size: Size) -> Rect:
@@ -47,6 +49,12 @@ def build_overlay_control_rects(viewport_size: Size) -> OverlayControlRects:
         panel_rect=(left, top, width, OVERLAY_HEIGHT),
         labels_rect=(control_left, top + LABELS_ROW_TOP, control_width, CONTROL_ROW_HEIGHT),
         trails_rect=(control_left, top + TRAILS_ROW_TOP, control_width, CONTROL_ROW_HEIGHT),
+        time_status_rect=(
+            control_left,
+            top + TIME_STATUS_ROW_TOP,
+            control_width,
+            CONTROL_ROW_HEIGHT,
+        ),
     )
 
 
