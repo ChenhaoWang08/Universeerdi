@@ -27,6 +27,10 @@ BODY_OUTLINE_COLOR = (244, 246, 250)
 LABEL_TEXT_COLOR = (236, 240, 248)
 TOGGLE_ON_COLOR = (151, 215, 160)
 TOGGLE_OFF_COLOR = (205, 126, 126)
+SELECTION_RING_COLOR = (255, 238, 160)
+INSPECTOR_PANEL_FILL = (46, 49, 56, 224)
+INSPECTOR_PANEL_BORDER = (221, 224, 232)
+INSPECTOR_TEXT_COLOR = (238, 241, 248)
 
 MIN_GRID_PIXELS = 48.0
 MAX_GRID_PIXELS = 160.0
@@ -181,13 +185,23 @@ def draw_scene_with_overlays(
     show_trails: bool = False,
     show_labels: bool = False,
     overlay_controls: Optional[OverlayControlsState] = None,
+    selected_body_name: Optional[str] = None,
+    inspector_lines: Optional[Sequence[str]] = None,
 ) -> None:
     surface.fill(BACKGROUND_COLOR)
     draw_grid(surface, pygame_module, camera)
     if show_trails and trail_history:
         draw_trails(surface, pygame_module, camera, bodies, trail_history)
-    draw_bodies(surface, pygame_module, camera, bodies, show_labels=show_labels)
+    draw_bodies(
+        surface,
+        pygame_module,
+        camera,
+        bodies,
+        show_labels=show_labels,
+        selected_body_name=selected_body_name,
+    )
     draw_ui_placeholder(surface, pygame_module, overlay_controls=overlay_controls)
+    draw_selection_inspector(surface, pygame_module, inspector_lines)
 
 
 def draw_grid(surface: object, pygame_module: object, camera: Camera) -> None:
@@ -208,6 +222,7 @@ def draw_bodies(
     bodies: Sequence[Body],
     *,
     show_labels: bool = False,
+    selected_body_name: Optional[str] = None,
 ) -> None:
     viewport_size = surface.get_size()
     label_font = pygame_module.font.Font(None, 20) if show_labels else None
@@ -218,6 +233,8 @@ def draw_bodies(
         radius = max(6, int(round(body.draw_radius * camera.zoom)))
         pygame_module.draw.circle(surface, body.color, screen_center, radius)
         pygame_module.draw.circle(surface, BODY_OUTLINE_COLOR, screen_center, radius, 2)
+        if selected_body_name == body.name:
+            pygame_module.draw.circle(surface, SELECTION_RING_COLOR, screen_center, radius + 6, 2)
         if label_font is not None:
             label_surface = label_font.render(body.name, True, LABEL_TEXT_COLOR)
             anchor_x, anchor_y = body_label_anchor((center_x, center_y), float(radius))
@@ -336,3 +353,32 @@ def _draw_toggle_row(
     status_surface = font.render(status_text, True, status_color)
     surface.blit(label_surface, (left + 8, top + 3))
     surface.blit(status_surface, (left + width - 40, top + 3))
+
+
+def draw_selection_inspector(
+    surface: object,
+    pygame_module: object,
+    lines: Optional[Sequence[str]],
+) -> None:
+    viewport_size = surface.get_size()
+    panel_width = min(430, viewport_size[0] - 40)
+    panel_height = 182
+    panel_left = viewport_size[0] - panel_width - 16
+    panel_top = 16
+
+    panel = pygame_module.Surface((panel_width, panel_height), pygame_module.SRCALPHA)
+    panel.fill(INSPECTOR_PANEL_FILL)
+    surface.blit(panel, (panel_left, panel_top))
+    pygame_module.draw.rect(
+        surface,
+        INSPECTOR_PANEL_BORDER,
+        (panel_left, panel_top, panel_width, panel_height),
+        2,
+        border_radius=8,
+    )
+
+    content_lines = lines or ("Selected Body", "Name: None", "Click a demo body to inspect.")
+    font = pygame_module.font.Font(None, 22)
+    for line_index, line in enumerate(content_lines[:7]):
+        text_surface = font.render(line, True, INSPECTOR_TEXT_COLOR)
+        surface.blit(text_surface, (panel_left + 12, panel_top + 12 + (line_index * 24)))

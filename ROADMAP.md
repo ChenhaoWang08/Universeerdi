@@ -37,7 +37,7 @@
 - planet colors
 - time controls
 - pause and resume
-- current PR focus: clickable in-window overlay toggles for labels and trails
+- current PR focus: read-only demo body selection inspector
 
 ## Phase E: Relativistic / Visual Effects
 
