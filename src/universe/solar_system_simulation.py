@@ -75,22 +75,28 @@ def step_solar_system_simulation_state(
     )
 
 
-def solar_system_to_render_bodies(state: SolarSystemSimulationState) -> Tuple[Body, ...]:
+def solar_system_to_render_bodies(
+    state: SolarSystemSimulationState,
+    policy: RenderScalePolicy = SOLAR_SYSTEM_RENDER_SCALE_POLICY,
+) -> Tuple[Body, ...]:
     return tuple(
-        _render_body_from_physics(physics_body)
+        _render_body_from_physics(physics_body, policy)
         for physics_body in state.physics_bodies
     )
 
 
-def _render_body_from_physics(physics_body: PhysicsBodyState) -> Body:
+def _render_body_from_physics(
+    physics_body: PhysicsBodyState,
+    policy: RenderScalePolicy,
+) -> Body:
     body_data = SOLAR_SYSTEM_BODY_MAP[physics_body.name]
     world_x, world_y = map_physical_position_to_world(
         (physics_body.position_m.x, physics_body.position_m.y),
-        SOLAR_SYSTEM_RENDER_SCALE_POLICY,
+        policy,
     )
     render_radius_px = map_physical_radius_to_visible_px(
         body_data.mean_radius_m,
-        SOLAR_SYSTEM_RENDER_SCALE_POLICY,
+        policy,
         fallback_radius_px=body_data.visual_radius_px,
     )
     return Body(

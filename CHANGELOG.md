@@ -17,7 +17,8 @@
 - `PR13`: improve trails with dashed body-colored paths.
 - `PR14`: add fullscreen toggle while preserving resizable windowed mode.
 - `PR15`: convert overlay label/trail toggles into checkbox-style controls (UI polish only).
+- `PR16`: add Lorentz factor as an optional/read-only computed display metric.
 
 ## In Progress
 
-- `PR16`: add Lorentz factor as an optional/read-only computed display metric.
+- `PR17`: add runtime simulation mode selection and render-scale presets.

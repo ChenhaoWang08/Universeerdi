@@ -4,6 +4,7 @@ from unittest.mock import patch
 
 from src.universe.demo_simulation import create_controlled_demo_state
 from src.universe.physics import step_bodies
+from src.universe.render_scale_presets import render_scale_policy_for_preset
 from src.universe.solar_system_data import SOLAR_SYSTEM_BODIES
 from src.universe.solar_system_simulation import (
     build_solar_system_body_states,
@@ -100,6 +101,21 @@ class SolarSystemSimulationTests(unittest.TestCase):
         state = create_solar_system_simulation_state()
         render_bodies = solar_system_to_render_bodies(state)
         self.assertEqual(len(render_bodies), len(state.physics_bodies))
+
+    def test_render_body_conversion_accepts_runtime_render_scale_policy(self) -> None:
+        state = create_solar_system_simulation_state()
+        readable = solar_system_to_render_bodies(
+            state,
+            policy=render_scale_policy_for_preset("readable"),
+        )
+        realistic = solar_system_to_render_bodies(
+            state,
+            policy=render_scale_policy_for_preset("realistic"),
+        )
+        self.assertEqual(len(readable), len(realistic))
+        earth_readable = next(body for body in readable if body.name == "Earth")
+        earth_realistic = next(body for body in realistic if body.name == "Earth")
+        self.assertNotEqual(earth_readable.draw_radius, earth_realistic.draw_radius)
 
     def test_controlled_demo_mode_still_constructs(self) -> None:
         demo_state = create_controlled_demo_state()

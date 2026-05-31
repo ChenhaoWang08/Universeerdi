@@ -29,3 +29,4 @@ PR13 keeps trails rendering-only and does not alter simulation state or physics 
 PR14 fullscreen toggle changes display mode only and does not alter simulation state or physics equations.
 PR15 checkbox-style overlay controls remain display/input polish only and do not alter simulation state or physics equations.
 PR16 Lorentz gamma is a read-only inspector metric and does not alter Newtonian stepping or physics state.
+PR17 mode/preset controls switch active simulation view and render policy without changing Newtonian equations or source dataset values.

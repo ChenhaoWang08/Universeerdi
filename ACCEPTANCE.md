@@ -1,26 +1,28 @@
-# PR16 Acceptance Criteria
+# PR17 Acceptance Criteria
 
-`PR16` is accepted only if all of the following are true:
+`PR17` is accepted only if all of the following are true:
 
 - `python3 -m src.main` remains the documented primary launch command
-- `controlled_demo` mode still works
-- `solar_system` mode still works
-- Lorentz helper exists with speed-of-light constant
-- `speed = 0` yields gamma `1.0`
-- ordinary solar-system speeds yield gamma very close to `1.0`
-- higher sub-light speeds yield larger gamma
-- `speed >= c` behavior is safe and tested
-- negative speed behavior is explicit and tested
-- inspector displays `Lorentz gamma` for selected bodies
-- Lorentz gamma is read-only display data
-- Lorentz gamma does not mutate physics/simulation state
+- app starts in `controlled_demo` mode by default
+- pressing `M` toggles to `solar_system` mode
+- pressing `M` again toggles back to `controlled_demo`
+- mode switch resets selection state safely
+- mode switch clears trail history safely
+- render-scale preset state includes `readable`, `realistic`, and `overview`
+- pressing `V` cycles `readable -> realistic -> overview -> readable`
+- selected preset can be injected into `solar_system_to_render_bodies(...)`
+- render-scale presets affect rendering only
+- overlay remains compact and includes mode + scale status text
+- Labels/Trails checkbox controls remain compatible
+- time controls remain compatible
+- fullscreen/windowed controls remain compatible
+- selection inspector remains compatible
 - Newtonian equations are unchanged
 - no new integrator is added
-- no physical mass/position/velocity/radius is modified
-- no general relativity, geodesic, or spacetime-curvature claim is made
-- no mass-based grid distortion is added
-- tests verify Lorentz helpers without opening a window
-- existing display/time/trails/selection/inspector tests still pass
+- no source dataset values are mutated
+- no solar mass multiplier or absorption experiment is added
+- tests verify mode/preset logic without opening a window
+- existing physics/demo/solar_system/render_scale/time/display/selection/inspector/trails/overlay tests still pass
 - `scripts/check.sh` passes
 - `python3 -m pytest tests` passes
 - no secrets, credentials, `.env`, binary assets, or deployment files are added

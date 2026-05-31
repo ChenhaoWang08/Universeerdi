@@ -20,7 +20,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR13` improved trail readability with dashed body-colored paths.
 `PR14` added fullscreen toggle while preserving resizable windowed mode.
 `PR15` converted overlay toggles to checkbox-style controls.
-The current phase is `PR16`, which adds Lorentz factor as a read-only display metric.
+`PR16` added Lorentz factor as a read-only display metric.
+The current phase is `PR17`, which adds runtime simulation mode selection and render-scale presets.
 
 Primary launch command:
 
@@ -72,6 +73,11 @@ PR16 Lorentz metric:
 - This is a special-relativity display metric only.
 - It does not change Newtonian stepping, force, acceleration, velocity, or position.
 - It is not a general relativity, geodesic, or spacetime-curvature simulation.
+
+PR17 runtime controls:
+- `M`: toggle simulation mode between `controlled_demo` and `solar_system`
+- `V`: cycle solar-system render-scale preset: `readable -> realistic -> overview`
+- Render-scale presets affect display only and do not mutate physics state or source data.
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

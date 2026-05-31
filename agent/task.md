@@ -1,40 +1,43 @@
-# PR16: Add Lorentz factor display as an optional computed metric
+# PR17: Add simulation mode selector and render-scale presets
 
 ## Objective
 
-Add Lorentz factor as a read-only computed display metric for selected bodies.
+Add runtime controls so users can switch simulation mode and solar-system render scale without editing source code.
 
 ## Scope
 
-- keep `controlled_demo` mode working
-- keep `solar_system` mode working
-- add pure `relativity.py` helper with Lorentz gamma computation
-- display Lorentz gamma in inspector for selected bodies
-- keep Lorentz as display-only metric (no physics stepping changes)
-- keep existing overlay/selection/time-control/fullscreen compatibility
-- add non-window tests for Lorentz helper and inspector field output
+- keep `controlled_demo` and `solar_system` both runnable
+- add runtime mode toggle (`M`) between `controlled_demo` and `solar_system`
+- add runtime preset cycle (`V`) for `readable`, `realistic`, `overview`
+- wire preset policy into `solar_system_to_render_bodies(...)`
+- show mode and scale status in top-left overlay
+- clear selection and trail history on mode switch
+- keep all behavior deterministic and testable without opening a window
 
 ## Non-Goals
 
 - no Newtonian equation changes
 - no new integrator
-- no feed-back of Lorentz gamma into motion
-- no special-relativity dynamics
-- no general relativity/geodesic/spacetime-curvature simulation
-- no mass-based grid distortion
+- no solar mass multiplier
+- no absorption/collision experiment
+- no grid distortion or geodesic visuals
 - no save/load settings
 - no UI framework
-- no ephemeris/JPL integration
-- no networking or external API runtime behavior
+- no network/API/JPL integration
 
 ## Allowed Files
 
-- `src/universe/relativity.py`
-- `src/universe/inspector.py`
-- `src/universe/rendering.py` (only if needed)
-- `src/main.py` (only if needed)
-- `tests/test_relativity.py`
-- `tests/test_inspector.py`
+- `src/main.py`
+- `src/universe/simulation_modes.py`
+- `src/universe/render_scale_presets.py`
+- `src/universe/solar_system_simulation.py`
+- `src/universe/rendering.py`
+- `src/universe/overlay_controls.py`
+- `tests/test_simulation_modes.py`
+- `tests/test_render_scale_presets.py`
+- `tests/test_solar_system_simulation.py`
+- `tests/test_render_scale.py`
+- `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -56,9 +59,10 @@ Add Lorentz factor as a read-only computed display metric for selected bodies.
 
 - run `python3 -m src.main`
 - verify viewer launches
-- verify selected-body inspector shows Lorentz gamma
-- verify no traceback during normal startup/close smoke flow
+- verify `M` toggles mode
+- verify `V` cycles scale preset
+- verify overlay shows mode + scale
 
 ## Suggested Next PR
 
-`PR17: Add mass-based grid distortion visual effect`
+`PR18: Add solar mass multiplier experiment with absorption`
