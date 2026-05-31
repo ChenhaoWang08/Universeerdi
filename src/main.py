@@ -9,6 +9,13 @@ from .universe.demo_simulation import (
     create_controlled_demo_state,
     step_controlled_demo_state,
 )
+from .universe.display_modes import (
+    DisplayModeState,
+    display_mode_status_text,
+    exit_fullscreen,
+    toggle_fullscreen,
+    update_windowed_size,
+)
 from .universe.overlay_controls import OverlayControlsState, handle_overlay_click
 from .universe.physics import step_placeholder_bodies
 from .universe.rendering import (
@@ -49,7 +56,8 @@ def main() -> int:
     pygame = _load_pygame()
     pygame.init()
 
-    screen = pygame.display.set_mode(DEFAULT_WINDOW_SIZE, pygame.RESIZABLE)
+    display_mode_state = DisplayModeState(windowed_size=DEFAULT_WINDOW_SIZE)
+    screen = _set_display_mode(pygame, display_mode_state)
     pygame.display.set_caption("universeerdi")
     clock = pygame.time.Clock()
 
@@ -77,7 +85,20 @@ def main() -> int:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    running = False
+                    if display_mode_state.is_fullscreen:
+                        display_mode_state = exit_fullscreen(
+                            display_mode_state,
+                            current_size=screen.get_size(),
+                        )
+                        screen = _set_display_mode(pygame, display_mode_state)
+                    else:
+                        running = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+                    display_mode_state = toggle_fullscreen(
+                        display_mode_state,
+                        current_size=screen.get_size(),
+                    )
+                    screen = _set_display_mode(pygame, display_mode_state)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     time_controls = toggle_pause(time_controls)
                 elif event.type == pygame.KEYDOWN and event.key in (
@@ -93,8 +114,13 @@ def main() -> int:
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_0:
                     time_controls = reset_time_scale(time_controls)
                 elif event.type == pygame.VIDEORESIZE:
-                    size = _clamp_window_size(event.size)
-                    screen = pygame.display.set_mode(size, pygame.RESIZABLE)
+                    if not display_mode_state.is_fullscreen:
+                        size = _clamp_window_size(event.size)
+                        display_mode_state = update_windowed_size(
+                            display_mode_state,
+                            windowed_size=size,
+                        )
+                        screen = _set_display_mode(pygame, display_mode_state)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
                         overlay_controls, was_overlay_click = handle_overlay_click(
@@ -177,7 +203,10 @@ def main() -> int:
                 show_labels=DEFAULT_SIMULATION_MODE in ("controlled_demo", "solar_system")
                 and overlay_controls.show_labels,
                 overlay_controls=overlay_controls,
-                time_status_text=format_time_status_text(time_controls),
+                time_status_text=(
+                    f"{format_time_status_text(time_controls)}  |  "
+                    f"{display_mode_status_text(display_mode_state)}"
+                ),
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,
             )
@@ -203,6 +232,12 @@ def _clamp_window_size(size: Sequence[int]) -> tuple[int, int]:
     width = max(MIN_WINDOW_SIZE[0], int(size[0]))
     height = max(MIN_WINDOW_SIZE[1], int(size[1]))
     return (width, height)
+
+
+def _set_display_mode(pygame_module: object, display_mode_state: DisplayModeState) -> object:
+    if display_mode_state.is_fullscreen:
+        return pygame_module.display.set_mode((0, 0), pygame_module.FULLSCREEN)
+    return pygame_module.display.set_mode(display_mode_state.windowed_size, pygame_module.RESIZABLE)
 
 
 def _can_start_drag(

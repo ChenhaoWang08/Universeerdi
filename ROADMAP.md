@@ -37,7 +37,7 @@
 - planet colors
 - time controls
 - pause and resume
-- current PR focus: dashed body-colored trail readability improvements
+- current PR focus: fullscreen toggle while preserving resizable window mode
 
 ## Phase E: Relativistic / Visual Effects
 

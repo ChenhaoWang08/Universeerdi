@@ -13,6 +13,7 @@ The planned architecture for `universeerdi` is intentionally modular:
 - render scale policy: maps physical meters/radii into display-oriented render/world coordinates and visible radii
 - rendering: draws background, grid, bodies, overlays, selection highlights, and inspector panel
 - trails helpers: build bounded render-history and dashed polyline geometry for rendering-only trail visualization
+- display mode helpers: manage fullscreen/windowed runtime state separate from simulation state
 - overlay controls: manages top-left hitboxes and runtime visibility toggles for labels/trails
 - selection helpers: handle render-space body hit testing and inspector text formatting without Pygame dependencies
 - inspector helpers: assemble read-only body-inspector lines from runtime physics values and local dataset metadata
@@ -25,3 +26,4 @@ PR10 time controls change stepping cadence only and do not modify Newtonian equa
 PR11 keeps physics in SI units and applies display-only position/radius mapping for readability.
 PR12 inspector remains display-only and shows local dataset fields without runtime network fetching.
 PR13 keeps trails rendering-only and does not alter simulation state or physics equations.
+PR14 fullscreen toggle changes display mode only and does not alter simulation state or physics equations.
