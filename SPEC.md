@@ -15,26 +15,28 @@
 `PR7` added simple clickable in-window toggle controls for those overlay flags.
 `PR8` added a basic read-only demo body selection inspector.
 `PR9` added a `solar_system` simulation mode using existing dataset values and Newtonian stepping.
-The active work is now `PR10`, which adds runtime pause/resume, bounded time scale, and dt clamp controls.
+`PR10` added runtime pause/resume, bounded time scale, and dt clamp controls.
+The active work is now `PR11`, which adds render scale policy and minimum/maximum visible radius clamps.
 
-## PR10 Scope
+## PR11 Scope
 
-`PR10` should:
+`PR11` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add runtime pause/resume controls
-- add bounded time scale controls
-- clamp frame dt before simulation stepping
-- show running/paused state and scale in overlay
-- add deterministic non-window tests for time-control behavior
+- add explicit physical-to-render scale mapping
+- map physical positions to render/world coordinates through a clear policy
+- map physical radii to visible radii with min/max clamping
+- keep selection hit testing compatible with rendered radius
+- add deterministic non-window tests for render-scale behavior
 
-## PR10 Non-Goals
+## PR11 Non-Goals
 
-`PR10` must not include:
+`PR11` must not include:
 
 - Newtonian equation changes
 - new physics integrators
+- physical mass/position/velocity/radius mutations for visual tuning
 - long-term solar-system stability guarantees
 - Lorentz factor or relativity display
 - mass-based grid distortion
@@ -50,3 +52,4 @@ The active work is now `PR10`, which adds runtime pause/resume, bounded time sca
 - `mean_orbital_radius_m` must not be treated as screen pixels.
 - `solar_system` mode from PR9 remains deterministic initialization plus Newtonian stepping, not a precision ephemeris model.
 - `PR10` time controls affect stepping cadence only and do not modify Newtonian equations.
+- `PR11` keeps SI physics state unchanged and applies display-only render scale mapping.

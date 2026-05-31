@@ -10,6 +10,7 @@ The planned architecture for `universeerdi` is intentionally modular:
 - controlled demo simulation: owns PR5 demo-only SI states and steps them through PR4 Newtonian physics
 - solar-system simulation: builds SI initial states from existing dataset values and advances them through PR4 Newtonian stepping
 - time controls: owns pause/resume state, bounded time scale, and dt clamp policy for runtime stepping cadence
+- render scale policy: maps physical meters/radii into display-oriented render/world coordinates and visible radii
 - rendering: draws background, grid, bodies, overlays, selection highlights, and inspector panel
 - overlay controls: manages top-left hitboxes and runtime visibility toggles for labels/trails
 - selection helpers: handle render-space body hit testing and inspector text formatting without Pygame dependencies
@@ -19,3 +20,4 @@ Physical scale and visual scale must remain separate so realistic distances do n
 `mean_radius_m` and `mean_orbital_radius_m` are physical quantities and must not be used directly as screen pixels.
 PR9 solar-system mode uses deterministic initialization and does not provide precision ephemeris guarantees.
 PR10 time controls change stepping cadence only and do not modify Newtonian equations.
+PR11 keeps physics in SI units and applies display-only position/radius mapping for readability.

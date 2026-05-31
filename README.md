@@ -14,7 +14,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR7` added clickable in-window overlay toggles.
 `PR8` added a read-only demo body selection inspector.
 `PR9` added a `solar_system` simulation mode using existing dataset values.
-The current phase is `PR10`, which adds pause/resume, bounded time scale, and dt clamp controls for simulation stepping.
+`PR10` added pause/resume, bounded time scale, and dt clamp controls for simulation stepping.
+The current phase is `PR11`, which adds physical-to-render scale policy and visible radius clamps.
 
 Primary launch command:
 
@@ -39,6 +40,9 @@ It does not claim high-precision ephemeris positions or long-term orbital stabil
 
 PR10 time controls affect simulation stepping frequency only.
 PR10 does not change Newtonian physics equations.
+
+PR11 separates physical simulation units from rendering scale.
+Physics continues using SI units; rendering applies visual mapping plus minimum/maximum visible radii.
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

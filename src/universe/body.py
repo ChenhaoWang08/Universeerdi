@@ -27,6 +27,7 @@ class Body:
     data: CelestialBody
     world_x: float = 0.0
     world_y: float = 0.0
+    render_radius_px: float | None = None
 
     @property
     def position(self) -> Point:
@@ -38,6 +39,8 @@ class Body:
 
     @property
     def draw_radius(self) -> float:
+        if self.render_radius_px is not None:
+            return self.render_radius_px
         return self.data.visual_radius_px
 
     @property

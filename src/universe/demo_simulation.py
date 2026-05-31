@@ -5,9 +5,18 @@ from typing import Dict, Tuple
 
 from .body import Body, CelestialBody
 from .physics import PhysicsBodyState, Vector2, step_bodies
+from .render_scale import (
+    RenderScalePolicy,
+    map_physical_position_to_world,
+    map_physical_radius_to_visible_px,
+)
 
-# Demo-only scale that converts SI meter positions into viewer world units.
-DEMO_METERS_TO_WORLD = 0.0015
+DEMO_RENDER_SCALE_POLICY = RenderScalePolicy(
+    meters_per_world_unit=666.6666666666666,
+    min_body_radius_px=6.0,
+    max_body_radius_px=24.0,
+    body_radius_scale=0.0004,
+)
 
 
 @dataclass(frozen=True)
@@ -103,10 +112,25 @@ def step_controlled_demo_state(
 
 def controlled_demo_to_render_bodies(state: ControlledDemoState) -> Tuple[Body, ...]:
     return tuple(
-        Body(
-            data=DEMO_BODY_DATA_BY_NAME[physics_body.name],
-            world_x=physics_body.position_m.x * DEMO_METERS_TO_WORLD,
-            world_y=physics_body.position_m.y * DEMO_METERS_TO_WORLD,
-        )
+        _render_body_from_physics(physics_body)
         for physics_body in state.physics_bodies
+    )
+
+
+def _render_body_from_physics(physics_body: PhysicsBodyState) -> Body:
+    body_data = DEMO_BODY_DATA_BY_NAME[physics_body.name]
+    world_x, world_y = map_physical_position_to_world(
+        (physics_body.position_m.x, physics_body.position_m.y),
+        DEMO_RENDER_SCALE_POLICY,
+    )
+    render_radius_px = map_physical_radius_to_visible_px(
+        body_data.mean_radius_m,
+        DEMO_RENDER_SCALE_POLICY,
+        fallback_radius_px=body_data.visual_radius_px,
+    )
+    return Body(
+        data=body_data,
+        world_x=world_x,
+        world_y=world_y,
+        render_radius_px=render_radius_px,
     )
