@@ -1,42 +1,40 @@
-# PR15: Convert overlay toggles into checkbox-style controls
+# PR16: Add Lorentz factor display as an optional computed metric
 
 ## Objective
 
-Convert overlay Labels/Trails toggles into checkbox-style controls while preserving existing behavior.
+Add Lorentz factor as a read-only computed display metric for selected bodies.
 
 ## Scope
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- render Labels toggle as checkbox-style text (for example `[X] Labels`)
-- render Trails toggle as checkbox-style text (for example `[ ] Trails`)
-- preserve existing toggle semantics and click hitbox behavior
-- preserve overlay click priority over selection and camera drag
-- keep time/display status visible in overlay
-- add non-window tests for checkbox label logic and overlay compatibility
+- add pure `relativity.py` helper with Lorentz gamma computation
+- display Lorentz gamma in inspector for selected bodies
+- keep Lorentz as display-only metric (no physics stepping changes)
+- keep existing overlay/selection/time-control/fullscreen compatibility
+- add non-window tests for Lorentz helper and inspector field output
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no new physics integrator
-- no simulation-mode default changes
-- no body editing or dragging
+- no new integrator
+- no feed-back of Lorentz gamma into motion
+- no special-relativity dynamics
+- no general relativity/geodesic/spacetime-curvature simulation
+- no mass-based grid distortion
 - no save/load settings
 - no UI framework
-- no Lorentz factor
-- no grid distortion
 - no ephemeris/JPL integration
 - no networking or external API runtime behavior
 
 ## Allowed Files
 
-- `src/main.py`
-- `src/universe/overlay_controls.py`
-- `src/universe/rendering.py`
-- `src/universe/checkbox_controls.py` (only if needed)
-- `tests/test_overlay_controls.py`
-- `tests/test_display_modes.py` (only if needed)
-- `tests/test_time_controls.py` (only if needed)
+- `src/universe/relativity.py`
+- `src/universe/inspector.py`
+- `src/universe/rendering.py` (only if needed)
+- `src/main.py` (only if needed)
+- `tests/test_relativity.py`
+- `tests/test_inspector.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -58,10 +56,9 @@ Convert overlay Labels/Trails toggles into checkbox-style controls while preserv
 
 - run `python3 -m src.main`
 - verify viewer launches
-- verify checkbox controls render in overlay
-- verify labels/trails toggles still work
-- verify time/display status remains visible
+- verify selected-body inspector shows Lorentz gamma
+- verify no traceback during normal startup/close smoke flow
 
 ## Suggested Next PR
 
-`PR16: Add Lorentz factor display as an optional computed metric`
+`PR17: Add mass-based grid distortion visual effect`

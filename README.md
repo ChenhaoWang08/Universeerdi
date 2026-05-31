@@ -19,7 +19,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR12` extended the read-only inspector for real solar-system fields.
 `PR13` improved trail readability with dashed body-colored paths.
 `PR14` added fullscreen toggle while preserving resizable windowed mode.
-The current phase is `PR15`, which converts overlay toggles to checkbox-style controls.
+`PR15` converted overlay toggles to checkbox-style controls.
+The current phase is `PR16`, which adds Lorentz factor as a read-only display metric.
 
 Primary launch command:
 
@@ -64,6 +65,13 @@ PR15 overlay controls:
 - `[X] Labels` toggles label visibility
 - `[X] Trails` toggles trail visibility
 - PR15 is UI polish only and does not change physics equations or simulation behavior
+
+PR16 Lorentz metric:
+- Inspector displays `Lorentz gamma` computed from current body speed.
+- Formula: `gamma = 1 / sqrt(1 - v^2 / c^2)` with `c = 299792458 m/s`.
+- This is a special-relativity display metric only.
+- It does not change Newtonian stepping, force, acceleration, velocity, or position.
+- It is not a general relativity, geodesic, or spacetime-curvature simulation.
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping
