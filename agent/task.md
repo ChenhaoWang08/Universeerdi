@@ -1,26 +1,28 @@
-# PR17: Add simulation mode selector and render-scale presets
+# PR18: Add solar mass multiplier experiment with absorption
 
 ## Objective
 
-Add runtime controls so users can switch simulation mode and solar-system render scale without editing source code.
+Add an experimental runtime Sun gravity multiplier for `solar_system` mode and a simple absorption rule for bodies entering Sun radius.
 
 ## Scope
 
-- keep `controlled_demo` and `solar_system` both runnable
-- add runtime mode toggle (`M`) between `controlled_demo` and `solar_system`
-- add runtime preset cycle (`V`) for `readable`, `realistic`, `overview`
-- wire preset policy into `solar_system_to_render_bodies(...)`
-- show mode and scale status in top-left overlay
-- clear selection and trail history on mode switch
-- keep all behavior deterministic and testable without opening a window
+- keep baseline source dataset unchanged
+- keep baseline initial velocity policy based on baseline Sun mass
+- add runtime Sun gravity multiplier controls in app loop
+- apply multiplier only during solar-system stepping
+- restore baseline Sun mass in stored simulation state
+- absorb non-Sun bodies that enter Sun physical radius
+- show experiment status in overlay
+- keep behavior deterministic and testable without opening a window
 
 ## Non-Goals
 
 - no Newtonian equation changes
 - no new integrator
-- no solar mass multiplier
-- no absorption/collision experiment
-- no grid distortion or geodesic visuals
+- no mutation of `solar_system_data.py` constants
+- no realistic collision/fluid dynamics
+- no GR/geodesic/spacetime modeling
+- no mass-based grid distortion
 - no save/load settings
 - no UI framework
 - no network/API/JPL integration
@@ -28,15 +30,12 @@ Add runtime controls so users can switch simulation mode and solar-system render
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/simulation_modes.py`
-- `src/universe/render_scale_presets.py`
+- `src/universe/solar_mass_experiment.py`
 - `src/universe/solar_system_simulation.py`
 - `src/universe/rendering.py`
 - `src/universe/overlay_controls.py`
-- `tests/test_simulation_modes.py`
-- `tests/test_render_scale_presets.py`
+- `tests/test_solar_mass_experiment.py`
 - `tests/test_solar_system_simulation.py`
-- `tests/test_render_scale.py`
 - `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
@@ -59,10 +58,9 @@ Add runtime controls so users can switch simulation mode and solar-system render
 
 - run `python3 -m src.main`
 - verify viewer launches
-- verify `M` toggles mode
-- verify `V` cycles scale preset
-- verify overlay shows mode + scale
+- verify Sun gravity controls affect solar-system behavior
+- verify absorption and body-count behavior are visible
 
 ## Suggested Next PR
 
-`PR18: Add solar mass multiplier experiment with absorption`
+`PR19: Add camera zoom range controls / view presets`

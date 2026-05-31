@@ -18,7 +18,8 @@
 - `PR14`: add fullscreen toggle while preserving resizable windowed mode.
 - `PR15`: convert overlay label/trail toggles into checkbox-style controls (UI polish only).
 - `PR16`: add Lorentz factor as an optional/read-only computed display metric.
+- `PR17`: add runtime simulation mode selection and render-scale presets.
 
 ## In Progress
 
-- `PR17`: add runtime simulation mode selection and render-scale presets.
+- `PR18`: add solar mass multiplier experiment with absorption.

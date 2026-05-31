@@ -3,10 +3,12 @@ import unittest
 from unittest.mock import patch
 
 from src.universe.demo_simulation import create_controlled_demo_state
-from src.universe.physics import step_bodies
+from src.universe.physics import Vector2, step_bodies
 from src.universe.render_scale_presets import render_scale_policy_for_preset
 from src.universe.solar_system_data import SOLAR_SYSTEM_BODIES
 from src.universe.solar_system_simulation import (
+    BASELINE_SOLAR_MASS_KG,
+    SUN_ABSORPTION_RADIUS_M,
     build_solar_system_body_states,
     create_solar_system_simulation_state,
     solar_system_to_render_bodies,
@@ -96,6 +98,64 @@ class SolarSystemSimulationTests(unittest.TestCase):
         ) as patched_step:
             _ = step_solar_system_simulation_state(state, dt_seconds=30.0)
         patched_step.assert_called_once()
+
+    def test_solar_mass_multiplier_changes_runtime_gravity_without_mutating_source_mass(self) -> None:
+        state = create_solar_system_simulation_state()
+        nominal = step_solar_system_simulation_state(state, dt_seconds=1.0, solar_mass_multiplier=1.0)
+        boosted = step_solar_system_simulation_state(state, dt_seconds=1.0, solar_mass_multiplier=20.0)
+
+        earth_nominal = next(body for body in nominal.physics_bodies if body.name == "Earth")
+        earth_boosted = next(body for body in boosted.physics_bodies if body.name == "Earth")
+        self.assertLess(earth_boosted.velocity_m_s.x, earth_nominal.velocity_m_s.x)
+
+        sun_boosted = next(body for body in boosted.physics_bodies if body.name == "Sun")
+        self.assertEqual(sun_boosted.mass_kg, BASELINE_SOLAR_MASS_KG)
+
+    def test_step_rejects_non_positive_solar_mass_multiplier(self) -> None:
+        state = create_solar_system_simulation_state()
+        with self.assertRaises(ValueError):
+            step_solar_system_simulation_state(state, dt_seconds=1.0, solar_mass_multiplier=0.0)
+
+    def test_absorption_removes_non_sun_bodies_inside_solar_radius(self) -> None:
+        state = create_solar_system_simulation_state()
+        custom_bodies = []
+        for body in state.physics_bodies:
+            if body.name == "Mercury":
+                custom_bodies.append(
+                    type(body)(
+                        name=body.name,
+                        mass_kg=body.mass_kg,
+                        position_m=Vector2(SUN_ABSORPTION_RADIUS_M * 0.5, 0.0),
+                        velocity_m_s=body.velocity_m_s,
+                    )
+                )
+            else:
+                custom_bodies.append(body)
+        custom_state = type(state)(physics_bodies=tuple(custom_bodies))
+        stepped = step_solar_system_simulation_state(custom_state, dt_seconds=1.0, absorb_into_sun=True)
+        names = {body.name for body in stepped.physics_bodies}
+        self.assertIn("Sun", names)
+        self.assertNotIn("Mercury", names)
+
+    def test_absorption_toggle_can_be_disabled(self) -> None:
+        state = create_solar_system_simulation_state()
+        custom_bodies = []
+        for body in state.physics_bodies:
+            if body.name == "Mercury":
+                custom_bodies.append(
+                    type(body)(
+                        name=body.name,
+                        mass_kg=body.mass_kg,
+                        position_m=Vector2(SUN_ABSORPTION_RADIUS_M * 0.5, 0.0),
+                        velocity_m_s=body.velocity_m_s,
+                    )
+                )
+            else:
+                custom_bodies.append(body)
+        custom_state = type(state)(physics_bodies=tuple(custom_bodies))
+        stepped = step_solar_system_simulation_state(custom_state, dt_seconds=1.0, absorb_into_sun=False)
+        names = {body.name for body in stepped.physics_bodies}
+        self.assertIn("Mercury", names)
 
     def test_render_body_conversion_exists_for_solar_system_states(self) -> None:
         state = create_solar_system_simulation_state()

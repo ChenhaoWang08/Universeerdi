@@ -39,7 +39,8 @@
 - pause and resume
 - fullscreen toggle while preserving resizable window mode
 - checkbox-style overlay controls for labels and trails
-- current PR focus: runtime simulation mode selection and render-scale presets
+- runtime simulation mode selection and render-scale presets
+- current PR focus: solar mass multiplier experiment with absorption
 
 ## Phase E: Relativistic / Visual Effects
 
