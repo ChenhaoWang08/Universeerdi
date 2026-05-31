@@ -194,6 +194,7 @@ def draw_scene_with_overlays(
     show_labels: bool = False,
     overlay_controls: Optional[OverlayControlsState] = None,
     time_status_text: Optional[str] = None,
+    mode_scale_status_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
     inspector_lines: Optional[Sequence[str]] = None,
 ) -> None:
@@ -214,6 +215,7 @@ def draw_scene_with_overlays(
         pygame_module,
         overlay_controls=overlay_controls,
         time_status_text=time_status_text,
+        mode_scale_status_text=mode_scale_status_text,
     )
     draw_selection_inspector(surface, pygame_module, inspector_lines)
 
@@ -320,6 +322,7 @@ def draw_ui_placeholder(
     *,
     overlay_controls: Optional[OverlayControlsState] = None,
     time_status_text: Optional[str] = None,
+    mode_scale_status_text: Optional[str] = None,
 ) -> None:
     viewport_size = surface.get_size()
     rects = build_overlay_control_rects(viewport_size)
@@ -355,6 +358,14 @@ def draw_ui_placeholder(
             font,
             rects.time_status_rect,
             time_status_text,
+        )
+    if mode_scale_status_text is not None:
+        _draw_status_row(
+            surface,
+            pygame_module,
+            font,
+            rects.mode_scale_status_rect,
+            mode_scale_status_text,
         )
 
 
