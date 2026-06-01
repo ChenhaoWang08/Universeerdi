@@ -56,6 +56,7 @@ from .universe.rendering import (
     body_contains_screen_point,
     draw_scene_with_overlays,
     is_point_in_ui_placeholder,
+    is_point_in_selection_inspector,
     update_trail_history,
 )
 from .universe.trails import trim_trail_history
@@ -99,6 +100,20 @@ from .universe.time_controls import (
     reset_time_scale,
     toggle_pause,
 )
+from .universe.spawn_workflow import (
+    SpawnMenuState,
+    SpawnSettingsState,
+    build_spawn_templates,
+    click_spawn_menu_item,
+    close_spawn_menu,
+    close_spawn_settings_panel,
+    handle_spawn_settings_click,
+    is_point_in_spawn_menu,
+    is_point_in_spawn_settings_panel,
+    open_spawn_menu,
+    spawn_menu_scroll,
+    update_spawn_menu_hover,
+)
 from .universe.simulation import DEFAULT_WINDOW_SIZE, MIN_WINDOW_SIZE
 
 
@@ -127,6 +142,9 @@ def main() -> int:
     focus_camera_state = FocusCameraState()
     grid_distortion_state = GridDistortionState()
     trail_control_state = TrailControlState()
+    spawn_templates = build_spawn_templates()
+    spawn_menu_state = SpawnMenuState()
+    spawn_settings_state = SpawnSettingsState()
     trail_history = {}
     dragging = False
     current_scale_ruler = None
@@ -139,7 +157,11 @@ def main() -> int:
                 if event.type == pygame.QUIT:
                     running = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    if display_mode_state.is_fullscreen:
+                    if spawn_settings_state.is_open:
+                        spawn_settings_state = close_spawn_settings_panel()
+                    elif spawn_menu_state.is_open:
+                        spawn_menu_state = close_spawn_menu()
+                    elif display_mode_state.is_fullscreen:
                         display_mode_state = exit_fullscreen(
                             display_mode_state,
                             current_size=screen.get_size(),
@@ -193,6 +215,8 @@ def main() -> int:
                         )
                     selection_state = SelectionState()
                     focus_camera_state = FocusCameraState()
+                    spawn_menu_state = SpawnMenuState()
+                    spawn_settings_state = SpawnSettingsState()
                     trail_history = {}
                     dragging = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_v:
@@ -236,34 +260,104 @@ def main() -> int:
                         screen = _set_display_mode(pygame, display_mode_state)
                 elif event.type == pygame.MOUSEBUTTONDOWN:
                     if event.button == 1:
-                        overlay_controls, was_overlay_click = handle_overlay_click(
-                            overlay_controls,
+                        spawn_settings_state, settings_consumed = handle_spawn_settings_click(
+                            spawn_settings_state,
                             event.pos,
-                            screen.get_size(),
                         )
-                        if was_overlay_click:
+                        if settings_consumed:
                             dragging = False
-                        elif simulation_mode_state.mode in ("controlled_demo", "solar_system"):
-                            selection_state, was_body_selection = handle_body_selection_click(
-                                selection_state,
-                                bodies,
-                                camera,
+                        elif spawn_menu_state.is_open:
+                            (
+                                spawn_menu_state,
+                                opened_settings_state,
+                                menu_item_clicked,
+                            ) = click_spawn_menu_item(
+                                spawn_menu_state,
+                                event.pos,
+                                spawn_templates,
+                                screen.get_size(),
+                            )
+                            if menu_item_clicked:
+                                spawn_settings_state = opened_settings_state
+                                dragging = False
+                            elif is_point_in_spawn_menu(spawn_menu_state, event.pos):
+                                dragging = False
+                            else:
+                                spawn_menu_state = close_spawn_menu()
+                                dragging = False
+                        else:
+                            overlay_controls, was_overlay_click = handle_overlay_click(
+                                overlay_controls,
                                 event.pos,
                                 screen.get_size(),
                             )
-                            if was_body_selection:
+                            if was_overlay_click:
                                 dragging = False
+                            elif simulation_mode_state.mode in ("controlled_demo", "solar_system"):
+                                selection_state, was_body_selection = handle_body_selection_click(
+                                    selection_state,
+                                    bodies,
+                                    camera,
+                                    event.pos,
+                                    screen.get_size(),
+                                )
+                                if was_body_selection:
+                                    dragging = False
+                                else:
+                                    dragging = _can_start_drag(
+                                        bodies,
+                                        camera,
+                                        event.pos,
+                                        screen.get_size(),
+                                    )
                             else:
-                                dragging = _can_start_drag(bodies, camera, event.pos, screen.get_size())
-                        else:
-                            dragging = _can_start_drag(bodies, camera, event.pos, screen.get_size())
+                                dragging = _can_start_drag(
+                                    bodies,
+                                    camera,
+                                    event.pos,
+                                    screen.get_size(),
+                                )
+                    elif event.button == 3:
+                        if (
+                            not spawn_settings_state.is_open
+                            and not spawn_menu_state.is_open
+                            and _can_open_spawn_menu(
+                                bodies=bodies,
+                                camera=camera,
+                                mouse_position=event.pos,
+                                viewport_size=screen.get_size(),
+                            )
+                        ):
+                            spawn_menu_state = open_spawn_menu(
+                                event.pos,
+                                screen.get_size(),
+                                len(spawn_templates),
+                            )
+                            dragging = False
                 elif event.type == pygame.MOUSEBUTTONUP and event.button == 1:
                     dragging = False
-                elif event.type == pygame.MOUSEMOTION and dragging:
-                    camera.pan_by_screen_delta(event.rel[0], event.rel[1])
-                    focus_camera_state = clear_focus(focus_camera_state)
+                elif event.type == pygame.MOUSEMOTION:
+                    if spawn_menu_state.is_open:
+                        spawn_menu_state = update_spawn_menu_hover(
+                            spawn_menu_state,
+                            event.pos,
+                            spawn_templates,
+                        )
+                    if dragging:
+                        camera.pan_by_screen_delta(event.rel[0], event.rel[1])
+                        focus_camera_state = clear_focus(focus_camera_state)
                 elif event.type == pygame.MOUSEWHEEL:
-                    camera.zoom_by_scroll(event.y, pygame.mouse.get_pos(), screen.get_size())
+                    mouse_position = pygame.mouse.get_pos()
+                    if is_point_in_spawn_menu(spawn_menu_state, mouse_position):
+                        spawn_menu_state = spawn_menu_scroll(
+                            spawn_menu_state,
+                            event.y,
+                            len(spawn_templates),
+                        )
+                    elif is_point_in_spawn_settings_panel(spawn_settings_state, mouse_position):
+                        pass
+                    else:
+                        camera.zoom_by_scroll(event.y, mouse_position, screen.get_size())
 
             frame_delta_seconds = clock.tick(60) / 1000.0
             simulation_dt_seconds = compute_simulation_dt(time_controls, frame_delta_seconds)
@@ -361,6 +455,9 @@ def main() -> int:
                 scale_note_text=current_scale_note_text,
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,
+                spawn_templates=spawn_templates,
+                spawn_menu_state=spawn_menu_state,
+                spawn_settings_state=spawn_settings_state,
             )
             pygame.display.flip()
     finally:
@@ -399,6 +496,26 @@ def _can_start_drag(
     viewport_size: tuple[int, int],
 ) -> bool:
     if is_point_in_ui_placeholder(mouse_position, viewport_size):
+        return False
+    if is_point_in_selection_inspector(mouse_position, viewport_size):
+        return False
+
+    return not any(
+        body_contains_screen_point(body, camera, mouse_position, viewport_size)
+        for body in bodies
+    )
+
+
+def _can_open_spawn_menu(
+    *,
+    bodies: Sequence[Body],
+    camera: Camera,
+    mouse_position: tuple[int, int],
+    viewport_size: tuple[int, int],
+) -> bool:
+    if is_point_in_ui_placeholder(mouse_position, viewport_size):
+        return False
+    if is_point_in_selection_inspector(mouse_position, viewport_size):
         return False
 
     return not any(

@@ -31,7 +31,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR24` added mass-based grid distortion as a visual-only effect.
 `PR25` constrained grid warp by relative mass hierarchy.
 `PR26` added zoom-aware local grid warp visibility.
-The current phase is `PR27`, which smooths field-based grid warp rendering.
+`PR27` smoothed field-based grid warp rendering.
+The current phase is `PR28`, which adds a right-click spawn menu and read-only settings panel shell.
 
 Primary launch command:
 
@@ -153,6 +154,15 @@ PR27 smooth field behavior:
 - soft-core distance avoids harsh center pulls
 - top-K source limiting reduces awkward multi-body compounded kinks
 - overview hierarchy and control mappings remain unchanged
+
+PR28 spawn workflow shell behavior:
+- right-clicking background opens a scrollable spawn menu
+- clicking a template closes the menu and opens a read-only settings panel shell
+- panel shows default values (mass/radius/velocity/color) plus derived volume/density
+- `Set` and `Cancel` are visible; `Cancel` closes/discards draft
+- `Set` only shows a pending note for future preview/spawn work
+- no placement preview and no body spawn occur in PR28
+- Black Hole entry is a placeholder template only, not a physical black hole simulation
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

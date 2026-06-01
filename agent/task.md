@@ -1,40 +1,41 @@
-# PR27: Smooth field-based grid warp rendering
+# PR28: Add right-click spawn menu and settings panel shell
 
 ## Objective
 
-Smooth PR26 grid warp rendering so local/global transitions and multi-source behavior feel continuous.
+Add the first UI shell step for spawn workflow: background right-click opens menu, template click opens read-only settings panel, and no preview/spawn occurs yet.
 
 ## Scope
 
-- preserve runtime control:
-  - `W` toggle grid distortion
-- preserve `G/H/R` controls unchanged
-- add smoothstep falloff helpers and smooth zoom fade
-- add soft-core source distance handling
-- add top-K source influence limiting
-- keep local warp visible but smoother at close zoom
-- preserve optional effective mass overrides for runtime solar-mass experiment visuals
+- preserve runtime controls and key mappings
+- add spawn template list (Sun/planets + Black Hole placeholder)
+- add background-only right-click spawn menu opening
+- add menu hover + scroll + item click handling
+- add read-only settings panel shell with derived volume/density
+- add `Set` and `Cancel` button behaviors for PR28 shell
+- ensure `Set` does not create preview/spawn
+- ensure `Cancel` closes panel and discards draft
 - keep behavior deterministic and testable without opening a window
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no solar mass / absorption / substep semantic changes
-- no focus camera / camera preset / render-scale / trail behavior changes
-- no source data mutation in `solar_system_data.py`
-- no help overlay (deferred to PR28)
-- no UI framework
+- no source-data mutation in `solar_system_data.py`
+- no grid warp/trail/focus/camera-preset behavior changes
+- no editable text fields
+- no placement preview
+- no body spawn or physics insertion
+- no black hole physics / GR / geodesic behavior
 - no network/API/JPL integration
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/grid_distortion.py`
+- `src/universe/spawn_workflow.py`
 - `src/universe/rendering.py`
-- `src/universe/overlay_controls.py`
-- `tests/test_grid_distortion.py`
-- `tests/test_grid.py`
-- `tests/test_overlay_controls.py`
+- `src/universe/selection.py` (only if needed)
+- `tests/test_spawn_workflow.py`
+- `tests/test_overlay_controls.py` (only if needed)
+- `tests/test_selection.py` (only if needed)
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -43,6 +44,7 @@ Smooth PR26 grid warp rendering so local/global transitions and multi-source beh
 - `ROADMAP.md`
 - `docs/architecture.md`
 - `agent/task.md`
+- `harness/scenarios/`
 
 ## Verification
 
@@ -55,11 +57,11 @@ Smooth PR26 grid warp rendering so local/global transitions and multi-source beh
 ## Manual Verification
 
 - run `python3 -m src.main`
-- verify `W` toggles grid warp status and visual effect
-- verify overview warp is Sun-dominant and terrestrial planets are visually suppressed
-- verify zoomed-in small bodies can show local warp with smoother transitions
+- verify right-click background opens spawn menu
+- verify template click opens settings shell (no preview, no spawn)
+- verify menu wheel scroll does not zoom camera
 - verify existing controls remain compatible
 
 ## Suggested Next PR
 
-`PR28: Add help overlay for controls`
+`PR29: Add editable spawn settings fields`
