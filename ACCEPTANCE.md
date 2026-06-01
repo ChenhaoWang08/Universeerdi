@@ -1,16 +1,21 @@
-# PR25 Acceptance Criteria
+# PR26 Acceptance Criteria
 
-`PR25` is accepted only if all of the following are true:
+`PR26` is accepted only if all of the following are true:
 
 - `python3 -m src.main` remains the documented primary launch command
 - `controlled_demo` mode still works
 - `solar_system` mode still works
 - grid distortion default state is off
 - `W` toggles grid distortion on/off
+- `G/H/R` remain Sun gravity controls
+- no key mappings changed
 - overlay displays deterministic grid warp status text
 - grid warp uses relative-to-Sun mass scaling hierarchy
 - Sun visual warp factor is greater than Jupiter, and Jupiter greater than Earth
 - terrestrial planets are suppressed or near-invisible in overview warp
+- zoomed-in low-mass planets can show small local warp
+- local warp is capped in screen-space-derived world units
+- local warp remains disabled below local zoom threshold
 - influence radius scales with visual mass factor
 - grid distortion affects only grid rendering and is bounded
 - larger mass causes stronger or equal distortion at equal distance
@@ -25,7 +30,7 @@
 - absorption behavior remains unchanged
 - source data in `solar_system_data.py` is unchanged
 - no GR/geodesic/lensing claim is made
-- tests verify grid-distortion logic without opening a window
+- tests verify zoom-aware local warp logic without opening a window
 - existing physics/demo/solar_system/render_scale/time/display/selection/inspector/trails/overlay tests still pass
 - `scripts/check.sh` passes
 - `python3 -m pytest tests` passes

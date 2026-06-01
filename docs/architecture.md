@@ -38,3 +38,4 @@ PR22 distance scale ruler and preset explanations are informational render annot
 PR23 trail reset/length controls adjust trail-history storage and rendering only and do not alter simulation or physics state.
 PR24 mass-based grid distortion affects grid rendering only and does not alter simulation, source data, or Newtonian force/acceleration updates.
 PR25 constrains PR24 distortion with relative-mass hierarchy and visibility thresholds so overview visuals remain Sun-dominant without altering simulation or physics state.
+PR26 adds zoom-aware local warp visibility with screen-space caps so small bodies can show close-up local effects while keeping PR25 overview suppression intact.

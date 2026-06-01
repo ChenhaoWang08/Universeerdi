@@ -20,6 +20,7 @@
 | Trail history can become visually noisy after mode/experiment shifts. | Add direct clear control and bounded runtime trail length controls with deterministic trimming. |
 | Mass-based grid warp could be misread as true GR/geodesic physics. | Label the feature as visual-only and keep distortion logic isolated to grid rendering with no force coupling. |
 | Relative mass hierarchy in grid warp could be visually misleading at overview zoom. | Use reference-mass scaling + visibility threshold + influence-radius constraints so Sun remains dominant. |
+| Close-up views may hide small-body warp completely after overview suppression. | Add zoom-aware local warp path with strict screen-space caps to show local effects without polluting overview. |
 | Escape behavior could regress windowed quit flow. | Keep conditional logic explicit: escape fullscreen first, otherwise preserve existing quit behavior. |
 | Windowed size may be lost after fullscreen toggle. | Track and restore last known windowed size in a pure display-mode state model. |
 | Selection/inspector behavior may regress while touching render path. | Preserve existing pipelines and run compatibility tests with full suite. |
