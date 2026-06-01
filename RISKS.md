@@ -17,6 +17,7 @@
 | Large frame dt under high gravity can skip over absorption checks. | Split solar-system frame dt into fixed substeps and apply absorption after each slice with deterministic tests. |
 | Focused target may disappear while camera follow is active. | Reconcile focus against current render bodies each frame and clear focus when missing. |
 | Scale presets may be misinterpreted as physics mode changes. | Show ruler + concise preset notes as informational UI while preserving unchanged physics/state behavior. |
+| Trail history can become visually noisy after mode/experiment shifts. | Add direct clear control and bounded runtime trail length controls with deterministic trimming. |
 | Escape behavior could regress windowed quit flow. | Keep conditional logic explicit: escape fullscreen first, otherwise preserve existing quit behavior. |
 | Windowed size may be lost after fullscreen toggle. | Track and restore last known windowed size in a pure display-mode state model. |
 | Selection/inspector behavior may regress while touching render path. | Preserve existing pipelines and run compatibility tests with full suite. |

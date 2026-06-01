@@ -35,3 +35,4 @@ PR19 camera view presets switch camera bounds/zoom behavior only and do not chan
 PR20 fixed physics substeps split solar-system frame dt and run absorption per slice without replacing the integrator or changing Newtonian equations.
 PR21 focus-body camera mode follows selected render bodies and does not alter simulation stepping or source constants.
 PR22 distance scale ruler and preset explanations are informational render annotations and do not alter simulation or physics state.
+PR23 trail reset/length controls adjust trail-history storage and rendering only and do not alter simulation or physics state.

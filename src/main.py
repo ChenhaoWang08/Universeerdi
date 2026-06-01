@@ -38,6 +38,13 @@ from .universe.physics_substeps import (
     physics_substeps_status_text,
 )
 from .universe.scale_ruler import build_scale_ruler
+from .universe.trail_controls import (
+    TrailControlState,
+    clear_trail_history,
+    decrease_trail_length,
+    increase_trail_length,
+    trail_length_status_text,
+)
 from .universe.rendering import (
     Camera,
     body_contains_screen_point,
@@ -45,6 +52,7 @@ from .universe.rendering import (
     is_point_in_ui_placeholder,
     update_trail_history,
 )
+from .universe.trails import trim_trail_history
 from .universe.render_scale_presets import (
     RenderScalePresetState,
     cycle_render_scale_preset,
@@ -111,6 +119,7 @@ def main() -> int:
     solar_mass_experiment_state = SolarMassExperimentState()
     physics_substep_state = PhysicsSubstepState()
     focus_camera_state = FocusCameraState()
+    trail_control_state = TrailControlState()
     trail_history = {}
     dragging = False
     current_scale_ruler = None
@@ -198,6 +207,16 @@ def main() -> int:
                     solar_mass_experiment_state = reset_solar_mass_multiplier(
                         solar_mass_experiment_state
                     )
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_c:
+                    trail_history = clear_trail_history()
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_COMMA:
+                    trail_control_state = decrease_trail_length(trail_control_state)
+                    trail_history = trim_trail_history(
+                        trail_history,
+                        max_points=trail_control_state.max_points,
+                    )
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_PERIOD:
+                    trail_control_state = increase_trail_length(trail_control_state)
                 elif event.type == pygame.VIDEORESIZE:
                     if not display_mode_state.is_fullscreen:
                         size = _clamp_window_size(event.size)
@@ -275,7 +294,11 @@ def main() -> int:
                 current_scale_note_text = render_scale_preset_explanation(
                     render_scale_preset_state.preset
                 )
-            trail_history = update_trail_history(trail_history, bodies)
+            trail_history = update_trail_history(
+                trail_history,
+                bodies,
+                max_points=trail_control_state.max_points,
+            )
             selected_physics_body = get_selected_physics_body(
                 current_physics_bodies,
                 selection_state.selected_body_name,
@@ -313,6 +336,7 @@ def main() -> int:
                 camera_view_status_text=camera_view_status_text(camera_view_state),
                 physics_substeps_status_text=physics_substeps_status_text(physics_substep_state),
                 focus_status_text=focus_status_text(focus_camera_state),
+                trail_length_status_text=trail_length_status_text(trail_control_state),
                 scale_ruler=current_scale_ruler,
                 scale_note_text=current_scale_note_text,
                 selected_body_name=selection_state.selected_body_name,

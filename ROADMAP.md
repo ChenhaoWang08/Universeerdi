@@ -44,7 +44,8 @@
 - camera zoom range controls and view presets
 - fixed physics substeps for high-gravity stability
 - focus-body camera mode
-- current PR focus: distance scale ruler and preset explanations
+- distance scale ruler and preset explanations
+- current PR focus: trail reset and trail length controls
 
 ## Phase E: Relativistic / Visual Effects
 

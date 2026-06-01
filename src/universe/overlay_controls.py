@@ -11,7 +11,7 @@ OVERLAY_LEFT = 16
 OVERLAY_TOP = 16
 OVERLAY_MIN_WIDTH = 180
 OVERLAY_MAX_WIDTH = 260
-OVERLAY_HEIGHT = 248
+OVERLAY_HEIGHT = 276
 CONTROL_LEFT_PADDING = 16
 CONTROL_WIDTH_PADDING = 32
 LABELS_ROW_TOP = 18
@@ -22,6 +22,7 @@ EXPERIMENT_STATUS_ROW_TOP = 130
 CAMERA_VIEW_STATUS_ROW_TOP = 158
 PHYSICS_SUBSTEPS_STATUS_ROW_TOP = 186
 FOCUS_STATUS_ROW_TOP = 214
+TRAIL_LENGTH_STATUS_ROW_TOP = 242
 CONTROL_ROW_HEIGHT = 22
 CHECKBOX_CHECKED_TEXT = "[X]"
 CHECKBOX_UNCHECKED_TEXT = "[ ]"
@@ -44,6 +45,7 @@ class OverlayControlRects:
     camera_view_status_rect: Rect
     physics_substeps_status_rect: Rect
     focus_status_rect: Rect
+    trail_length_status_rect: Rect
 
 
 def overlay_panel_rect(viewport_size: Size) -> Rect:
@@ -94,6 +96,12 @@ def build_overlay_control_rects(viewport_size: Size) -> OverlayControlRects:
         focus_status_rect=(
             control_left,
             top + FOCUS_STATUS_ROW_TOP,
+            control_width,
+            CONTROL_ROW_HEIGHT,
+        ),
+        trail_length_status_rect=(
+            control_left,
+            top + TRAIL_LENGTH_STATUS_ROW_TOP,
             control_width,
             CONTROL_ROW_HEIGHT,
         ),
