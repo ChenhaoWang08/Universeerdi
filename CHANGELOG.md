@@ -22,7 +22,8 @@
 - `PR18`: add solar mass multiplier experiment with absorption.
 - `PR19`: add camera zoom range controls and view presets.
 - `PR20`: add fixed physics substeps for high-gravity stability.
+- `PR21`: add focus body camera mode.
 
 ## In Progress
 
-- `PR21`: add focus body camera mode.
+- `PR22`: add distance scale ruler and preset explanations.

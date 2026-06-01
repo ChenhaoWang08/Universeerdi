@@ -12,6 +12,7 @@ from .overlay_controls import (
     is_point_in_overlay_panel,
     overlay_panel_rect,
 )
+from .scale_ruler import ScaleRuler
 from .trails import (
     build_dashed_polyline_segments,
     resolve_trail_color,
@@ -37,6 +38,8 @@ SELECTION_RING_COLOR = (255, 238, 160)
 INSPECTOR_PANEL_FILL = (46, 49, 56, 224)
 INSPECTOR_PANEL_BORDER = (221, 224, 232)
 INSPECTOR_TEXT_COLOR = (238, 241, 248)
+SCALE_RULER_COLOR = (225, 229, 236)
+SCALE_RULER_LABEL_COLOR = (210, 214, 222)
 
 MIN_GRID_PIXELS = 48.0
 MAX_GRID_PIXELS = 160.0
@@ -205,6 +208,8 @@ def draw_scene_with_overlays(
     camera_view_status_text: Optional[str] = None,
     physics_substeps_status_text: Optional[str] = None,
     focus_status_text: Optional[str] = None,
+    scale_ruler: Optional[ScaleRuler] = None,
+    scale_note_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
     inspector_lines: Optional[Sequence[str]] = None,
 ) -> None:
@@ -230,6 +235,12 @@ def draw_scene_with_overlays(
         camera_view_status_text=camera_view_status_text,
         physics_substeps_status_text=physics_substeps_status_text,
         focus_status_text=focus_status_text,
+    )
+    draw_scale_ruler_overlay(
+        surface,
+        pygame_module,
+        scale_ruler=scale_ruler,
+        scale_note_text=scale_note_text,
     )
     draw_selection_inspector(surface, pygame_module, inspector_lines)
 
@@ -480,3 +491,50 @@ def draw_selection_inspector(
     for line_index, line in enumerate(content_lines[:13]):
         text_surface = font.render(line, True, INSPECTOR_TEXT_COLOR)
         surface.blit(text_surface, (panel_left + 12, panel_top + 12 + (line_index * 24)))
+
+
+def draw_scale_ruler_overlay(
+    surface: object,
+    pygame_module: object,
+    *,
+    scale_ruler: Optional[ScaleRuler],
+    scale_note_text: Optional[str],
+) -> None:
+    if scale_ruler is None:
+        return
+
+    viewport_width, viewport_height = surface.get_size()
+    left = 24
+    baseline_y = viewport_height - 56
+    ruler_width = max(1, int(scale_ruler.pixel_length))
+    right = min(viewport_width - 24, left + ruler_width)
+    left = right - ruler_width
+
+    pygame_module.draw.line(
+        surface,
+        SCALE_RULER_COLOR,
+        (left, baseline_y),
+        (right, baseline_y),
+        2,
+    )
+    pygame_module.draw.line(
+        surface,
+        SCALE_RULER_COLOR,
+        (left, baseline_y - 6),
+        (left, baseline_y + 6),
+        2,
+    )
+    pygame_module.draw.line(
+        surface,
+        SCALE_RULER_COLOR,
+        (right, baseline_y - 6),
+        (right, baseline_y + 6),
+        2,
+    )
+
+    font = pygame_module.font.Font(None, 22)
+    label_surface = font.render(scale_ruler.label, True, SCALE_RULER_LABEL_COLOR)
+    surface.blit(label_surface, (left, baseline_y - 26))
+    if scale_note_text is not None:
+        note_surface = font.render(scale_note_text, True, SCALE_RULER_LABEL_COLOR)
+        surface.blit(note_surface, (left, baseline_y + 10))

@@ -43,7 +43,8 @@
 - solar mass multiplier experiment with absorption
 - camera zoom range controls and view presets
 - fixed physics substeps for high-gravity stability
-- current PR focus: focus-body camera mode
+- focus-body camera mode
+- current PR focus: distance scale ruler and preset explanations
 
 ## Phase E: Relativistic / Visual Effects
 

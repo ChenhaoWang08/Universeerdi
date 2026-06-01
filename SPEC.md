@@ -26,30 +26,33 @@
 `PR18` added solar mass multiplier experiment with absorption.
 `PR19` added camera zoom range controls and view presets.
 `PR20` added fixed physics substeps for high-gravity stability.
-The active work is now `PR21`, which adds focus-body camera mode.
+`PR21` added focus-body camera mode.
+The active work is now `PR22`, which adds distance scale ruler and preset explanations.
 
-## PR21 Scope
+## PR22 Scope
 
-`PR21` should:
+`PR22` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add runtime focus-camera state with default `none`
-- toggle focus with `F` using current selection
-- keep camera centered on focused body each frame
-- clear focus safely when focused body no longer exists
-- preserve mode/scale/overlay/time/fullscreen/selection/camera-view compatibility
-- add deterministic non-window tests for focus behavior
+- add informational distance scale ruler for `solar_system` mode
+- add short render-scale preset explanation text
+- use camera zoom + render policy to compute ruler distance labels
+- keep ruler/explanations informational-only (no control/state mutation)
+- preserve mode/scale/overlay/time/fullscreen/selection/camera/focus compatibility
+- add deterministic non-window tests for ruler/explanation helpers
 
-## PR21 Non-Goals
+## PR22 Non-Goals
 
-`PR21` must not include:
+`PR22` must not include:
 
 - Newtonian equation changes
 - mutation of `solar_system_data.py` constants
 - solar mass multiplier semantic changes
 - absorption behavior changes
 - physics substeps behavior changes
+- focus camera behavior changes
+- camera view preset behavior changes
 - mass-based grid distortion
 - high-precision ephemeris/JPL integrations
 - networking or external services
@@ -73,3 +76,4 @@ The active work is now `PR21`, which adds focus-body camera mode.
 - `PR19` camera view presets and reset controls affect camera/rendering state only and do not alter physics state, source data, or PR18 experiment behavior.
 - `PR20` fixed physics substeps split frame dt into multiple Newtonian slices in solar-system mode and apply absorption after each slice without changing equations or replacing the integrator.
 - `PR21` focus camera follows selected body in rendering space only and does not alter physics state, source data, or PR18/PR20 stepping semantics.
+- `PR22` distance ruler and preset explanations are UI-only annotations and do not alter camera state, physics, simulation stepping, or source data.

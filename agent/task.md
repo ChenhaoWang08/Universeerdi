@@ -1,36 +1,36 @@
-# PR21: Add focus body camera mode
+# PR22: Add distance scale ruler and preset explanations
 
 ## Objective
 
-Add a focus-camera mode that follows the currently selected body when the user presses `F`.
+Add an informational solar-system distance scale ruler and short render-scale preset explanations.
 
 ## Scope
 
-- add pure focus-camera state with default `none`
-- toggle focus using current selection with `F`
-- follow focused body by updating camera center each frame
-- clear focus when focused body disappears
-- clear focus when user drags camera manually
+- add a pure scale-ruler helper
+- support deterministic distance labels in m/km/AU
+- add preset explanation helper text for readable/realistic/overview
+- show ruler + explanation in bottom-left for `solar_system` mode
+- keep `controlled_demo` without solar-system ruler
 - keep behavior deterministic and testable without opening a window
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no new integrator or adaptive timestep changes
-- no solar mass multiplier semantic changes
-- no absorption model changes
+- no solar mass / absorption / substep behavior changes
+- no focus camera or camera preset behavior changes
 - no source data mutation in `solar_system_data.py`
 - no UI framework
 - no network/API/JPL integration
 
 ## Allowed Files
 
+- `.gitignore` (local generated artifact ignore rules only if needed)
 - `src/main.py`
-- `src/universe/focus_camera.py`
+- `src/universe/scale_ruler.py`
+- `src/universe/render_scale_presets.py`
 - `src/universe/rendering.py`
-- `src/universe/overlay_controls.py`
-- `tests/test_focus_camera.py`
-- `tests/test_overlay_controls.py`
+- `tests/test_scale_ruler.py`
+- `tests/test_render_scale_presets.py`
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -51,11 +51,10 @@ Add a focus-camera mode that follows the currently selected body when the user p
 ## Manual Verification
 
 - run `python3 -m src.main`
-- select a body and press `F` to start focus
-- press `F` again to clear focus
-- verify focused target disappearing clears focus safely
-- verify mode/scale/solar-mass/substeps/time/fullscreen controls still work
+- switch to `solar_system` mode and confirm bottom-left ruler appears
+- cycle presets with `V` and confirm scale-note text updates
+- switch back to `controlled_demo` and confirm no solar-system ruler
 
 ## Suggested Next PR
 
-`PR22: Add distance scale ruler and preset explanations`
+`PR23: Add trail reset and trail length controls`

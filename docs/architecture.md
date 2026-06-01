@@ -34,3 +34,4 @@ PR18 solar mass multiplier and absorption are runtime experiment controls layere
 PR19 camera view presets switch camera bounds/zoom behavior only and do not change simulation state, source constants, or Newtonian equations.
 PR20 fixed physics substeps split solar-system frame dt and run absorption per slice without replacing the integrator or changing Newtonian equations.
 PR21 focus-body camera mode follows selected render bodies and does not alter simulation stepping or source constants.
+PR22 distance scale ruler and preset explanations are informational render annotations and do not alter simulation or physics state.

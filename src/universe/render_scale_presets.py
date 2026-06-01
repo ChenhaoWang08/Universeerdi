@@ -38,6 +38,11 @@ RENDER_SCALE_PRESET_POLICIES: Dict[RenderScalePresetName, RenderScalePolicy] = {
 }
 
 RENDER_SCALE_PRESET_CYCLE = ("readable", "realistic", "overview")
+RENDER_SCALE_PRESET_EXPLANATIONS: Dict[RenderScalePresetName, str] = {
+    "readable": "Scale note: readable = enlarged bodies",
+    "realistic": "Scale note: realistic = closer real proportions",
+    "overview": "Scale note: overview = compressed layout",
+}
 
 
 @dataclass(frozen=True)
@@ -57,3 +62,7 @@ def render_scale_policy_for_preset(preset: RenderScalePresetName) -> RenderScale
 
 def render_scale_preset_status_text(state: RenderScalePresetState) -> str:
     return f"Scale: {state.preset}"
+
+
+def render_scale_preset_explanation(preset: RenderScalePresetName) -> str:
+    return RENDER_SCALE_PRESET_EXPLANATIONS[preset]
