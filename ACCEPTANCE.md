@@ -1,6 +1,6 @@
-# PR26 Acceptance Criteria
+# PR27 Acceptance Criteria
 
-`PR26` is accepted only if all of the following are true:
+`PR27` is accepted only if all of the following are true:
 
 - `python3 -m src.main` remains the documented primary launch command
 - `controlled_demo` mode still works
@@ -11,11 +11,16 @@
 - no key mappings changed
 - overlay displays deterministic grid warp status text
 - grid warp uses relative-to-Sun mass scaling hierarchy
+- smoothstep falloff is implemented
+- zoom fade is implemented
+- soft-core distance handling is implemented
+- top-K source influence limiting is implemented
 - Sun visual warp factor is greater than Jupiter, and Jupiter greater than Earth
 - terrestrial planets are suppressed or near-invisible in overview warp
 - zoomed-in low-mass planets can show small local warp
 - local warp is capped in screen-space-derived world units
 - local warp remains disabled below local zoom threshold
+- local zoom transitions are smooth (no abrupt pop policy)
 - influence radius scales with visual mass factor
 - grid distortion affects only grid rendering and is bounded
 - larger mass causes stronger or equal distortion at equal distance

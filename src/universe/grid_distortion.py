@@ -38,9 +38,21 @@ class GridWarpPolicy:
     max_influence_radius_world: float = 900.0
     max_displacement_world: float = 45.0
     local_zoom_threshold: float = 2.0
+    local_zoom_fade_start: float = 1.2
+    local_zoom_fade_full: float = 2.4
     local_min_visible_relative_mass: float = 1e-7
-    local_influence_radius_px: float = 90.0
-    local_max_displacement_px: float = 12.0
+    local_visual_factor_floor: float = 0.18
+    local_influence_radius_px: float = 220.0
+    local_max_displacement_px: float = 34.0
+    soft_core_px: float = 24.0
+    smooth_falloff_power: float = 1.0
+    max_sources_per_point: int = 2
+
+
+@dataclass(frozen=True)
+class SourceInfluence:
+    displacement: Point
+    strength: float
 
 
 def toggle_grid_distortion(state: GridDistortionState) -> GridDistortionState:
@@ -67,13 +79,12 @@ def distort_grid_point(
         return point
 
     point_x, point_y = point
-    displacement_x = 0.0
-    displacement_y = 0.0
+    influences: list[SourceInfluence] = []
+    local_zoom_fade = compute_local_zoom_fade(camera_zoom, policy)
+    soft_core_world = compute_soft_core_world(camera_zoom, policy)
     local_max_displacement_world = compute_local_max_displacement_world(camera_zoom, policy)
-    total_displacement_cap_world = max(
-        policy.max_displacement_world,
-        local_max_displacement_world,
-    )
+    total_displacement_cap_world = max(policy.max_displacement_world, local_max_displacement_world)
+
     for source in sources:
         relative_mass = compute_relative_mass(source.mass_kg, policy)
         source_kind = classify_warp_source(
@@ -83,18 +94,24 @@ def distort_grid_point(
         )
         if source_kind == "hidden":
             continue
+
         is_local = source_kind == "local"
+        if is_local and local_zoom_fade <= 0.0:
+            continue
+
         visual_mass_factor = compute_visual_mass_factor(
             source.mass_kg,
             policy,
             allow_local=is_local,
         )
         if is_local:
+            visual_mass_factor *= local_zoom_fade
             influence_radius_world = compute_local_influence_radius_world(camera_zoom, policy)
             source_max_displacement_world = local_max_displacement_world
         else:
             influence_radius_world = compute_influence_radius_world(visual_mass_factor, policy)
             source_max_displacement_world = policy.max_displacement_world
+
         if influence_radius_world <= 0.0:
             continue
 
@@ -102,14 +119,19 @@ def distort_grid_point(
         delta_x = point_x - source_x
         delta_y = point_y - source_y
         distance = sqrt((delta_x * delta_x) + (delta_y * delta_y))
-        if distance <= DISTORTION_CENTER_EPSILON:
-            continue
         if distance >= influence_radius_world:
             continue
 
-        unit_x = delta_x / distance
-        unit_y = delta_y / distance
-        falloff = (1.0 - (distance / influence_radius_world)) ** 2
+        soft_distance = sqrt((distance * distance) + (soft_core_world * soft_core_world))
+        if soft_distance <= DISTORTION_CENTER_EPSILON:
+            continue
+
+        unit_x = delta_x / soft_distance
+        unit_y = delta_y / soft_distance
+        falloff = compute_smooth_falloff(distance, influence_radius_world, policy)
+        if falloff <= 0.0:
+            continue
+
         raw_amount = (
             falloff
             * visual_mass_factor
@@ -117,9 +139,20 @@ def distort_grid_point(
             * source_max_displacement_world
         )
         amount = min(source_max_displacement_world, raw_amount)
-        displacement_x -= unit_x * amount
-        displacement_y -= unit_y * amount
+        displacement = (-unit_x * amount, -unit_y * amount)
+        influences.append(SourceInfluence(displacement=displacement, strength=amount))
 
+    if not influences:
+        return point
+
+    top_influences = sorted(
+        influences,
+        key=lambda influence: influence.strength,
+        reverse=True,
+    )[: policy.max_sources_per_point]
+
+    displacement_x = sum(influence.displacement[0] for influence in top_influences)
+    displacement_y = sum(influence.displacement[1] for influence in top_influences)
     total_displacement = sqrt((displacement_x * displacement_x) + (displacement_y * displacement_y))
     if total_displacement > total_displacement_cap_world and total_displacement > 0.0:
         clamp = total_displacement_cap_world / total_displacement
@@ -175,12 +208,24 @@ def validate_grid_warp_policy(policy: GridWarpPolicy) -> None:
         raise ValueError("max_displacement_world must be non-negative")
     if policy.local_zoom_threshold <= 0.0:
         raise ValueError("local_zoom_threshold must be positive")
+    if policy.local_zoom_fade_start <= 0.0:
+        raise ValueError("local_zoom_fade_start must be positive")
+    if policy.local_zoom_fade_full <= policy.local_zoom_fade_start:
+        raise ValueError("local_zoom_fade_full must be > local_zoom_fade_start")
     if policy.local_min_visible_relative_mass < 0.0:
         raise ValueError("local_min_visible_relative_mass must be non-negative")
+    if policy.local_visual_factor_floor < 0.0:
+        raise ValueError("local_visual_factor_floor must be non-negative")
     if policy.local_influence_radius_px <= 0.0:
         raise ValueError("local_influence_radius_px must be positive")
     if policy.local_max_displacement_px < 0.0:
         raise ValueError("local_max_displacement_px must be non-negative")
+    if policy.soft_core_px < 0.0:
+        raise ValueError("soft_core_px must be non-negative")
+    if policy.smooth_falloff_power <= 0.0:
+        raise ValueError("smooth_falloff_power must be positive")
+    if policy.max_sources_per_point < 1:
+        raise ValueError("max_sources_per_point must be >= 1")
 
 
 def compute_relative_mass(mass_kg: float, policy: GridWarpPolicy) -> float:
@@ -201,7 +246,7 @@ def compute_visual_mass_factor(
     if allow_local:
         if relative_mass < policy.local_min_visible_relative_mass:
             return 0.0
-        return max(relative_mass**policy.mass_exponent, 0.08)
+        return max(relative_mass**policy.mass_exponent, policy.local_visual_factor_floor)
 
     if relative_mass < policy.min_visible_relative_mass:
         return 0.0
@@ -245,7 +290,7 @@ def classify_warp_source(
     if relative_mass >= policy.min_visible_relative_mass:
         return "global"
     if (
-        camera_zoom >= policy.local_zoom_threshold
+        camera_zoom >= policy.local_zoom_fade_start
         and relative_mass >= policy.local_min_visible_relative_mass
     ):
         return "local"
@@ -268,3 +313,51 @@ def compute_local_max_displacement_world(
     if camera_zoom <= 0.0:
         raise ValueError("camera_zoom must be positive")
     return policy.local_max_displacement_px / camera_zoom
+
+
+def compute_soft_core_world(
+    camera_zoom: float,
+    policy: GridWarpPolicy,
+) -> float:
+    if camera_zoom <= 0.0:
+        raise ValueError("camera_zoom must be positive")
+    return policy.soft_core_px / camera_zoom
+
+
+def smoothstep(t: float) -> float:
+    if t <= 0.0:
+        return 0.0
+    if t >= 1.0:
+        return 1.0
+    return t * t * (3.0 - (2.0 * t))
+
+
+def smoothstep_between(start: float, end: float, value: float) -> float:
+    if end <= start:
+        raise ValueError("end must be > start")
+    normalized = (value - start) / (end - start)
+    return smoothstep(normalized)
+
+
+def compute_local_zoom_fade(
+    camera_zoom: float,
+    policy: GridWarpPolicy,
+) -> float:
+    return smoothstep_between(
+        policy.local_zoom_fade_start,
+        policy.local_zoom_fade_full,
+        camera_zoom,
+    )
+
+
+def compute_smooth_falloff(
+    distance: float,
+    influence_radius_world: float,
+    policy: GridWarpPolicy,
+) -> float:
+    if influence_radius_world <= 0.0:
+        raise ValueError("influence_radius_world must be positive")
+    if distance >= influence_radius_world:
+        return 0.0
+    t = distance / influence_radius_world
+    return (1.0 - smoothstep(t)) ** policy.smooth_falloff_power

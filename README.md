@@ -30,7 +30,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR23` added trail reset and trail length controls.
 `PR24` added mass-based grid distortion as a visual-only effect.
 `PR25` constrained grid warp by relative mass hierarchy.
-The current phase is `PR26`, which adds zoom-aware local grid warp visibility.
+`PR26` added zoom-aware local grid warp visibility.
+The current phase is `PR27`, which smooths field-based grid warp rendering.
 
 Primary launch command:
 
@@ -145,6 +146,13 @@ PR26 zoom-aware local warp behavior:
 - when zoomed in, low-mass planets can show a small local warp
 - local warp radius and displacement are capped in screen-space-derived bounds
 - remains visual-only and does not alter physics/simulation/source data
+
+PR27 smooth field behavior:
+- smoothstep-based falloff softens line bending boundaries
+- zoom fade reduces abrupt local warp popping near threshold
+- soft-core distance avoids harsh center pulls
+- top-K source limiting reduces awkward multi-body compounded kinks
+- overview hierarchy and control mappings remain unchanged
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

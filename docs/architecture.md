@@ -39,3 +39,4 @@ PR23 trail reset/length controls adjust trail-history storage and rendering only
 PR24 mass-based grid distortion affects grid rendering only and does not alter simulation, source data, or Newtonian force/acceleration updates.
 PR25 constrains PR24 distortion with relative-mass hierarchy and visibility thresholds so overview visuals remain Sun-dominant without altering simulation or physics state.
 PR26 adds zoom-aware local warp visibility with screen-space caps so small bodies can show close-up local effects while keeping PR25 overview suppression intact.
+PR27 smooths PR26 field rendering via smoothstep falloff, zoom fade, soft-core distance, and top-K source limiting while preserving the same visual-only boundaries.

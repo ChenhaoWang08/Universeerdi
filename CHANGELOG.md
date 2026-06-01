@@ -27,7 +27,8 @@
 - `PR23`: add trail reset and trail length controls.
 - `PR24`: add mass-based grid distortion visual effect.
 - `PR25`: constrain grid warp by relative mass hierarchy.
+- `PR26`: add zoom-aware local grid warp visibility.
 
 ## In Progress
 
-- `PR26`: add zoom-aware local grid warp visibility.
+- `PR27`: smooth field-based grid warp rendering.
