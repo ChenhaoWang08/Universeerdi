@@ -31,4 +31,4 @@
 
 ## In Progress
 
-- `PR27`: smooth field-based grid warp rendering.
+- `PR28`: add right-click spawn menu and read-only settings panel shell.

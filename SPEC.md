@@ -32,29 +32,32 @@
 `PR24` added mass-based grid distortion as a visual-only effect.
 `PR25` constrained grid warp by relative mass hierarchy.
 `PR26` added zoom-aware local grid warp visibility.
-The active work is now `PR27`, which smooths field-based grid warp rendering.
+`PR27` smoothed field-based grid warp rendering.
+The active work is now `PR28`, which adds right-click spawn menu and settings panel shell.
 
-## PR27 Scope
+## PR28 Scope
 
-`PR27` should:
+`PR28` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- preserve `W` grid warp toggle and status text behavior
-- preserve PR25/PR26 overview hierarchy (Sun-dominant)
-- smooth falloff boundaries and soften center pull behavior
-- replace hard local zoom switching with gradual zoom fade
-- limit per-point source blending to strongest contributors
-- keep low-mass local warp visible but smoother at close zoom
-- keep distortion bounded and deterministic
-- keep distortion isolated to grid drawing state
+- preserve all existing key mappings and runtime controls
+- open spawn menu on background-only right click
+- show scrollable spawn templates including Sun, planets, and Black Hole placeholder
+- highlight hovered menu row
+- open read-only settings panel shell after template click
+- show read-only defaults and derived values in the panel
+- show `Set` and `Cancel` buttons
+- ensure `Set` does not create preview or spawn body in this PR
+- ensure `Cancel` closes panel and discards draft
+- keep the workflow shell isolated to UI/input/rendering state
 - preserve mode/scale/overlay/time/fullscreen/selection/camera/focus compatibility
 - preserve trail controls from PR23 unchanged
-- add deterministic non-window tests for smooth field-policy behavior
+- add deterministic non-window tests for spawn menu/panel behavior
 
-## PR27 Non-Goals
+## PR28 Non-Goals
 
-`PR27` must not include:
+`PR28` must not include:
 
 - Newtonian equation changes
 - mutation of `solar_system_data.py` constants
@@ -64,7 +67,10 @@ The active work is now `PR27`, which smooths field-based grid warp rendering.
 - focus camera behavior changes
 - camera view preset behavior changes
 - render-scale preset behavior changes
-- help overlay (deferred to PR28)
+- editable text fields
+- placement preview
+- actual body spawning or physics insertion
+- black hole physics/GR/geodesic/lensing behaviors
 - geodesic/GR/lensing simulation
 - high-precision ephemeris/JPL integrations
 - networking or external services
@@ -94,3 +100,4 @@ The active work is now `PR27`, which smooths field-based grid warp rendering.
 - `PR25` constrains PR24 grid warp with relative mass hierarchy so low-mass planets do not appear Sun-like in overview visuals.
 - `PR26` adds zoom-aware local visibility for low-mass bodies while keeping PR25 overview suppression and Sun-dominant hierarchy.
 - `PR27` smooths warp field continuity with smoothstep falloff, zoom fade, soft-core distance, and top-K source limiting while remaining visual-only.
+- `PR28` introduces spawn workflow UI shell only: right-click menu plus read-only settings panel with no preview/spawn side effects.

@@ -40,3 +40,4 @@ PR24 mass-based grid distortion affects grid rendering only and does not alter s
 PR25 constrains PR24 distortion with relative-mass hierarchy and visibility thresholds so overview visuals remain Sun-dominant without altering simulation or physics state.
 PR26 adds zoom-aware local warp visibility with screen-space caps so small bodies can show close-up local effects while keeping PR25 overview suppression intact.
 PR27 smooths PR26 field rendering via smoothstep falloff, zoom fade, soft-core distance, and top-K source limiting while preserving the same visual-only boundaries.
+PR28 adds a spawn workflow UI shell (right-click menu + read-only settings panel) that stays in input/rendering state only and does not create previews, spawn bodies, or alter physics.

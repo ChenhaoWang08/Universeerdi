@@ -1,42 +1,33 @@
-# PR27 Acceptance Criteria
+# PR28 Acceptance Criteria
 
-`PR27` is accepted only if all of the following are true:
+`PR28` is accepted only if all of the following are true:
 
 - `python3 -m src.main` remains the documented primary launch command
 - `controlled_demo` mode still works
 - `solar_system` mode still works
-- grid distortion default state is off
-- `W` toggles grid distortion on/off
-- `G/H/R` remain Sun gravity controls
-- no key mappings changed
-- overlay displays deterministic grid warp status text
-- grid warp uses relative-to-Sun mass scaling hierarchy
-- smoothstep falloff is implemented
-- zoom fade is implemented
-- soft-core distance handling is implemented
-- top-K source influence limiting is implemented
-- Sun visual warp factor is greater than Jupiter, and Jupiter greater than Earth
-- terrestrial planets are suppressed or near-invisible in overview warp
-- zoomed-in low-mass planets can show small local warp
-- local warp is capped in screen-space-derived world units
-- local warp remains disabled below local zoom threshold
-- local zoom transitions are smooth (no abrupt pop policy)
-- influence radius scales with visual mass factor
-- grid distortion affects only grid rendering and is bounded
-- larger mass causes stronger or equal distortion at equal distance
-- farther points cause weaker or equal distortion for equal source mass
-- point-at-source-center path is safe (no divide-by-zero crash)
-- Sun multiplier increases Sun visual warp only; non-Sun masses do not inflate from Sun multiplier
-- PR23 trail controls remain unchanged (`C`, `,`, `.` + status)
-- selection/inspector/time/fullscreen/mode/scale/solar-mass/substeps/camera-view/focus controls remain compatible
+- existing key mappings remain unchanged (`W`, `G/H/R`, `M`, `V`, `B`, `F`, `C`, `,`, `.`, `Space`, `F11`)
+- right-clicking background opens the spawn menu
+- right-clicking a body does not open the spawn menu
+- right-clicking overlay/inspector does not open the spawn menu
+- spawn menu is scrollable and clamped to viewport bounds
+- spawn menu contains Sun + planets + Black Hole placeholder
+- menu hover highlight is visible and deterministic
+- clicking a template closes menu and opens settings panel shell
+- clicking a template does not create placement preview
+- clicking a template does not spawn a body
+- settings panel fields are read-only in PR28
+- panel shows derived `volume` and `density`
+- panel has `Set` and `Cancel` buttons
+- `Cancel` closes panel and discards draft
+- `Set` does not create preview and does not spawn a body
+- spawn workflow shell does not change physics state
 - Newtonian equations are unchanged
-- no new integrator is added
-- solar mass multiplier semantics remain unchanged
-- absorption behavior remains unchanged
 - source data in `solar_system_data.py` is unchanged
-- no GR/geodesic/lensing claim is made
-- tests verify zoom-aware local warp logic without opening a window
-- existing physics/demo/solar_system/render_scale/time/display/selection/inspector/trails/overlay tests still pass
+- `camera_views.py` behavior is unchanged
+- grid warp behavior is unchanged
+- Black Hole is documented as placeholder only (not physical black hole simulation)
+- tests for spawn workflow logic pass without opening a window
+- existing test suites still pass
 - `scripts/check.sh` passes
 - `python3 -m pytest tests` passes
 - no secrets, credentials, `.env`, binary assets, or deployment files are added

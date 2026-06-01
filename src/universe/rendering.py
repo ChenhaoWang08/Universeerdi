@@ -19,6 +19,21 @@ from .overlay_controls import (
     overlay_panel_rect,
 )
 from .scale_ruler import ScaleRuler
+from .spawn_workflow import (
+    SPAWN_MENU_HEIGHT,
+    SPAWN_MENU_ROW_HEIGHT,
+    SPAWN_MENU_WIDTH,
+    SPAWN_SETTINGS_PANEL_HEIGHT,
+    SPAWN_SETTINGS_PANEL_WIDTH,
+    SpawnMenuState,
+    SpawnSettingsState,
+    SpawnTemplate,
+    spawn_menu_visible_row_count,
+    spawn_settings_cancel_button_rect,
+    spawn_settings_display_lines,
+    spawn_settings_panel_rect,
+    spawn_settings_set_button_rect,
+)
 from .trails import (
     build_dashed_polyline_segments,
     resolve_trail_color,
@@ -46,6 +61,18 @@ INSPECTOR_PANEL_BORDER = (221, 224, 232)
 INSPECTOR_TEXT_COLOR = (238, 241, 248)
 SCALE_RULER_COLOR = (225, 229, 236)
 SCALE_RULER_LABEL_COLOR = (210, 214, 222)
+SPAWN_MENU_FILL = (40, 43, 49, 235)
+SPAWN_MENU_BORDER = (205, 210, 218)
+SPAWN_MENU_TEXT = (236, 239, 245)
+SPAWN_MENU_HOVER = (120, 132, 150, 120)
+SPAWN_SCROLLBAR_TRACK = (58, 63, 72)
+SPAWN_SCROLLBAR_THUMB = (168, 176, 190)
+SPAWN_SETTINGS_FILL = (44, 47, 54, 235)
+SPAWN_SETTINGS_BORDER = (212, 216, 224)
+SPAWN_SETTINGS_TEXT = (235, 239, 246)
+SPAWN_SETTINGS_NOTE = (205, 212, 222)
+SPAWN_BUTTON_FILL = (79, 88, 102)
+SPAWN_BUTTON_BORDER = (198, 204, 214)
 
 MIN_GRID_PIXELS = 48.0
 MAX_GRID_PIXELS = 160.0
@@ -60,6 +87,9 @@ GRID_DISTORTION_BASE_INFLUENCE_RADIUS_MULTIPLIER = 5.0
 GRID_DISTORTION_MIN_INFLUENCE_RADIUS_MULTIPLIER = 0.5
 GRID_DISTORTION_MAX_INFLUENCE_RADIUS_MULTIPLIER = 8.0
 GRID_DISTORTION_MAX_DISPLACEMENT_RATIO = 0.35
+INSPECTOR_PANEL_MARGIN = 16
+INSPECTOR_PANEL_WIDTH = 430
+INSPECTOR_PANEL_HEIGHT = 332
 
 
 @dataclass
@@ -249,6 +279,9 @@ def draw_scene_with_overlays(
     scale_note_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
     inspector_lines: Optional[Sequence[str]] = None,
+    spawn_templates: Sequence[SpawnTemplate] = (),
+    spawn_menu_state: Optional[SpawnMenuState] = None,
+    spawn_settings_state: Optional[SpawnSettingsState] = None,
 ) -> None:
     surface.fill(BACKGROUND_COLOR)
     draw_grid(
@@ -288,6 +321,17 @@ def draw_scene_with_overlays(
         scale_note_text=scale_note_text,
     )
     draw_selection_inspector(surface, pygame_module, inspector_lines)
+    draw_spawn_menu(
+        surface,
+        pygame_module,
+        spawn_templates=spawn_templates,
+        menu_state=spawn_menu_state or SpawnMenuState(),
+    )
+    draw_spawn_settings_panel(
+        surface,
+        pygame_module,
+        settings_state=spawn_settings_state or SpawnSettingsState(),
+    )
 
 
 def draw_grid(
@@ -643,16 +687,24 @@ def _sample_world_line_points(start: Point, end: Point, samples_per_line: int) -
     return tuple(points)
 
 
+def selection_inspector_rect(viewport_size: Size) -> Tuple[int, int, int, int]:
+    panel_width = min(INSPECTOR_PANEL_WIDTH, viewport_size[0] - 40)
+    panel_left = viewport_size[0] - panel_width - INSPECTOR_PANEL_MARGIN
+    panel_top = INSPECTOR_PANEL_MARGIN
+    return (panel_left, panel_top, panel_width, INSPECTOR_PANEL_HEIGHT)
+
+
+def is_point_in_selection_inspector(point: Point, viewport_size: Size) -> bool:
+    return _is_point_in_rect(point, selection_inspector_rect(viewport_size))
+
+
 def draw_selection_inspector(
     surface: object,
     pygame_module: object,
     lines: Optional[Sequence[str]],
 ) -> None:
     viewport_size = surface.get_size()
-    panel_width = min(430, viewport_size[0] - 40)
-    panel_height = 332
-    panel_left = viewport_size[0] - panel_width - 16
-    panel_top = 16
+    panel_left, panel_top, panel_width, panel_height = selection_inspector_rect(viewport_size)
 
     panel = pygame_module.Surface((panel_width, panel_height), pygame_module.SRCALPHA)
     panel.fill(INSPECTOR_PANEL_FILL)
@@ -670,6 +722,130 @@ def draw_selection_inspector(
     for line_index, line in enumerate(content_lines[:13]):
         text_surface = font.render(line, True, INSPECTOR_TEXT_COLOR)
         surface.blit(text_surface, (panel_left + 12, panel_top + 12 + (line_index * 24)))
+
+
+def draw_spawn_menu(
+    surface: object,
+    pygame_module: object,
+    *,
+    spawn_templates: Sequence[SpawnTemplate],
+    menu_state: SpawnMenuState,
+) -> None:
+    if not menu_state.is_open:
+        return
+
+    left, top = menu_state.menu_left, menu_state.menu_top
+    menu_rect = (left, top, SPAWN_MENU_WIDTH, SPAWN_MENU_HEIGHT)
+    menu_surface = pygame_module.Surface((SPAWN_MENU_WIDTH, SPAWN_MENU_HEIGHT), pygame_module.SRCALPHA)
+    menu_surface.fill(SPAWN_MENU_FILL)
+    surface.blit(menu_surface, (left, top))
+    pygame_module.draw.rect(surface, SPAWN_MENU_BORDER, menu_rect, 2, border_radius=8)
+
+    font = pygame_module.font.Font(None, 22)
+    visible_rows = spawn_menu_visible_row_count()
+    row_start = menu_state.scroll_offset
+    row_end = min(len(spawn_templates), row_start + visible_rows)
+
+    for index in range(row_start, row_end):
+        row_top = top + ((index - row_start) * SPAWN_MENU_ROW_HEIGHT)
+        row_rect = (left + 2, row_top + 1, SPAWN_MENU_WIDTH - 18, SPAWN_MENU_ROW_HEIGHT - 2)
+        template = spawn_templates[index]
+        if menu_state.hovered_template_id == template.template_id:
+            row_surface = pygame_module.Surface((row_rect[2], row_rect[3]), pygame_module.SRCALPHA)
+            row_surface.fill(SPAWN_MENU_HOVER)
+            surface.blit(row_surface, (row_rect[0], row_rect[1]))
+        text = font.render(template.display_name, True, SPAWN_MENU_TEXT)
+        surface.blit(text, (row_rect[0] + 10, row_rect[1] + 6))
+
+    _draw_spawn_menu_scrollbar(
+        surface,
+        pygame_module,
+        template_count=len(spawn_templates),
+        menu_state=menu_state,
+    )
+
+
+def _draw_spawn_menu_scrollbar(
+    surface: object,
+    pygame_module: object,
+    *,
+    template_count: int,
+    menu_state: SpawnMenuState,
+) -> None:
+    if template_count <= spawn_menu_visible_row_count():
+        return
+
+    track_left = menu_state.menu_left + SPAWN_MENU_WIDTH - 12
+    track_top = menu_state.menu_top + 4
+    track_height = SPAWN_MENU_HEIGHT - 8
+    pygame_module.draw.rect(
+        surface,
+        SPAWN_SCROLLBAR_TRACK,
+        (track_left, track_top, 8, track_height),
+        border_radius=4,
+    )
+
+    visible_rows = spawn_menu_visible_row_count()
+    ratio = visible_rows / template_count
+    thumb_height = max(24, int(round(track_height * ratio)))
+    max_scroll = max(1, template_count - visible_rows)
+    thumb_progress = menu_state.scroll_offset / max_scroll
+    thumb_top = track_top + int(round((track_height - thumb_height) * thumb_progress))
+    pygame_module.draw.rect(
+        surface,
+        SPAWN_SCROLLBAR_THUMB,
+        (track_left, thumb_top, 8, thumb_height),
+        border_radius=4,
+    )
+
+
+def draw_spawn_settings_panel(
+    surface: object,
+    pygame_module: object,
+    *,
+    settings_state: SpawnSettingsState,
+) -> None:
+    if not settings_state.is_open:
+        return
+
+    left, top, width, height = spawn_settings_panel_rect(settings_state)
+    panel_surface = pygame_module.Surface((width, height), pygame_module.SRCALPHA)
+    panel_surface.fill(SPAWN_SETTINGS_FILL)
+    surface.blit(panel_surface, (left, top))
+    pygame_module.draw.rect(surface, SPAWN_SETTINGS_BORDER, (left, top, width, height), 2, border_radius=8)
+
+    font = pygame_module.font.Font(None, 22)
+    lines = spawn_settings_display_lines(settings_state)
+    for line_index, line in enumerate(lines[:12]):
+        text_color = SPAWN_SETTINGS_NOTE if line == settings_state.note_text else SPAWN_SETTINGS_TEXT
+        text = font.render(line, True, text_color)
+        surface.blit(text, (left + 12, top + 12 + (line_index * 24)))
+
+    set_rect = spawn_settings_set_button_rect(settings_state)
+    cancel_rect = spawn_settings_cancel_button_rect(settings_state)
+    _draw_spawn_button(surface, pygame_module, font, set_rect, "Set")
+    _draw_spawn_button(surface, pygame_module, font, cancel_rect, "Cancel")
+
+
+def _draw_spawn_button(
+    surface: object,
+    pygame_module: object,
+    font: object,
+    rect: Tuple[int, int, int, int],
+    label: str,
+) -> None:
+    pygame_module.draw.rect(surface, SPAWN_BUTTON_FILL, rect, border_radius=6)
+    pygame_module.draw.rect(surface, SPAWN_BUTTON_BORDER, rect, 1, border_radius=6)
+    text = font.render(label, True, SPAWN_SETTINGS_TEXT)
+    left, top, width, height = rect
+    text_rect = text.get_rect(center=(left + (width // 2), top + (height // 2)))
+    surface.blit(text, text_rect)
+
+
+def _is_point_in_rect(point: Point, rect: Tuple[int, int, int, int]) -> bool:
+    x, y = point
+    left, top, width, height = rect
+    return left <= x <= (left + width) and top <= y <= (top + height)
 
 
 def draw_scale_ruler_overlay(
