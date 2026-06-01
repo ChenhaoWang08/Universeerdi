@@ -46,7 +46,8 @@
 - focus-body camera mode
 - distance scale ruler and preset explanations
 - trail reset and trail length controls
-- current PR focus: mass-based grid distortion visual effect
+- mass-based grid distortion visual effect
+- current PR focus: mass-aware grid warp scaling constraints
 
 ## Phase E: Relativistic / Visual Effects
 

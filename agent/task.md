@@ -1,16 +1,16 @@
-# PR24: Add mass-based grid distortion visual effect
+# PR25: Add mass-aware grid warp scaling constraints
 
 ## Objective
 
-Add an optional visual-only mass-based grid distortion effect with a runtime toggle.
+Constrain PR24 grid warp so low-mass planets do not look Sun-like in overview views.
 
 ## Scope
 
-- add pure grid-distortion state and deterministic status text
-- add runtime control:
+- preserve runtime control:
   - `W` toggle grid distortion
-- distort grid rendering only (bounded displacement, mass + distance falloff)
-- support optional effective mass overrides for runtime solar-mass experiment visuals
+- replace raw log-mass scaling with relative-to-Sun mass scaling
+- add visibility threshold and influence-radius scaling policy
+- preserve optional effective mass overrides for runtime solar-mass experiment visuals
 - keep behavior deterministic and testable without opening a window
 
 ## Non-Goals
@@ -19,7 +19,7 @@ Add an optional visual-only mass-based grid distortion effect with a runtime tog
 - no solar mass / absorption / substep semantic changes
 - no focus camera / camera preset / render-scale / trail behavior changes
 - no source data mutation in `solar_system_data.py`
-- no help overlay (deferred to PR25)
+- no help overlay (deferred to PR26)
 - no UI framework
 - no network/API/JPL integration
 
@@ -53,8 +53,9 @@ Add an optional visual-only mass-based grid distortion effect with a runtime tog
 
 - run `python3 -m src.main`
 - verify `W` toggles grid warp status and visual effect
+- verify overview warp is Sun-dominant and terrestrial planets are visually suppressed
 - verify existing controls remain compatible
 
 ## Suggested Next PR
 
-`PR25: Add help overlay for controls`
+`PR26: Add help overlay for controls`

@@ -28,7 +28,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR21` added focus body camera mode.
 `PR22` added distance scale ruler and preset explanations.
 `PR23` added trail reset and trail length controls.
-The current phase is `PR24`, which adds mass-based grid distortion as a visual-only effect.
+`PR24` added mass-based grid distortion as a visual-only effect.
+The current phase is `PR25`, which constrains grid warp by relative mass hierarchy.
 
 Primary launch command:
 
@@ -131,6 +132,12 @@ PR24 grid warp controls:
 - stronger mass creates stronger local warp; farther points warp less
 - this is a visual metaphor only (not GR, geodesic solving, or lensing)
 - grid warp does not alter body motion, forces, source data, trails, camera, focus, substeps, or solar-mass semantics
+
+PR25 mass-aware warp constraints:
+- grid warp strength now follows relative mass hierarchy (Sun dominates, Jupiter/Saturn weaker, terrestrial planets suppressed in overview)
+- low-mass planets no longer appear Sun-like in far/overview views
+- Sun runtime gravity multiplier still increases Sun warp via effective runtime mass mapping
+- non-Sun warp does not get stronger just because Sun multiplier is increased
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping
