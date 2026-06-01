@@ -10,11 +10,14 @@ from src.universe.grid_distortion import (
     compute_influence_radius_world,
     compute_local_influence_radius_world,
     compute_local_max_displacement_world,
+    compute_local_zoom_fade,
     compute_relative_mass,
+    compute_smooth_falloff,
     compute_visual_mass_factor,
     distort_grid_point,
     grid_distortion_status_text,
-    should_render_distortion_source,
+    smoothstep,
+    smoothstep_between,
     toggle_grid_distortion,
     validate_grid_warp_policy,
 )
@@ -39,73 +42,109 @@ class GridDistortionTests(unittest.TestCase):
             "Grid warp: on x1.0",
         )
 
-    def test_policy_validates_local_zoom_threshold(self) -> None:
-        with self.assertRaises(ValueError):
-            validate_grid_warp_policy(GridWarpPolicy(local_zoom_threshold=0.0))
+    def test_smoothstep_clamps_and_endpoints(self) -> None:
+        self.assertEqual(smoothstep(-0.1), 0.0)
+        self.assertEqual(smoothstep(0.0), 0.0)
+        self.assertEqual(smoothstep(1.0), 1.0)
+        self.assertEqual(smoothstep(1.4), 1.0)
 
-    def test_policy_validates_local_influence_radius_px(self) -> None:
-        with self.assertRaises(ValueError):
-            validate_grid_warp_policy(GridWarpPolicy(local_influence_radius_px=0.0))
+    def test_smoothstep_is_monotonic(self) -> None:
+        samples = [smoothstep(value) for value in (0.0, 0.2, 0.4, 0.6, 0.8, 1.0)]
+        self.assertEqual(samples, sorted(samples))
 
-    def test_policy_validates_local_max_displacement_px(self) -> None:
+    def test_smoothstep_between_clamps_and_rejects_invalid_bounds(self) -> None:
+        self.assertEqual(smoothstep_between(1.0, 3.0, 0.5), 0.0)
+        self.assertEqual(smoothstep_between(1.0, 3.0, 3.5), 1.0)
         with self.assertRaises(ValueError):
-            validate_grid_warp_policy(GridWarpPolicy(local_max_displacement_px=-1.0))
+            smoothstep_between(2.0, 2.0, 2.0)
 
-    def test_classify_returns_global_for_sun_like_mass(self) -> None:
+    def test_policy_validates_local_and_smoothing_fields(self) -> None:
+        with self.assertRaises(ValueError):
+            validate_grid_warp_policy(GridWarpPolicy(local_zoom_fade_start=0.0))
+        with self.assertRaises(ValueError):
+            validate_grid_warp_policy(GridWarpPolicy(local_zoom_fade_full=1.0, local_zoom_fade_start=1.0))
+        with self.assertRaises(ValueError):
+            validate_grid_warp_policy(GridWarpPolicy(soft_core_px=-1.0))
+        with self.assertRaises(ValueError):
+            validate_grid_warp_policy(GridWarpPolicy(max_sources_per_point=0))
+
+    def test_local_zoom_fade_progression(self) -> None:
+        policy = GridWarpPolicy(local_zoom_fade_start=1.2, local_zoom_fade_full=2.4)
+        self.assertEqual(compute_local_zoom_fade(1.0, policy), 0.0)
+        self.assertEqual(compute_local_zoom_fade(3.0, policy), 1.0)
+        mid = compute_local_zoom_fade(1.8, policy)
+        self.assertGreater(mid, 0.0)
+        self.assertLess(mid, 1.0)
+
+    def test_classify_source_global_local_hidden(self) -> None:
         policy = GridWarpPolicy()
-        kind = classify_warp_source(relative_mass=1.0, camera_zoom=0.2, policy=policy)
-        self.assertEqual(kind, "global")
+        self.assertEqual(classify_warp_source(relative_mass=1.0, camera_zoom=0.2, policy=policy), "global")
+        self.assertEqual(classify_warp_source(relative_mass=1e-8, camera_zoom=3.0, policy=policy), "hidden")
+        self.assertEqual(
+            classify_warp_source(relative_mass=3e-6, camera_zoom=2.0, policy=policy),
+            "local",
+        )
 
-    def test_classify_returns_hidden_for_earth_like_mass_at_overview(self) -> None:
-        sun = get_solar_system_body("Sun")
-        earth = get_solar_system_body("Earth")
-        policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg)
-        relative = compute_relative_mass(earth.mass_kg, policy)
-        kind = classify_warp_source(relative_mass=relative, camera_zoom=0.2, policy=policy)
-        self.assertEqual(kind, "hidden")
+    def test_px_to_world_conversions(self) -> None:
+        policy = GridWarpPolicy(local_influence_radius_px=220.0, local_max_displacement_px=34.0)
+        self.assertAlmostEqual(compute_local_influence_radius_world(2.0, policy), 110.0)
+        self.assertAlmostEqual(compute_local_max_displacement_world(2.0, policy), 17.0)
 
-    def test_classify_returns_local_for_earth_like_mass_at_close_zoom(self) -> None:
-        sun = get_solar_system_body("Sun")
-        earth = get_solar_system_body("Earth")
-        policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg)
-        relative = compute_relative_mass(earth.mass_kg, policy)
-        kind = classify_warp_source(relative_mass=relative, camera_zoom=2.5, policy=policy)
-        self.assertEqual(kind, "local")
+    def test_no_sources_returns_original_point(self) -> None:
+        point = (5.0, 6.0)
+        self.assertEqual(
+            distort_grid_point(point, (), policy=GridWarpPolicy(), camera_zoom=1.0),
+            point,
+        )
 
-    def test_local_influence_radius_converts_px_to_world(self) -> None:
-        policy = GridWarpPolicy(local_influence_radius_px=90.0)
-        self.assertAlmostEqual(compute_local_influence_radius_world(3.0, policy), 30.0)
+    def test_strength_zero_returns_original_point(self) -> None:
+        source = DistortionSource(name="Sun", position=(0.0, 0.0), mass_kg=1.0e30)
+        point = (10.0, 0.0)
+        self.assertEqual(
+            distort_grid_point(point, (source,), policy=GridWarpPolicy(strength=0.0), camera_zoom=1.0),
+            point,
+        )
 
-    def test_local_max_displacement_converts_px_to_world(self) -> None:
-        policy = GridWarpPolicy(local_max_displacement_px=12.0)
-        self.assertAlmostEqual(compute_local_max_displacement_world(3.0, policy), 4.0)
+    def test_point_at_source_center_is_safe(self) -> None:
+        source = DistortionSource(name="Sun", position=(10.0, 10.0), mass_kg=1.0e30)
+        point = (10.0, 10.0)
+        self.assertEqual(
+            distort_grid_point(point, (source,), policy=GridWarpPolicy(), camera_zoom=1.0),
+            point,
+        )
 
-    def test_local_warp_displacement_is_bounded_by_local_cap(self) -> None:
-        sun = get_solar_system_body("Sun")
-        earth = get_solar_system_body("Earth")
-        policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg, local_max_displacement_px=12.0)
-        source = DistortionSource(name="Earth", position=(0.0, 0.0), mass_kg=earth.mass_kg)
-        point = (0.5, 0.0)
-        zoom = 3.0
-        distorted = distort_grid_point(point, (source,), policy=policy, camera_zoom=zoom)
-        displacement = abs(distorted[0] - point[0])
-        self.assertLessEqual(displacement, compute_local_max_displacement_world(zoom, policy))
+    def test_smooth_falloff_decreases_with_distance(self) -> None:
+        policy = GridWarpPolicy()
+        near = compute_smooth_falloff(10.0, 100.0, policy)
+        mid = compute_smooth_falloff(40.0, 100.0, policy)
+        far = compute_smooth_falloff(90.0, 100.0, policy)
+        self.assertGreater(near, mid)
+        self.assertGreater(mid, far)
 
-    def test_local_warp_is_disabled_below_zoom_threshold(self) -> None:
-        sun = get_solar_system_body("Sun")
-        earth = get_solar_system_body("Earth")
-        policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg, local_zoom_threshold=2.0)
-        source = DistortionSource(name="Earth", position=(0.0, 0.0), mass_kg=earth.mass_kg)
-        point = (20.0, 0.0)
+    def test_outside_influence_radius_has_zero_falloff(self) -> None:
+        policy = GridWarpPolicy()
+        self.assertEqual(compute_smooth_falloff(100.0, 100.0, policy), 0.0)
+
+    def test_top_k_source_limit_uses_strongest_influences(self) -> None:
+        point = (60.0, 0.0)
+        policy = GridWarpPolicy(min_visible_relative_mass=0.0, max_sources_per_point=1)
+        strong = DistortionSource(name="A", position=(0.0, 0.0), mass_kg=1.0e32)
+        weak_1 = DistortionSource(name="B", position=(0.0, 10.0), mass_kg=1.0e23)
+        weak_2 = DistortionSource(name="C", position=(0.0, -10.0), mass_kg=1.0e23)
+        combined = distort_grid_point(point, (strong, weak_1, weak_2), policy=policy, camera_zoom=1.0)
+        strong_only = distort_grid_point(point, (strong,), policy=policy, camera_zoom=1.0)
+        self.assertAlmostEqual(combined[0], strong_only[0], places=6)
+        self.assertAlmostEqual(combined[1], strong_only[1], places=6)
+
+    def test_displacement_is_bounded(self) -> None:
+        source = DistortionSource(name="Sun", position=(0.0, 0.0), mass_kg=1.0e35)
+        point = (1.0, 0.0)
+        policy = GridWarpPolicy(strength=10.0, max_displacement_world=2.0)
         distorted = distort_grid_point(point, (source,), policy=policy, camera_zoom=1.0)
-        self.assertEqual(distorted, point)
+        displacement = abs(distorted[0] - point[0])
+        self.assertLessEqual(displacement, 2.0)
 
-    def test_global_warp_uses_world_space_influence_radius(self) -> None:
-        policy = GridWarpPolicy(base_influence_radius_world=800.0)
-        radius = compute_influence_radius_world(0.5, policy)
-        self.assertAlmostEqual(radius, 400.0)
-
-    def test_visual_factor_hierarchy_sun_jupiter_earth_global(self) -> None:
+    def test_visual_factor_hierarchy_global_sun_jupiter_earth(self) -> None:
         sun = get_solar_system_body("Sun")
         jupiter = get_solar_system_body("Jupiter")
         earth = get_solar_system_body("Earth")
@@ -119,16 +158,17 @@ class GridDistortionTests(unittest.TestCase):
             compute_visual_mass_factor(earth.mass_kg, policy),
         )
 
-    def test_overview_terrestrial_warp_is_suppressed(self) -> None:
+    def test_overview_terrestrial_warp_remains_suppressed(self) -> None:
         sun = get_solar_system_body("Sun")
-        mars = get_solar_system_body("Mars")
+        earth = get_solar_system_body("Earth")
         policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg)
-        relative = compute_relative_mass(mars.mass_kg, policy)
-        self.assertFalse(
-            should_render_distortion_source(relative_mass=relative, camera_zoom=0.2, policy=policy)
+        earth_relative = compute_relative_mass(earth.mass_kg, policy)
+        self.assertEqual(
+            classify_warp_source(relative_mass=earth_relative, camera_zoom=0.2, policy=policy),
+            "hidden",
         )
 
-    def test_local_warp_non_zero_for_earth_like_mass_at_close_zoom(self) -> None:
+    def test_zoomed_in_earth_local_warp_non_zero(self) -> None:
         sun = get_solar_system_body("Sun")
         earth = get_solar_system_body("Earth")
         policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg)
@@ -137,48 +177,29 @@ class GridDistortionTests(unittest.TestCase):
         distorted = distort_grid_point(point, (source,), policy=policy, camera_zoom=3.0)
         self.assertNotEqual(distorted, point)
 
-    def test_local_warp_radius_is_limited_vs_global_sun_radius(self) -> None:
+    def test_local_radius_is_limited_vs_global_sun_radius(self) -> None:
         policy = GridWarpPolicy()
         local_radius = compute_local_influence_radius_world(3.0, policy)
         global_radius = compute_influence_radius_world(1.0, policy)
         self.assertLess(local_radius, global_radius)
 
-    def test_sun_multiplier_increases_sun_warp(self) -> None:
-        sun = get_solar_system_body("Sun")
-        policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg)
-        point = (100.0, 0.0)
-        base_source = DistortionSource(name="Sun", position=(0.0, 0.0), mass_kg=sun.mass_kg)
-        strong_source = DistortionSource(name="Sun", position=(0.0, 0.0), mass_kg=sun.mass_kg * 100.0)
-        base = distort_grid_point(point, (base_source,), policy=policy, camera_zoom=1.0)
-        strong = distort_grid_point(point, (strong_source,), policy=policy, camera_zoom=1.0)
-        self.assertLessEqual(abs(point[0] - base[0]), abs(point[0] - strong[0]))
-
-    def test_sun_multiplier_does_not_increase_non_sun_warp(self) -> None:
+    def test_sun_multiplier_strengthens_sun_only(self) -> None:
         sun = get_solar_system_body("Sun")
         earth = get_solar_system_body("Earth")
         policy = GridWarpPolicy(reference_mass_kg=sun.mass_kg)
-        point = (20.0, 0.0)
+
+        point_sun = (100.0, 0.0)
+        base_sun = DistortionSource(name="Sun", position=(0.0, 0.0), mass_kg=sun.mass_kg)
+        boosted_sun = DistortionSource(name="Sun", position=(0.0, 0.0), mass_kg=sun.mass_kg * 100.0)
+        base_result = distort_grid_point(point_sun, (base_sun,), policy=policy, camera_zoom=1.0)
+        boosted_result = distort_grid_point(point_sun, (boosted_sun,), policy=policy, camera_zoom=1.0)
+        self.assertLessEqual(abs(point_sun[0] - base_result[0]), abs(point_sun[0] - boosted_result[0]))
+
+        point_earth = (20.0, 0.0)
         earth_source = DistortionSource(name="Earth", position=(0.0, 0.0), mass_kg=earth.mass_kg)
-        first = distort_grid_point(point, (earth_source,), policy=policy, camera_zoom=3.0)
-        second = distort_grid_point(point, (earth_source,), policy=policy, camera_zoom=3.0)
+        first = distort_grid_point(point_earth, (earth_source,), policy=policy, camera_zoom=3.0)
+        second = distort_grid_point(point_earth, (earth_source,), policy=policy, camera_zoom=3.0)
         self.assertEqual(first, second)
-
-    def test_point_at_source_center_is_safe(self) -> None:
-        source = DistortionSource(name="Sun", position=(10.0, 10.0), mass_kg=1.0e30)
-        point = (10.0, 10.0)
-        self.assertEqual(distort_grid_point(point, (source,), policy=GridWarpPolicy(), camera_zoom=1.0), point)
-
-    def test_no_sources_returns_original_point(self) -> None:
-        point = (5.0, 6.0)
-        self.assertEqual(distort_grid_point(point, (), policy=GridWarpPolicy(), camera_zoom=1.0), point)
-
-    def test_strength_zero_returns_original_point(self) -> None:
-        source = DistortionSource(name="Sun", position=(0.0, 0.0), mass_kg=1.0e30)
-        point = (10.0, 0.0)
-        self.assertEqual(
-            distort_grid_point(point, (source,), policy=GridWarpPolicy(strength=0.0), camera_zoom=1.0),
-            point,
-        )
 
     def test_build_sources_uses_body_position_and_mass(self) -> None:
         earth = Body(data=get_solar_system_body("Earth"), world_x=12.5, world_y=-8.0)

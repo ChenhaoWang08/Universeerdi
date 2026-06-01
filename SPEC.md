@@ -31,27 +31,30 @@
 `PR23` added trail reset and trail length controls.
 `PR24` added mass-based grid distortion as a visual-only effect.
 `PR25` constrained grid warp by relative mass hierarchy.
-The active work is now `PR26`, which adds zoom-aware local grid warp visibility.
+`PR26` added zoom-aware local grid warp visibility.
+The active work is now `PR27`, which smooths field-based grid warp rendering.
 
-## PR26 Scope
+## PR27 Scope
 
-`PR26` should:
+`PR27` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
 - preserve `W` grid warp toggle and status text behavior
-- preserve PR25 overview hierarchy (Sun-dominant)
-- allow low-mass planets to show small local warp only when zoomed in
-- cap local warp using screen-space-derived bounds
+- preserve PR25/PR26 overview hierarchy (Sun-dominant)
+- smooth falloff boundaries and soften center pull behavior
+- replace hard local zoom switching with gradual zoom fade
+- limit per-point source blending to strongest contributors
+- keep low-mass local warp visible but smoother at close zoom
 - keep distortion bounded and deterministic
 - keep distortion isolated to grid drawing state
 - preserve mode/scale/overlay/time/fullscreen/selection/camera/focus compatibility
 - preserve trail controls from PR23 unchanged
-- add deterministic non-window tests for zoom-aware local warp policy behavior
+- add deterministic non-window tests for smooth field-policy behavior
 
-## PR26 Non-Goals
+## PR27 Non-Goals
 
-`PR26` must not include:
+`PR27` must not include:
 
 - Newtonian equation changes
 - mutation of `solar_system_data.py` constants
@@ -61,7 +64,7 @@ The active work is now `PR26`, which adds zoom-aware local grid warp visibility.
 - focus camera behavior changes
 - camera view preset behavior changes
 - render-scale preset behavior changes
-- help overlay (deferred to PR27)
+- help overlay (deferred to PR28)
 - geodesic/GR/lensing simulation
 - high-precision ephemeris/JPL integrations
 - networking or external services
@@ -90,3 +93,4 @@ The active work is now `PR26`, which adds zoom-aware local grid warp visibility.
 - `PR24` mass-based grid distortion is a visual metaphor in grid rendering only; it does not alter body motion, forces, or Newtonian equations.
 - `PR25` constrains PR24 grid warp with relative mass hierarchy so low-mass planets do not appear Sun-like in overview visuals.
 - `PR26` adds zoom-aware local visibility for low-mass bodies while keeping PR25 overview suppression and Sun-dominant hierarchy.
+- `PR27` smooths warp field continuity with smoothstep falloff, zoom fade, soft-core distance, and top-K source limiting while remaining visual-only.

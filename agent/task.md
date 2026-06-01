@@ -1,17 +1,18 @@
-# PR26: Add zoom-aware local grid warp visibility
+# PR27: Smooth field-based grid warp rendering
 
 ## Objective
 
-Keep PR25 overview suppression while enabling capped local warp visibility for low-mass planets at close zoom.
+Smooth PR26 grid warp rendering so local/global transitions and multi-source behavior feel continuous.
 
 ## Scope
 
 - preserve runtime control:
   - `W` toggle grid distortion
 - preserve `G/H/R` controls unchanged
-- add source classification: `global`, `local`, `hidden`
-- add local zoom threshold policy
-- add local screen-space-derived influence/displacement caps
+- add smoothstep falloff helpers and smooth zoom fade
+- add soft-core source distance handling
+- add top-K source influence limiting
+- keep local warp visible but smoother at close zoom
 - preserve optional effective mass overrides for runtime solar-mass experiment visuals
 - keep behavior deterministic and testable without opening a window
 
@@ -21,7 +22,7 @@ Keep PR25 overview suppression while enabling capped local warp visibility for l
 - no solar mass / absorption / substep semantic changes
 - no focus camera / camera preset / render-scale / trail behavior changes
 - no source data mutation in `solar_system_data.py`
-- no help overlay (deferred to PR27)
+- no help overlay (deferred to PR28)
 - no UI framework
 - no network/API/JPL integration
 
@@ -56,9 +57,9 @@ Keep PR25 overview suppression while enabling capped local warp visibility for l
 - run `python3 -m src.main`
 - verify `W` toggles grid warp status and visual effect
 - verify overview warp is Sun-dominant and terrestrial planets are visually suppressed
-- verify zoomed-in small bodies can show local warp within limited screen-space radius
+- verify zoomed-in small bodies can show local warp with smoother transitions
 - verify existing controls remain compatible
 
 ## Suggested Next PR
 
-`PR27: Add help overlay for controls`
+`PR28: Add help overlay for controls`
