@@ -41,3 +41,4 @@ PR25 constrains PR24 distortion with relative-mass hierarchy and visibility thre
 PR26 adds zoom-aware local warp visibility with screen-space caps so small bodies can show close-up local effects while keeping PR25 overview suppression intact.
 PR27 smooths PR26 field rendering via smoothstep falloff, zoom fade, soft-core distance, and top-K source limiting while preserving the same visual-only boundaries.
 PR28 adds a spawn workflow UI shell (right-click menu + read-only settings panel) that stays in input/rendering state only and does not create previews, spawn bodies, or alter physics.
+PR29 extends the spawn settings panel with editable text fields and pure draft-validation logic while still forbidding preview/spawn side effects.

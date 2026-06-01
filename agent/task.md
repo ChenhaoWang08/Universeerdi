@@ -1,27 +1,25 @@
-# PR28: Add right-click spawn menu and settings panel shell
+# PR29: Add editable spawn settings fields
 
 ## Objective
 
-Add the first UI shell step for spawn workflow: background right-click opens menu, template click opens read-only settings panel, and no preview/spawn occurs yet.
+Build on PR28 spawn workflow shell by making settings fields editable and validating draft values on `Set`, while still forbidding preview/spawn.
 
 ## Scope
 
-- preserve runtime controls and key mappings
-- add spawn template list (Sun/planets + Black Hole placeholder)
-- add background-only right-click spawn menu opening
-- add menu hover + scroll + item click handling
-- add read-only settings panel shell with derived volume/density
-- add `Set` and `Cancel` button behaviors for PR28 shell
-- ensure `Set` does not create preview/spawn
-- ensure `Cancel` closes panel and discards draft
-- keep behavior deterministic and testable without opening a window
+- preserve PR28 spawn menu and panel shell flow
+- make Name/Mass/Radius/Velocity X/Velocity Y/Color RGB editable
+- support cursor-based single-line editing and select-all replacement
+- validate numeric and RGB fields on `Set`
+- keep Volume/Density derived read-only
+- show valid/error note after validation
+- keep `Set`/`Cancel` behaviors deterministic and testable
+- keep no-preview/no-spawn policy
 
 ## Non-Goals
 
 - no Newtonian equation changes
 - no source-data mutation in `solar_system_data.py`
 - no grid warp/trail/focus/camera-preset behavior changes
-- no editable text fields
 - no placement preview
 - no body spawn or physics insertion
 - no black hole physics / GR / geodesic behavior
@@ -32,10 +30,7 @@ Add the first UI shell step for spawn workflow: background right-click opens men
 - `src/main.py`
 - `src/universe/spawn_workflow.py`
 - `src/universe/rendering.py`
-- `src/universe/selection.py` (only if needed)
 - `tests/test_spawn_workflow.py`
-- `tests/test_overlay_controls.py` (only if needed)
-- `tests/test_selection.py` (only if needed)
 - `README.md`
 - `SPEC.md`
 - `ACCEPTANCE.md`
@@ -57,11 +52,11 @@ Add the first UI shell step for spawn workflow: background right-click opens men
 ## Manual Verification
 
 - run `python3 -m src.main`
-- verify right-click background opens spawn menu
-- verify template click opens settings shell (no preview, no spawn)
-- verify menu wheel scroll does not zoom camera
+- verify text editing in settings panel fields
+- verify valid/invalid Set notes
+- verify no preview/spawn side effects
 - verify existing controls remain compatible
 
 ## Suggested Next PR
 
-`PR29: Add editable spawn settings fields`
+`PR30: Add spawn placement preview after valid Set`

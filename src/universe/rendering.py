@@ -23,12 +23,23 @@ from .spawn_workflow import (
     SPAWN_MENU_HEIGHT,
     SPAWN_MENU_ROW_HEIGHT,
     SPAWN_MENU_WIDTH,
+    SPAWN_SETTINGS_FIELD_BOX_LEFT_PADDING,
+    SPAWN_SETTINGS_FIELD_HEIGHT,
+    SPAWN_SETTINGS_FIELD_LABEL_WIDTH,
+    SPAWN_SETTINGS_FIELD_ROW_HEIGHT,
+    SPAWN_SETTINGS_FIELD_START_TOP,
+    SPAWN_SETTINGS_FIELD_TEXT_PADDING_X,
+    SPAWN_SETTINGS_TITLE_TOP,
     SPAWN_SETTINGS_PANEL_HEIGHT,
     SPAWN_SETTINGS_PANEL_WIDTH,
     SpawnMenuState,
     SpawnSettingsState,
     SpawnTemplate,
+    get_spawn_text_input,
     spawn_menu_visible_row_count,
+    spawn_settings_editable_field_ids,
+    spawn_settings_error_for_field,
+    spawn_settings_field_rect,
     spawn_settings_cancel_button_rect,
     spawn_settings_display_lines,
     spawn_settings_panel_rect,
@@ -73,6 +84,12 @@ SPAWN_SETTINGS_TEXT = (235, 239, 246)
 SPAWN_SETTINGS_NOTE = (205, 212, 222)
 SPAWN_BUTTON_FILL = (79, 88, 102)
 SPAWN_BUTTON_BORDER = (198, 204, 214)
+SPAWN_FIELD_FILL = (33, 36, 42)
+SPAWN_FIELD_BORDER = (146, 156, 172)
+SPAWN_FIELD_FOCUS_BORDER = (220, 226, 236)
+SPAWN_FIELD_INVALID_BORDER = (210, 110, 110)
+SPAWN_FIELD_SELECTION = (120, 136, 165, 120)
+SPAWN_FIELD_READONLY = (185, 191, 202)
 
 MIN_GRID_PIXELS = 48.0
 MAX_GRID_PIXELS = 160.0
@@ -815,16 +832,135 @@ def draw_spawn_settings_panel(
     pygame_module.draw.rect(surface, SPAWN_SETTINGS_BORDER, (left, top, width, height), 2, border_radius=8)
 
     font = pygame_module.font.Font(None, 22)
+    _draw_spawn_settings_fields(surface, pygame_module, font, settings_state)
     lines = spawn_settings_display_lines(settings_state)
-    for line_index, line in enumerate(lines[:12]):
-        text_color = SPAWN_SETTINGS_NOTE if line == settings_state.note_text else SPAWN_SETTINGS_TEXT
+    info_top = top + SPAWN_SETTINGS_FIELD_START_TOP + (
+        len(spawn_settings_editable_field_ids()) * SPAWN_SETTINGS_FIELD_ROW_HEIGHT
+    ) + 8
+    for line_index, line in enumerate(lines[:4]):
+        text_color = SPAWN_SETTINGS_NOTE if line == settings_state.note_text else SPAWN_FIELD_READONLY
         text = font.render(line, True, text_color)
-        surface.blit(text, (left + 12, top + 12 + (line_index * 24)))
+        surface.blit(text, (left + SPAWN_SETTINGS_FIELD_BOX_LEFT_PADDING, info_top + (line_index * 22)))
 
     set_rect = spawn_settings_set_button_rect(settings_state)
     cancel_rect = spawn_settings_cancel_button_rect(settings_state)
     _draw_spawn_button(surface, pygame_module, font, set_rect, "Set")
     _draw_spawn_button(surface, pygame_module, font, cancel_rect, "Cancel")
+
+
+def _draw_spawn_settings_fields(
+    surface: object,
+    pygame_module: object,
+    font: object,
+    settings_state: SpawnSettingsState,
+) -> None:
+    panel_left = settings_state.panel_left
+    title = font.render("Spawn Draft Settings", True, SPAWN_SETTINGS_TEXT)
+    surface.blit(title, (panel_left + SPAWN_SETTINGS_FIELD_BOX_LEFT_PADDING, settings_state.panel_top + SPAWN_SETTINGS_TITLE_TOP))
+
+    for field_id in spawn_settings_editable_field_ids():
+        field_rect = spawn_settings_field_rect(settings_state, field_id)
+        _draw_spawn_settings_input_row(
+            surface,
+            pygame_module,
+            font,
+            settings_state,
+            field_id=field_id,
+            field_rect=field_rect,
+        )
+
+
+def _draw_spawn_settings_input_row(
+    surface: object,
+    pygame_module: object,
+    font: object,
+    settings_state: SpawnSettingsState,
+    *,
+    field_id: str,
+    field_rect: Tuple[int, int, int, int],
+) -> None:
+    label_text = field_id.replace("_", " ").replace(" m s", "/s")
+    if field_id == "mass_kg":
+        label_text = "Mass kg"
+    elif field_id == "radius_m":
+        label_text = "Radius m"
+    elif field_id == "velocity_x_m_s":
+        label_text = "Velocity X"
+    elif field_id == "velocity_y_m_s":
+        label_text = "Velocity Y"
+    elif field_id == "color_rgb":
+        label_text = "Color RGB"
+    elif field_id == "name":
+        label_text = "Name"
+
+    label_left = settings_state.panel_left + SPAWN_SETTINGS_FIELD_BOX_LEFT_PADDING
+    label_top = field_rect[1] + 5
+    label_surface = font.render(label_text, True, SPAWN_SETTINGS_TEXT)
+    surface.blit(label_surface, (label_left, label_top))
+
+    error_text = spawn_settings_error_for_field(settings_state, field_id)
+    is_focused = settings_state.focused_field_id == field_id
+    border_color = SPAWN_FIELD_INVALID_BORDER if error_text else SPAWN_FIELD_BORDER
+    if is_focused:
+        border_color = SPAWN_FIELD_FOCUS_BORDER
+
+    pygame_module.draw.rect(surface, SPAWN_FIELD_FILL, field_rect, border_radius=4)
+    pygame_module.draw.rect(surface, border_color, field_rect, 1, border_radius=4)
+
+    text_input = get_spawn_text_input(settings_state, field_id)
+    if text_input is None:
+        return
+
+    _draw_field_selection(surface, pygame_module, text_input, field_rect)
+    text_surface = font.render(text_input.text, True, SPAWN_SETTINGS_TEXT)
+    surface.blit(
+        text_surface,
+        (field_rect[0] + SPAWN_SETTINGS_FIELD_TEXT_PADDING_X, field_rect[1] + 4),
+    )
+    if is_focused:
+        _draw_field_cursor(surface, pygame_module, text_input, field_rect)
+
+    if error_text:
+        error_surface = pygame_module.font.Font(None, 18).render(error_text, True, SPAWN_FIELD_INVALID_BORDER)
+        surface.blit(error_surface, (field_rect[0], field_rect[1] + field_rect[3] + 2))
+
+
+def _draw_field_selection(
+    surface: object,
+    pygame_module: object,
+    text_input: object,
+    field_rect: Tuple[int, int, int, int],
+) -> None:
+    anchor = getattr(text_input, "selection_anchor", None)
+    focus = getattr(text_input, "selection_focus", None)
+    if anchor is None or focus is None or anchor == focus:
+        return
+
+    start = max(0, min(anchor, focus))
+    end = max(0, max(anchor, focus))
+    left_x = field_rect[0] + SPAWN_SETTINGS_FIELD_TEXT_PADDING_X + (start * SPAWN_SETTINGS_FIELD_APPROX_CHAR_WIDTH)
+    right_x = field_rect[0] + SPAWN_SETTINGS_FIELD_TEXT_PADDING_X + (end * SPAWN_SETTINGS_FIELD_APPROX_CHAR_WIDTH)
+    width = max(1, int(right_x - left_x))
+    selection_surface = pygame_module.Surface((width, field_rect[3] - 6), pygame_module.SRCALPHA)
+    selection_surface.fill(SPAWN_FIELD_SELECTION)
+    surface.blit(selection_surface, (int(left_x), field_rect[1] + 3))
+
+
+def _draw_field_cursor(
+    surface: object,
+    pygame_module: object,
+    text_input: object,
+    field_rect: Tuple[int, int, int, int],
+) -> None:
+    cursor_index = getattr(text_input, "cursor_index", 0)
+    cursor_x = field_rect[0] + SPAWN_SETTINGS_FIELD_TEXT_PADDING_X + (cursor_index * SPAWN_SETTINGS_FIELD_APPROX_CHAR_WIDTH)
+    pygame_module.draw.line(
+        surface,
+        SPAWN_FIELD_FOCUS_BORDER,
+        (cursor_x, field_rect[1] + 4),
+        (cursor_x, field_rect[1] + field_rect[3] - 4),
+        1,
+    )
 
 
 def _draw_spawn_button(

@@ -23,6 +23,7 @@
 | Close-up views may hide small-body warp completely after overview suppression. | Add zoom-aware local warp path with strict screen-space caps to show local effects without polluting overview. |
 | Warp field transitions may appear abrupt or kinked under multi-source influence. | Use smoothstep falloff, zoom fade, soft-core distance, and top-K source limiting for smoother field continuity. |
 | Spawn workflow UI clicks might leak into selection/camera controls. | Enforce strict input priority (settings panel > spawn menu > overlay > selection > drag) and cover with pure state tests. |
+| Editable spawn text fields might trigger global hotkeys unexpectedly. | Route key events to focused text field first while panel is open, and verify with non-window keyboard-routing tests. |
 | Escape behavior could regress windowed quit flow. | Keep conditional logic explicit: escape fullscreen first, otherwise preserve existing quit behavior. |
 | Windowed size may be lost after fullscreen toggle. | Track and restore last known windowed size in a pure display-mode state model. |
 | Selection/inspector behavior may regress while touching render path. | Preserve existing pipelines and run compatibility tests with full suite. |

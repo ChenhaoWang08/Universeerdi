@@ -31,4 +31,4 @@
 
 ## In Progress
 
-- `PR28`: add right-click spawn menu and read-only settings panel shell.
+- `PR29`: add editable spawn settings fields with draft validation.
