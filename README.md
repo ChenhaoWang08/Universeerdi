@@ -29,7 +29,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR22` added distance scale ruler and preset explanations.
 `PR23` added trail reset and trail length controls.
 `PR24` added mass-based grid distortion as a visual-only effect.
-The current phase is `PR25`, which constrains grid warp by relative mass hierarchy.
+`PR25` constrained grid warp by relative mass hierarchy.
+The current phase is `PR26`, which adds zoom-aware local grid warp visibility.
 
 Primary launch command:
 
@@ -138,6 +139,12 @@ PR25 mass-aware warp constraints:
 - low-mass planets no longer appear Sun-like in far/overview views
 - Sun runtime gravity multiplier still increases Sun warp via effective runtime mass mapping
 - non-Sun warp does not get stronger just because Sun multiplier is increased
+
+PR26 zoom-aware local warp behavior:
+- keeps PR25 overview suppression for terrestrial planets
+- when zoomed in, low-mass planets can show a small local warp
+- local warp radius and displacement are capped in screen-space-derived bounds
+- remains visual-only and does not alter physics/simulation/source data
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

@@ -26,7 +26,8 @@
 - `PR22`: add distance scale ruler and preset explanations.
 - `PR23`: add trail reset and trail length controls.
 - `PR24`: add mass-based grid distortion visual effect.
+- `PR25`: constrain grid warp by relative mass hierarchy.
 
 ## In Progress
 
-- `PR25`: constrain grid warp by relative mass hierarchy.
+- `PR26`: add zoom-aware local grid warp visibility.

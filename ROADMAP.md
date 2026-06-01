@@ -47,7 +47,8 @@
 - distance scale ruler and preset explanations
 - trail reset and trail length controls
 - mass-based grid distortion visual effect
-- current PR focus: mass-aware grid warp scaling constraints
+- mass-aware grid warp scaling constraints
+- current PR focus: zoom-aware local grid warp visibility
 
 ## Phase E: Relativistic / Visual Effects
 
