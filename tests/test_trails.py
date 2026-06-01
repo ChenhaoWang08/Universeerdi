@@ -5,6 +5,7 @@ from src.universe.trails import (
     build_dashed_polyline_segments,
     resolve_trail_color,
     split_line_into_dashed_segments,
+    trim_trail_history,
     update_trail_history_bounded,
 )
 
@@ -71,3 +72,22 @@ class TrailsTests(unittest.TestCase):
         points_before = tuple(points)
         _segments = build_dashed_polyline_segments(points, dash_length=5.0, gap_length=2.0)
         self.assertEqual(points, points_before)
+
+    def test_trim_trail_history_rejects_invalid_max_points(self) -> None:
+        with self.assertRaises(ValueError):
+            trim_trail_history({}, 0)
+
+    def test_trim_trail_history_keeps_most_recent_points(self) -> None:
+        history = {
+            "Earth": ((0.0, 0.0), (1.0, 0.0), (2.0, 0.0), (3.0, 0.0)),
+        }
+        trimmed = trim_trail_history(history, 2)
+        self.assertEqual(trimmed["Earth"], ((2.0, 0.0), (3.0, 0.0)))
+
+    def test_trim_trail_history_preserves_body_names(self) -> None:
+        history = {
+            "Earth": ((0.0, 0.0),),
+            "Mars": ((1.0, 1.0), (2.0, 2.0)),
+        }
+        trimmed = trim_trail_history(history, 1)
+        self.assertEqual(set(trimmed.keys()), {"Earth", "Mars"})

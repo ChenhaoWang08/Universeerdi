@@ -103,6 +103,18 @@ def update_trail_history_bounded(
     return next_history
 
 
+def trim_trail_history(
+    trail_history: TrailHistory,
+    max_points: int,
+) -> TrailHistory:
+    if max_points <= 0:
+        raise ValueError("max_points must be positive")
+    return {
+        name: points[-max_points:]
+        for name, points in trail_history.items()
+    }
+
+
 def _validate_dash_params(dash_length: float, gap_length: float) -> None:
     if dash_length <= 0.0:
         raise ValueError("dash_length must be positive")

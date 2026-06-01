@@ -109,6 +109,14 @@ class OverlayControlsTests(unittest.TestCase):
         self.assertGreater(focus_top, substeps_bottom)
         self.assertLessEqual(focus_top + rects.focus_status_rect[3], panel_bottom)
 
+    def test_trail_length_status_row_is_positioned_below_focus(self) -> None:
+        rects = build_overlay_control_rects((1280, 720))
+        focus_bottom = rects.focus_status_rect[1] + rects.focus_status_rect[3]
+        trail_length_top = rects.trail_length_status_rect[1]
+        panel_bottom = rects.panel_rect[1] + rects.panel_rect[3]
+        self.assertGreater(trail_length_top, focus_bottom)
+        self.assertLessEqual(trail_length_top + rects.trail_length_status_rect[3], panel_bottom)
+
     def test_toggle_clicks_do_not_mutate_physics_state(self) -> None:
         demo_state = create_controlled_demo_state()
         before_positions = tuple(body.position_m for body in demo_state.physics_bodies)

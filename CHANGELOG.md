@@ -23,7 +23,8 @@
 - `PR19`: add camera zoom range controls and view presets.
 - `PR20`: add fixed physics substeps for high-gravity stability.
 - `PR21`: add focus body camera mode.
+- `PR22`: add distance scale ruler and preset explanations.
 
 ## In Progress
 
-- `PR22`: add distance scale ruler and preset explanations.
+- `PR23`: add trail reset and trail length controls.

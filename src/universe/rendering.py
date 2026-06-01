@@ -208,6 +208,7 @@ def draw_scene_with_overlays(
     camera_view_status_text: Optional[str] = None,
     physics_substeps_status_text: Optional[str] = None,
     focus_status_text: Optional[str] = None,
+    trail_length_status_text: Optional[str] = None,
     scale_ruler: Optional[ScaleRuler] = None,
     scale_note_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
@@ -235,6 +236,7 @@ def draw_scene_with_overlays(
         camera_view_status_text=camera_view_status_text,
         physics_substeps_status_text=physics_substeps_status_text,
         focus_status_text=focus_status_text,
+        trail_length_status_text=trail_length_status_text,
     )
     draw_scale_ruler_overlay(
         surface,
@@ -352,6 +354,7 @@ def draw_ui_placeholder(
     camera_view_status_text: Optional[str] = None,
     physics_substeps_status_text: Optional[str] = None,
     focus_status_text: Optional[str] = None,
+    trail_length_status_text: Optional[str] = None,
 ) -> None:
     viewport_size = surface.get_size()
     rects = build_overlay_control_rects(viewport_size)
@@ -427,6 +430,14 @@ def draw_ui_placeholder(
             font,
             rects.focus_status_rect,
             focus_status_text,
+        )
+    if trail_length_status_text is not None:
+        _draw_status_row(
+            surface,
+            pygame_module,
+            font,
+            rects.trail_length_status_rect,
+            trail_length_status_text,
         )
 
 
