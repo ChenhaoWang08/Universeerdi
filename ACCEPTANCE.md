@@ -1,27 +1,26 @@
-# PR23 Acceptance Criteria
+# PR24 Acceptance Criteria
 
-`PR23` is accepted only if all of the following are true:
+`PR24` is accepted only if all of the following are true:
 
 - `python3 -m src.main` remains the documented primary launch command
 - `controlled_demo` mode still works
 - `solar_system` mode still works
-- default trail length is `120`
-- `C` clears trail history
-- `.` increases trail length
-- `,` decreases trail length
-- decreasing trail length trims existing history immediately
-- increasing trail length preserves existing history
-- overlay displays current trail length deterministically
-- trail rendering remains dashed and body-colored
+- grid distortion default state is off
+- `W` toggles grid distortion on/off
+- overlay displays deterministic grid warp status text
+- grid distortion affects only grid rendering and is bounded
+- larger mass causes stronger or equal distortion at equal distance
+- farther points cause weaker or equal distortion for equal source mass
+- point-at-source-center path is safe (no divide-by-zero crash)
+- PR23 trail controls remain unchanged (`C`, `,`, `.` + status)
 - selection/inspector/time/fullscreen/mode/scale/solar-mass/substeps/camera-view/focus controls remain compatible
 - Newtonian equations are unchanged
 - no new integrator is added
-- no adaptive timestep behavior is changed
 - solar mass multiplier semantics remain unchanged
+- absorption behavior remains unchanged
 - source data in `solar_system_data.py` is unchanged
-- no mass-based grid distortion is added
-- no GR/geodesic claim is made
-- tests verify trail-control logic without opening a window
+- no GR/geodesic/lensing claim is made
+- tests verify grid-distortion logic without opening a window
 - existing physics/demo/solar_system/render_scale/time/display/selection/inspector/trails/overlay tests still pass
 - `scripts/check.sh` passes
 - `python3 -m pytest tests` passes

@@ -36,3 +36,4 @@ PR20 fixed physics substeps split solar-system frame dt and run absorption per s
 PR21 focus-body camera mode follows selected render bodies and does not alter simulation stepping or source constants.
 PR22 distance scale ruler and preset explanations are informational render annotations and do not alter simulation or physics state.
 PR23 trail reset/length controls adjust trail-history storage and rendering only and do not alter simulation or physics state.
+PR24 mass-based grid distortion affects grid rendering only and does not alter simulation, source data, or Newtonian force/acceleration updates.

@@ -30,6 +30,12 @@ from .universe.focus_camera import (
     sync_focus_with_render_bodies,
     toggle_focus_from_selection,
 )
+from .universe.grid_distortion import (
+    GridDistortionState,
+    build_distortion_sources_from_bodies,
+    grid_distortion_status_text,
+    toggle_grid_distortion,
+)
 from .universe.overlay_controls import OverlayControlsState, handle_overlay_click
 from .universe.physics_substeps import (
     PhysicsSubstepState,
@@ -119,6 +125,7 @@ def main() -> int:
     solar_mass_experiment_state = SolarMassExperimentState()
     physics_substep_state = PhysicsSubstepState()
     focus_camera_state = FocusCameraState()
+    grid_distortion_state = GridDistortionState()
     trail_control_state = TrailControlState()
     trail_history = {}
     dragging = False
@@ -207,6 +214,8 @@ def main() -> int:
                     solar_mass_experiment_state = reset_solar_mass_multiplier(
                         solar_mass_experiment_state
                     )
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_w:
+                    grid_distortion_state = toggle_grid_distortion(grid_distortion_state)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_c:
                     trail_history = clear_trail_history()
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_COMMA:
@@ -259,6 +268,7 @@ def main() -> int:
             frame_delta_seconds = clock.tick(60) / 1000.0
             simulation_dt_seconds = compute_simulation_dt(time_controls, frame_delta_seconds)
             current_physics_bodies = ()
+            current_effective_masses_by_name = {}
             current_scale_ruler = None
             current_scale_note_text = None
             if simulation_mode_state.mode == "controlled_demo":
@@ -294,6 +304,13 @@ def main() -> int:
                 current_scale_note_text = render_scale_preset_explanation(
                     render_scale_preset_state.preset
                 )
+            current_effective_masses_by_name = {
+                body.name: body.mass_kg for body in current_physics_bodies
+            }
+            grid_distortion_sources = build_distortion_sources_from_bodies(
+                bodies,
+                effective_masses_by_name=current_effective_masses_by_name,
+            )
             trail_history = update_trail_history(
                 trail_history,
                 bodies,
@@ -337,6 +354,9 @@ def main() -> int:
                 physics_substeps_status_text=physics_substeps_status_text(physics_substep_state),
                 focus_status_text=focus_status_text(focus_camera_state),
                 trail_length_status_text=trail_length_status_text(trail_control_state),
+                grid_warp_status_text=grid_distortion_status_text(grid_distortion_state),
+                grid_distortion_state=grid_distortion_state,
+                grid_distortion_sources=grid_distortion_sources,
                 scale_ruler=current_scale_ruler,
                 scale_note_text=current_scale_note_text,
                 selected_body_name=selection_state.selected_body_name,

@@ -1,38 +1,36 @@
-# PR23: Add trail reset and trail length controls
+# PR24: Add mass-based grid distortion visual effect
 
 ## Objective
 
-Add runtime controls to clear trail history and adjust trail history length safely.
+Add an optional visual-only mass-based grid distortion effect with a runtime toggle.
 
 ## Scope
 
-- add pure trail-control state with fixed length values
-- add runtime controls:
-  - `C` clear trail history
-  - `,` decrease trail length
-  - `.` increase trail length
-- trim existing history immediately when reducing length
-- keep rendering style unchanged (dashed + body-colored)
+- add pure grid-distortion state and deterministic status text
+- add runtime control:
+  - `W` toggle grid distortion
+- distort grid rendering only (bounded displacement, mass + distance falloff)
+- support optional effective mass overrides for runtime solar-mass experiment visuals
 - keep behavior deterministic and testable without opening a window
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no solar mass / absorption / substep behavior changes
-- no focus camera / camera preset / render-scale behavior changes
+- no solar mass / absorption / substep semantic changes
+- no focus camera / camera preset / render-scale / trail behavior changes
 - no source data mutation in `solar_system_data.py`
+- no help overlay (deferred to PR25)
 - no UI framework
 - no network/API/JPL integration
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/trail_controls.py`
-- `src/universe/trails.py`
+- `src/universe/grid_distortion.py`
 - `src/universe/rendering.py`
 - `src/universe/overlay_controls.py`
-- `tests/test_trail_controls.py`
-- `tests/test_trails.py`
+- `tests/test_grid_distortion.py`
+- `tests/test_grid.py`
 - `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
@@ -54,10 +52,9 @@ Add runtime controls to clear trail history and adjust trail history length safe
 ## Manual Verification
 
 - run `python3 -m src.main`
-- verify `C` clears trails
-- verify `,` and `.` adjust trail history length
+- verify `W` toggles grid warp status and visual effect
 - verify existing controls remain compatible
 
 ## Suggested Next PR
 
-`PR24: Add help overlay for controls`
+`PR25: Add help overlay for controls`

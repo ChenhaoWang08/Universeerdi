@@ -117,6 +117,14 @@ class OverlayControlsTests(unittest.TestCase):
         self.assertGreater(trail_length_top, focus_bottom)
         self.assertLessEqual(trail_length_top + rects.trail_length_status_rect[3], panel_bottom)
 
+    def test_grid_warp_status_row_is_positioned_below_trail_length(self) -> None:
+        rects = build_overlay_control_rects((1280, 720))
+        trail_length_bottom = rects.trail_length_status_rect[1] + rects.trail_length_status_rect[3]
+        grid_warp_top = rects.grid_warp_status_rect[1]
+        panel_bottom = rects.panel_rect[1] + rects.panel_rect[3]
+        self.assertGreater(grid_warp_top, trail_length_bottom)
+        self.assertLessEqual(grid_warp_top + rects.grid_warp_status_rect[3], panel_bottom)
+
     def test_toggle_clicks_do_not_mutate_physics_state(self) -> None:
         demo_state = create_controlled_demo_state()
         before_positions = tuple(body.position_m for body in demo_state.physics_bodies)

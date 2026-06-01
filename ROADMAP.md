@@ -45,7 +45,8 @@
 - fixed physics substeps for high-gravity stability
 - focus-body camera mode
 - distance scale ruler and preset explanations
-- current PR focus: trail reset and trail length controls
+- trail reset and trail length controls
+- current PR focus: mass-based grid distortion visual effect
 
 ## Phase E: Relativistic / Visual Effects
 

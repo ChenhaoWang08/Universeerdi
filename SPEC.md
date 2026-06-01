@@ -28,24 +28,26 @@
 `PR20` added fixed physics substeps for high-gravity stability.
 `PR21` added focus-body camera mode.
 `PR22` added distance scale ruler and preset explanations.
-The active work is now `PR23`, which adds trail reset and trail length controls.
+`PR23` added trail reset and trail length controls.
+The active work is now `PR24`, which adds mass-based grid distortion as a visual-only effect.
 
-## PR23 Scope
+## PR24 Scope
 
-`PR23` should:
+`PR24` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add runtime trail-history clear control
-- add runtime trail-length controls with fixed safe values
-- trim existing history immediately when reducing trail length
-- keep trail controls isolated to trail storage/rendering state
+- add runtime grid warp toggle (`W`)
+- add optional mass-based grid distortion for grid rendering only
+- keep distortion bounded and deterministic
+- keep distortion isolated to grid drawing state
 - preserve mode/scale/overlay/time/fullscreen/selection/camera/focus compatibility
-- add deterministic non-window tests for trail control behavior
+- preserve trail controls from PR23 unchanged
+- add deterministic non-window tests for grid distortion behavior
 
-## PR23 Non-Goals
+## PR24 Non-Goals
 
-`PR23` must not include:
+`PR24` must not include:
 
 - Newtonian equation changes
 - mutation of `solar_system_data.py` constants
@@ -55,7 +57,8 @@ The active work is now `PR23`, which adds trail reset and trail length controls.
 - focus camera behavior changes
 - camera view preset behavior changes
 - render-scale preset behavior changes
-- mass-based grid distortion
+- help overlay (deferred to PR25)
+- geodesic/GR/lensing simulation
 - high-precision ephemeris/JPL integrations
 - networking or external services
 
@@ -80,3 +83,4 @@ The active work is now `PR23`, which adds trail reset and trail length controls.
 - `PR21` focus camera follows selected body in rendering space only and does not alter physics state, source data, or PR18/PR20 stepping semantics.
 - `PR22` distance ruler and preset explanations are UI-only annotations and do not alter camera state, physics, simulation stepping, or source data.
 - `PR23` trail reset/length controls affect trail history storage and rendering only and do not alter physics, simulation state, source data, camera, or focus.
+- `PR24` mass-based grid distortion is a visual metaphor in grid rendering only; it does not alter body motion, forces, or Newtonian equations.

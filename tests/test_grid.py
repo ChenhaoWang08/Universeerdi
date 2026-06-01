@@ -8,6 +8,7 @@ from src.universe.rendering import (
     Camera,
     body_label_anchor,
     build_grid_segments,
+    build_grid_world_segments,
     choose_grid_world_spacing,
     update_trail_history,
 )
@@ -33,6 +34,14 @@ class GridTests(unittest.TestCase):
         camera = Camera(zoom=0.2)
         minor, major, _ = build_grid_segments(camera, (1600, 900))
         self.assertLess(len(minor) + len(major), 80)
+
+    def test_screen_grid_segments_match_world_grid_projection(self) -> None:
+        camera = Camera(center_x=50.0, center_y=-25.0, zoom=1.2)
+        viewport = (1280, 720)
+        minor_screen, major_screen, _ = build_grid_segments(camera, viewport)
+        minor_world, major_world, _ = build_grid_world_segments(camera, viewport)
+        self.assertEqual(len(minor_screen), len(minor_world))
+        self.assertEqual(len(major_screen), len(major_world))
 
     def test_trail_history_appends_and_caps_points(self) -> None:
         earth = get_solar_system_body("Earth")

@@ -24,7 +24,8 @@
 - `PR20`: add fixed physics substeps for high-gravity stability.
 - `PR21`: add focus body camera mode.
 - `PR22`: add distance scale ruler and preset explanations.
+- `PR23`: add trail reset and trail length controls.
 
 ## In Progress
 
-- `PR23`: add trail reset and trail length controls.
+- `PR24`: add mass-based grid distortion visual effect.
