@@ -27,7 +27,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR20` added fixed physics substeps for high-gravity stability.
 `PR21` added focus body camera mode.
 `PR22` added distance scale ruler and preset explanations.
-The current phase is `PR23`, which adds trail reset and trail length controls.
+`PR23` added trail reset and trail length controls.
+The current phase is `PR24`, which adds mass-based grid distortion as a visual-only effect.
 
 Primary launch command:
 
@@ -123,6 +124,13 @@ PR23 trail controls:
 - `,`: decrease trail length cap
 - `.`: increase trail length cap
 - trail controls affect only trail history storage/rendering and do not change physics, simulation state, source data, camera, focus, or solar-mass behavior
+
+PR24 grid warp controls:
+- `W`: toggle mass-based grid warp visualization on/off
+- grid warp affects only background grid rendering
+- stronger mass creates stronger local warp; farther points warp less
+- this is a visual metaphor only (not GR, geodesic solving, or lensing)
+- grid warp does not alter body motion, forces, source data, trails, camera, focus, substeps, or solar-mass semantics
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

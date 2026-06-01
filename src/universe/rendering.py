@@ -5,6 +5,11 @@ from math import floor, log10
 from typing import Dict, List, Optional, Sequence, Tuple
 
 from .body import Body
+from .grid_distortion import (
+    DistortionSource,
+    GridDistortionState,
+    distort_grid_point,
+)
 from .overlay_controls import (
     OverlayControlsState,
     build_overlay_control_rects,
@@ -49,6 +54,9 @@ TRAIL_LINE_WIDTH = 2
 TRAIL_DASH_LENGTH = 10.0
 TRAIL_GAP_LENGTH = 7.0
 LABEL_OFFSET_PX = 10.0
+GRID_DISTORTION_SAMPLES_PER_LINE = 24
+GRID_DISTORTION_INFLUENCE_RADIUS_MULTIPLIER = 5.0
+GRID_DISTORTION_MAX_DISPLACEMENT_RATIO = 0.4
 
 
 @dataclass
@@ -128,8 +136,9 @@ def choose_grid_world_spacing(zoom: float) -> float:
     return float(best_spacing)
 
 
-def build_grid_segments(
-    camera: Camera, viewport_size: Size
+def build_grid_world_segments(
+    camera: Camera,
+    viewport_size: Size,
 ) -> Tuple[List[LineSegment], List[LineSegment], float]:
     minor_spacing = choose_grid_world_spacing(camera.zoom)
     major_spacing = minor_spacing * 5.0
@@ -153,19 +162,40 @@ def build_grid_segments(
 
     for index in range(vertical_count):
         world_x = start_x + (index * minor_spacing)
-        start = camera.world_to_screen((world_x, min_y), viewport_size)
-        end = camera.world_to_screen((world_x, max_y), viewport_size)
+        start = (world_x, min_y)
+        end = (world_x, max_y)
         target = major_segments if _is_major_line(world_x, major_spacing) else minor_segments
         target.append((start, end))
 
     for index in range(horizontal_count):
         world_y = start_y + (index * minor_spacing)
-        start = camera.world_to_screen((min_x, world_y), viewport_size)
-        end = camera.world_to_screen((max_x, world_y), viewport_size)
+        start = (min_x, world_y)
+        end = (max_x, world_y)
         target = major_segments if _is_major_line(world_y, major_spacing) else minor_segments
         target.append((start, end))
 
     return minor_segments, major_segments, minor_spacing
+
+
+def build_grid_segments(
+    camera: Camera, viewport_size: Size
+) -> Tuple[List[LineSegment], List[LineSegment], float]:
+    minor_world, major_world, minor_spacing = build_grid_world_segments(camera, viewport_size)
+    minor_screen = [
+        (
+            camera.world_to_screen(start, viewport_size),
+            camera.world_to_screen(end, viewport_size),
+        )
+        for start, end in minor_world
+    ]
+    major_screen = [
+        (
+            camera.world_to_screen(start, viewport_size),
+            camera.world_to_screen(end, viewport_size),
+        )
+        for start, end in major_world
+    ]
+    return minor_screen, major_screen, minor_spacing
 
 
 def ui_placeholder_rect(viewport_size: Size) -> Tuple[int, int, int, int]:
@@ -209,13 +239,22 @@ def draw_scene_with_overlays(
     physics_substeps_status_text: Optional[str] = None,
     focus_status_text: Optional[str] = None,
     trail_length_status_text: Optional[str] = None,
+    grid_warp_status_text: Optional[str] = None,
+    grid_distortion_state: Optional[GridDistortionState] = None,
+    grid_distortion_sources: Sequence[DistortionSource] = (),
     scale_ruler: Optional[ScaleRuler] = None,
     scale_note_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
     inspector_lines: Optional[Sequence[str]] = None,
 ) -> None:
     surface.fill(BACKGROUND_COLOR)
-    draw_grid(surface, pygame_module, camera)
+    draw_grid(
+        surface,
+        pygame_module,
+        camera,
+        distortion_state=grid_distortion_state,
+        distortion_sources=grid_distortion_sources,
+    )
     if show_trails and trail_history:
         draw_trails(surface, pygame_module, camera, bodies, trail_history)
     draw_bodies(
@@ -237,6 +276,7 @@ def draw_scene_with_overlays(
         physics_substeps_status_text=physics_substeps_status_text,
         focus_status_text=focus_status_text,
         trail_length_status_text=trail_length_status_text,
+        grid_warp_status_text=grid_warp_status_text,
     )
     draw_scale_ruler_overlay(
         surface,
@@ -247,15 +287,73 @@ def draw_scene_with_overlays(
     draw_selection_inspector(surface, pygame_module, inspector_lines)
 
 
-def draw_grid(surface: object, pygame_module: object, camera: Camera) -> None:
+def draw_grid(
+    surface: object,
+    pygame_module: object,
+    camera: Camera,
+    *,
+    distortion_state: Optional[GridDistortionState] = None,
+    distortion_sources: Sequence[DistortionSource] = (),
+) -> None:
     viewport_size = surface.get_size()
-    minor_segments, major_segments, _ = build_grid_segments(camera, viewport_size)
+    minor_world_segments, major_world_segments, minor_spacing = build_grid_world_segments(
+        camera,
+        viewport_size,
+    )
 
-    for start, end in minor_segments:
-        pygame_module.draw.line(surface, GRID_MINOR_COLOR, start, end, 1)
+    if distortion_state is None or not distortion_state.enabled or not distortion_sources:
+        for start, end in minor_world_segments:
+            pygame_module.draw.line(
+                surface,
+                GRID_MINOR_COLOR,
+                camera.world_to_screen(start, viewport_size),
+                camera.world_to_screen(end, viewport_size),
+                1,
+            )
+        for start, end in major_world_segments:
+            pygame_module.draw.line(
+                surface,
+                GRID_MAJOR_COLOR,
+                camera.world_to_screen(start, viewport_size),
+                camera.world_to_screen(end, viewport_size),
+                2,
+            )
+        return
 
-    for start, end in major_segments:
-        pygame_module.draw.line(surface, GRID_MAJOR_COLOR, start, end, 2)
+    influence_radius_world = minor_spacing * GRID_DISTORTION_INFLUENCE_RADIUS_MULTIPLIER
+    max_displacement_world = minor_spacing * GRID_DISTORTION_MAX_DISPLACEMENT_RATIO
+
+    for start, end in minor_world_segments:
+        _draw_distorted_grid_line(
+            surface,
+            pygame_module,
+            camera,
+            start,
+            end,
+            color=GRID_MINOR_COLOR,
+            width=1,
+            sources=distortion_sources,
+            strength=distortion_state.strength,
+            influence_radius_world=influence_radius_world,
+            max_displacement_world=max_displacement_world,
+            samples_per_line=GRID_DISTORTION_SAMPLES_PER_LINE,
+        )
+
+    for start, end in major_world_segments:
+        _draw_distorted_grid_line(
+            surface,
+            pygame_module,
+            camera,
+            start,
+            end,
+            color=GRID_MAJOR_COLOR,
+            width=2,
+            sources=distortion_sources,
+            strength=distortion_state.strength,
+            influence_radius_world=influence_radius_world,
+            max_displacement_world=max_displacement_world,
+            samples_per_line=GRID_DISTORTION_SAMPLES_PER_LINE,
+        )
 
 
 def draw_bodies(
@@ -355,6 +453,7 @@ def draw_ui_placeholder(
     physics_substeps_status_text: Optional[str] = None,
     focus_status_text: Optional[str] = None,
     trail_length_status_text: Optional[str] = None,
+    grid_warp_status_text: Optional[str] = None,
 ) -> None:
     viewport_size = surface.get_size()
     rects = build_overlay_control_rects(viewport_size)
@@ -439,6 +538,14 @@ def draw_ui_placeholder(
             rects.trail_length_status_rect,
             trail_length_status_text,
         )
+    if grid_warp_status_text is not None:
+        _draw_status_row(
+            surface,
+            pygame_module,
+            font,
+            rects.grid_warp_status_rect,
+            grid_warp_status_text,
+        )
 
 
 def _is_major_line(value: float, major_spacing: float) -> bool:
@@ -473,6 +580,58 @@ def _draw_status_row(
     pygame_module.draw.rect(surface, UI_PANEL_BORDER, row_rect, 1, border_radius=4)
     text_surface = font.render(text, True, UI_TEXT_LINE)
     surface.blit(text_surface, (left + 8, top + 3))
+
+
+def _draw_distorted_grid_line(
+    surface: object,
+    pygame_module: object,
+    camera: Camera,
+    world_start: Point,
+    world_end: Point,
+    *,
+    color: Tuple[int, int, int],
+    width: int,
+    sources: Sequence[DistortionSource],
+    strength: float,
+    influence_radius_world: float,
+    max_displacement_world: float,
+    samples_per_line: int,
+) -> None:
+    viewport_size = surface.get_size()
+    sampled_points = _sample_world_line_points(world_start, world_end, samples_per_line)
+    distorted_points = [
+        distort_grid_point(
+            point,
+            sources,
+            strength=strength,
+            influence_radius_world=influence_radius_world,
+            max_displacement_world=max_displacement_world,
+        )
+        for point in sampled_points
+    ]
+    screen_points = [
+        camera.world_to_screen(world_point, viewport_size)
+        for world_point in distorted_points
+    ]
+    for start, end in zip(screen_points, screen_points[1:]):
+        pygame_module.draw.line(surface, color, start, end, width)
+
+
+def _sample_world_line_points(start: Point, end: Point, samples_per_line: int) -> Tuple[Point, ...]:
+    if samples_per_line < 2:
+        raise ValueError("samples_per_line must be >= 2")
+    start_x, start_y = start
+    end_x, end_y = end
+    points = []
+    for index in range(samples_per_line):
+        ratio = index / (samples_per_line - 1)
+        points.append(
+            (
+                start_x + ((end_x - start_x) * ratio),
+                start_y + ((end_y - start_y) * ratio),
+            )
+        )
+    return tuple(points)
 
 
 def draw_selection_inspector(
