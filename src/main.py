@@ -22,6 +22,14 @@ from .universe.display_modes import (
     toggle_fullscreen,
     update_windowed_size,
 )
+from .universe.focus_camera import (
+    FocusCameraState,
+    apply_focus_to_camera,
+    clear_focus,
+    focus_status_text,
+    sync_focus_with_render_bodies,
+    toggle_focus_from_selection,
+)
 from .universe.overlay_controls import OverlayControlsState, handle_overlay_click
 from .universe.physics_substeps import (
     PhysicsSubstepState,
@@ -100,6 +108,7 @@ def main() -> int:
     time_controls = TimeControlState()
     solar_mass_experiment_state = SolarMassExperimentState()
     physics_substep_state = PhysicsSubstepState()
+    focus_camera_state = FocusCameraState()
     trail_history = {}
     dragging = False
 
@@ -124,6 +133,11 @@ def main() -> int:
                         current_size=screen.get_size(),
                     )
                     screen = _set_display_mode(pygame, display_mode_state)
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
+                    focus_camera_state = toggle_focus_from_selection(
+                        focus_camera_state,
+                        selection_state.selected_body_name,
+                    )
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_SPACE:
                     time_controls = toggle_pause(time_controls)
                 elif event.type == pygame.KEYDOWN and event.key in (
@@ -158,6 +172,7 @@ def main() -> int:
                             policy=render_scale_policy_for_preset(render_scale_preset_state.preset),
                         )
                     selection_state = SelectionState()
+                    focus_camera_state = FocusCameraState()
                     trail_history = {}
                     dragging = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_v:
@@ -214,6 +229,7 @@ def main() -> int:
                     dragging = False
                 elif event.type == pygame.MOUSEMOTION and dragging:
                     camera.pan_by_screen_delta(event.rel[0], event.rel[1])
+                    focus_camera_state = clear_focus(focus_camera_state)
                 elif event.type == pygame.MOUSEWHEEL:
                     camera.zoom_by_scroll(event.y, pygame.mouse.get_pos(), screen.get_size())
 
@@ -250,6 +266,8 @@ def main() -> int:
             )
             if selection_state.selected_body_name and selected_physics_body is None:
                 selection_state = SelectionState()
+            focus_camera_state = sync_focus_with_render_bodies(focus_camera_state, bodies)
+            _ = apply_focus_to_camera(camera, focus_camera_state, bodies)
             inspector_lines = format_body_inspector_lines(
                 selected_physics_body,
                 simulation_mode=simulation_mode_state.mode,
@@ -278,6 +296,7 @@ def main() -> int:
                 ),
                 camera_view_status_text=camera_view_status_text(camera_view_state),
                 physics_substeps_status_text=physics_substeps_status_text(physics_substep_state),
+                focus_status_text=focus_status_text(focus_camera_state),
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,
             )

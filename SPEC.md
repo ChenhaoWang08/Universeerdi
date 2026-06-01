@@ -25,29 +25,31 @@
 `PR17` added runtime mode selection and render-scale presets.
 `PR18` added solar mass multiplier experiment with absorption.
 `PR19` added camera zoom range controls and view presets.
-The active work is now `PR20`, which adds fixed physics substeps for high-gravity stability.
+`PR20` added fixed physics substeps for high-gravity stability.
+The active work is now `PR21`, which adds focus-body camera mode.
 
-## PR20 Scope
+## PR21 Scope
 
-`PR20` should:
+`PR21` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
-- add fixed substep choices for solar-system stepping
-- split frame `dt` into smaller physics slices in solar-system mode
-- apply existing absorption rule after each substep
+- add runtime focus-camera state with default `none`
+- toggle focus with `F` using current selection
+- keep camera centered on focused body each frame
+- clear focus safely when focused body no longer exists
 - preserve mode/scale/overlay/time/fullscreen/selection/camera-view compatibility
-- add deterministic non-window tests for substep behavior
+- add deterministic non-window tests for focus behavior
 
-## PR20 Non-Goals
+## PR21 Non-Goals
 
-`PR20` must not include:
+`PR21` must not include:
 
 - Newtonian equation changes
 - mutation of `solar_system_data.py` constants
-- replacing the existing integrator
-- adaptive timestep logic
-- source solar-system data changes
+- solar mass multiplier semantic changes
+- absorption behavior changes
+- physics substeps behavior changes
 - mass-based grid distortion
 - high-precision ephemeris/JPL integrations
 - networking or external services
@@ -70,3 +72,4 @@ The active work is now `PR20`, which adds fixed physics substeps for high-gravit
 - `PR18` runtime Sun mass multiplier and absorption remain experimental and do not alter Newtonian equation definitions or source constants.
 - `PR19` camera view presets and reset controls affect camera/rendering state only and do not alter physics state, source data, or PR18 experiment behavior.
 - `PR20` fixed physics substeps split frame dt into multiple Newtonian slices in solar-system mode and apply absorption after each slice without changing equations or replacing the integrator.
+- `PR21` focus camera follows selected body in rendering space only and does not alter physics state, source data, or PR18/PR20 stepping semantics.

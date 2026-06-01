@@ -21,7 +21,8 @@
 - `PR17`: add runtime simulation mode selection and render-scale presets.
 - `PR18`: add solar mass multiplier experiment with absorption.
 - `PR19`: add camera zoom range controls and view presets.
+- `PR20`: add fixed physics substeps for high-gravity stability.
 
 ## In Progress
 
-- `PR20`: add physics substeps for high-gravity stability.
+- `PR21`: add focus body camera mode.

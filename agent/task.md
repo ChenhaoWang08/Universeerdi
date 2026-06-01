@@ -1,39 +1,35 @@
-# PR20: Add physics substeps for high-gravity stability
+# PR21: Add focus body camera mode
 
 ## Objective
 
-Add fixed physics substeps for `solar_system` stepping so high-gravity experiments are more stable and less likely to skip Sun absorption in one large frame step.
+Add a focus-camera mode that follows the currently selected body when the user presses `F`.
 
 ## Scope
 
-- add pure substep state model with fixed values
-- add runtime controls to increase/decrease substeps
-- split `solar_system` frame `dt` into `N` substeps
-- apply existing absorption rule after each substep
-- keep controlled demo mode behavior unchanged
+- add pure focus-camera state with default `none`
+- toggle focus using current selection with `F`
+- follow focused body by updating camera center each frame
+- clear focus when focused body disappears
+- clear focus when user drags camera manually
 - keep behavior deterministic and testable without opening a window
 
 ## Non-Goals
 
 - no Newtonian equation changes
-- no new integrator
-- no adaptive timestep
-- no source data mutation in `solar_system_data.py`
+- no new integrator or adaptive timestep changes
 - no solar mass multiplier semantic changes
-- no absorption radius/collision-model changes
-- no focus-body camera follow
+- no absorption model changes
+- no source data mutation in `solar_system_data.py`
 - no UI framework
 - no network/API/JPL integration
 
 ## Allowed Files
 
 - `src/main.py`
-- `src/universe/physics_substeps.py`
-- `src/universe/solar_system_simulation.py`
+- `src/universe/focus_camera.py`
 - `src/universe/rendering.py`
 - `src/universe/overlay_controls.py`
-- `tests/test_physics_substeps.py`
-- `tests/test_solar_system_simulation.py`
+- `tests/test_focus_camera.py`
 - `tests/test_overlay_controls.py`
 - `README.md`
 - `SPEC.md`
@@ -55,11 +51,11 @@ Add fixed physics substeps for `solar_system` stepping so high-gravity experimen
 ## Manual Verification
 
 - run `python3 -m src.main`
-- verify viewer launches
-- verify `=` increases substeps and `-` decreases substeps
-- verify overlay shows `Substeps: N`
-- verify no traceback while switching mode/scale/camera/solar-mass/time/fullscreen controls
+- select a body and press `F` to start focus
+- press `F` again to clear focus
+- verify focused target disappearing clears focus safely
+- verify mode/scale/solar-mass/substeps/time/fullscreen controls still work
 
 ## Suggested Next PR
 
-`PR21: Add focus body camera mode`
+`PR22: Add distance scale ruler and preset explanations`

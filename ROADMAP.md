@@ -42,7 +42,8 @@
 - runtime simulation mode selection and render-scale presets
 - solar mass multiplier experiment with absorption
 - camera zoom range controls and view presets
-- current PR focus: fixed physics substeps for high-gravity stability
+- fixed physics substeps for high-gravity stability
+- current PR focus: focus-body camera mode
 
 ## Phase E: Relativistic / Visual Effects
 
