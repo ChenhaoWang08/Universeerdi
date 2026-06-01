@@ -204,6 +204,7 @@ def draw_scene_with_overlays(
     experiment_status_text: Optional[str] = None,
     camera_view_status_text: Optional[str] = None,
     physics_substeps_status_text: Optional[str] = None,
+    focus_status_text: Optional[str] = None,
     selected_body_name: Optional[str] = None,
     inspector_lines: Optional[Sequence[str]] = None,
 ) -> None:
@@ -228,6 +229,7 @@ def draw_scene_with_overlays(
         experiment_status_text=experiment_status_text,
         camera_view_status_text=camera_view_status_text,
         physics_substeps_status_text=physics_substeps_status_text,
+        focus_status_text=focus_status_text,
     )
     draw_selection_inspector(surface, pygame_module, inspector_lines)
 
@@ -338,6 +340,7 @@ def draw_ui_placeholder(
     experiment_status_text: Optional[str] = None,
     camera_view_status_text: Optional[str] = None,
     physics_substeps_status_text: Optional[str] = None,
+    focus_status_text: Optional[str] = None,
 ) -> None:
     viewport_size = surface.get_size()
     rects = build_overlay_control_rects(viewport_size)
@@ -405,6 +408,14 @@ def draw_ui_placeholder(
             font,
             rects.physics_substeps_status_rect,
             physics_substeps_status_text,
+        )
+    if focus_status_text is not None:
+        _draw_status_row(
+            surface,
+            pygame_module,
+            font,
+            rects.focus_status_rect,
+            focus_status_text,
         )
 
 

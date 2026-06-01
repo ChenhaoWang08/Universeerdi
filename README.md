@@ -24,7 +24,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR17` added runtime simulation mode selection and render-scale presets.
 `PR18` added an experimental solar mass multiplier with absorption.
 `PR19` added camera zoom range controls and view presets.
-The current phase is `PR20`, which adds fixed physics substeps for high-gravity stability.
+`PR20` added fixed physics substeps for high-gravity stability.
+The current phase is `PR21`, which adds focus body camera mode.
 
 Primary launch command:
 
@@ -100,6 +101,12 @@ PR20 physics substep controls:
 - `-`: decrease solar-system physics substeps
 - substeps split frame dt and apply absorption after each slice in `solar_system` mode
 - this improves high-gravity experiment stability without changing Newtonian equations
+
+PR21 focus camera controls:
+- click to select a body, then press `F` to focus follow
+- press `F` again to clear focus
+- focus is cleared automatically if the body disappears
+- focus is also cleared when manual camera drag begins
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping
