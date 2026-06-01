@@ -49,7 +49,7 @@
 - mass-based grid distortion visual effect
 - mass-aware grid warp scaling constraints
 - zoom-aware local grid warp visibility
-- current PR focus: right-click spawn menu and settings panel shell
+- current PR focus: editable spawn settings fields and validation
 
 ## Phase E: Relativistic / Visual Effects
 

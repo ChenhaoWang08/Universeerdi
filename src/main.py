@@ -104,9 +104,11 @@ from .universe.spawn_workflow import (
     SpawnMenuState,
     SpawnSettingsState,
     build_spawn_templates,
+    clear_spawn_settings_focus,
     click_spawn_menu_item,
     close_spawn_menu,
     close_spawn_settings_panel,
+    handle_spawn_settings_keydown,
     handle_spawn_settings_click,
     is_point_in_spawn_menu,
     is_point_in_spawn_settings_panel,
@@ -156,10 +158,32 @@ def main() -> int:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     running = False
+                elif event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
+                    display_mode_state = toggle_fullscreen(
+                        display_mode_state,
+                        current_size=screen.get_size(),
+                    )
+                    screen = _set_display_mode(pygame, display_mode_state)
+                elif event.type == pygame.KEYDOWN and spawn_settings_state.is_open:
+                    if event.key == pygame.K_ESCAPE:
+                        if spawn_settings_state.focused_field_id is not None:
+                            spawn_settings_state = clear_spawn_settings_focus(spawn_settings_state)
+                        else:
+                            spawn_settings_state = close_spawn_settings_panel()
+                        dragging = False
+                    else:
+                        spawn_key = _spawn_key_from_pygame_key(event.key, pygame)
+                        spawn_settings_state, consumed = handle_spawn_settings_keydown(
+                            spawn_settings_state,
+                            key=spawn_key,
+                            text=event.unicode,
+                            command_or_control=bool(event.mod & (pygame.KMOD_CTRL | pygame.KMOD_META)),
+                            shift=bool(event.mod & pygame.KMOD_SHIFT),
+                        )
+                        if consumed:
+                            dragging = False
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_ESCAPE:
-                    if spawn_settings_state.is_open:
-                        spawn_settings_state = close_spawn_settings_panel()
-                    elif spawn_menu_state.is_open:
+                    if spawn_menu_state.is_open:
                         spawn_menu_state = close_spawn_menu()
                     elif display_mode_state.is_fullscreen:
                         display_mode_state = exit_fullscreen(
@@ -169,12 +193,6 @@ def main() -> int:
                         screen = _set_display_mode(pygame, display_mode_state)
                     else:
                         running = False
-                elif event.type == pygame.KEYDOWN and event.key == pygame.K_F11:
-                    display_mode_state = toggle_fullscreen(
-                        display_mode_state,
-                        current_size=screen.get_size(),
-                    )
-                    screen = _set_display_mode(pygame, display_mode_state)
                 elif event.type == pygame.KEYDOWN and event.key == pygame.K_f:
                     focus_camera_state = toggle_focus_from_selection(
                         focus_camera_state,
@@ -487,6 +505,18 @@ def _set_display_mode(pygame_module: object, display_mode_state: DisplayModeStat
     if display_mode_state.is_fullscreen:
         return pygame_module.display.set_mode((0, 0), pygame_module.FULLSCREEN)
     return pygame_module.display.set_mode(display_mode_state.windowed_size, pygame_module.RESIZABLE)
+
+
+def _spawn_key_from_pygame_key(key_code: int, pygame_module: object) -> str:
+    key_map = {
+        pygame_module.K_BACKSPACE: "backspace",
+        pygame_module.K_DELETE: "delete",
+        pygame_module.K_LEFT: "left",
+        pygame_module.K_RIGHT: "right",
+        pygame_module.K_ESCAPE: "escape",
+        pygame_module.K_a: "a",
+    }
+    return key_map.get(key_code, "")
 
 
 def _can_start_drag(

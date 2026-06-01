@@ -33,31 +33,34 @@
 `PR25` constrained grid warp by relative mass hierarchy.
 `PR26` added zoom-aware local grid warp visibility.
 `PR27` smoothed field-based grid warp rendering.
-The active work is now `PR28`, which adds right-click spawn menu and settings panel shell.
+`PR28` added right-click spawn menu and settings panel shell.
+The active work is now `PR29`, which adds editable spawn settings fields.
 
-## PR28 Scope
+## PR29 Scope
 
-`PR28` should:
+`PR29` should:
 
 - keep `controlled_demo` mode working
 - keep `solar_system` mode working
 - preserve all existing key mappings and runtime controls
-- open spawn menu on background-only right click
-- show scrollable spawn templates including Sun, planets, and Black Hole placeholder
-- highlight hovered menu row
-- open read-only settings panel shell after template click
-- show read-only defaults and derived values in the panel
-- show `Set` and `Cancel` buttons
+- preserve PR28 spawn menu behavior
+- keep template click flow: menu close -> settings panel open
+- make Name/Mass/Radius/Velocity X/Velocity Y/Color RGB editable
+- support cursor-based single-line editing + select-all replacement behavior
+- validate numeric and RGB fields on `Set`
+- keep Volume/Density derived read-only
+- show valid/error note after `Set`
+- keep panel open after `Set`
 - ensure `Set` does not create preview or spawn body in this PR
-- ensure `Cancel` closes panel and discards draft
-- keep the workflow shell isolated to UI/input/rendering state
+- ensure `Cancel` closes panel and discards draft edits
+- keep workflow state isolated to UI/input/rendering
 - preserve mode/scale/overlay/time/fullscreen/selection/camera/focus compatibility
 - preserve trail controls from PR23 unchanged
-- add deterministic non-window tests for spawn menu/panel behavior
+- add deterministic non-window tests for editable fields + validation behavior
 
-## PR28 Non-Goals
+## PR29 Non-Goals
 
-`PR28` must not include:
+`PR29` must not include:
 
 - Newtonian equation changes
 - mutation of `solar_system_data.py` constants
@@ -67,7 +70,6 @@ The active work is now `PR28`, which adds right-click spawn menu and settings pa
 - focus camera behavior changes
 - camera view preset behavior changes
 - render-scale preset behavior changes
-- editable text fields
 - placement preview
 - actual body spawning or physics insertion
 - black hole physics/GR/geodesic/lensing behaviors
@@ -101,3 +103,4 @@ The active work is now `PR28`, which adds right-click spawn menu and settings pa
 - `PR26` adds zoom-aware local visibility for low-mass bodies while keeping PR25 overview suppression and Sun-dominant hierarchy.
 - `PR27` smooths warp field continuity with smoothstep falloff, zoom fade, soft-core distance, and top-K source limiting while remaining visual-only.
 - `PR28` introduces spawn workflow UI shell only: right-click menu plus read-only settings panel with no preview/spawn side effects.
+- `PR29` adds editable draft fields and validation in the settings panel while still forbidding preview/spawn side effects.
