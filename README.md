@@ -25,7 +25,8 @@ The current workflow is Spec-first Agent Engineering plus Agentic Harness Engine
 `PR18` added an experimental solar mass multiplier with absorption.
 `PR19` added camera zoom range controls and view presets.
 `PR20` added fixed physics substeps for high-gravity stability.
-The current phase is `PR21`, which adds focus body camera mode.
+`PR21` added focus body camera mode.
+The current phase is `PR22`, which adds distance scale ruler and preset explanations.
 
 Primary launch command:
 
@@ -107,6 +108,14 @@ PR21 focus camera controls:
 - press `F` again to clear focus
 - focus is cleared automatically if the body disappears
 - focus is also cleared when manual camera drag begins
+
+PR22 scale interpretation UI:
+- in `solar_system` mode, bottom-left shows a distance scale ruler
+- ruler uses camera zoom + active render-scale policy mapping
+- bottom-left also shows a short scale-note for the active preset
+- these annotations are informational only and do not affect camera/physics/simulation state
+- `readable` and `overview` remain visualization-friendly modes
+- `realistic` is closer to real proportions and can make small bodies harder to see
 
 Keyboard time controls:
 - `Space`: pause/resume simulation stepping

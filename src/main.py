@@ -37,6 +37,7 @@ from .universe.physics_substeps import (
     increase_physics_substeps,
     physics_substeps_status_text,
 )
+from .universe.scale_ruler import build_scale_ruler
 from .universe.rendering import (
     Camera,
     body_contains_screen_point,
@@ -47,6 +48,7 @@ from .universe.rendering import (
 from .universe.render_scale_presets import (
     RenderScalePresetState,
     cycle_render_scale_preset,
+    render_scale_preset_explanation,
     render_scale_policy_for_preset,
     render_scale_preset_status_text,
 )
@@ -111,6 +113,8 @@ def main() -> int:
     focus_camera_state = FocusCameraState()
     trail_history = {}
     dragging = False
+    current_scale_ruler = None
+    current_scale_note_text = None
 
     try:
         running = True
@@ -236,6 +240,8 @@ def main() -> int:
             frame_delta_seconds = clock.tick(60) / 1000.0
             simulation_dt_seconds = compute_simulation_dt(time_controls, frame_delta_seconds)
             current_physics_bodies = ()
+            current_scale_ruler = None
+            current_scale_note_text = None
             if simulation_mode_state.mode == "controlled_demo":
                 # Demo motion is physics-driven and intentionally separate from real dataset motion.
                 assert demo_state is not None
@@ -246,6 +252,9 @@ def main() -> int:
             elif simulation_mode_state.mode == "solar_system":
                 # PR9 solar_system mode uses deterministic initialization and Newtonian stepping.
                 assert solar_system_state is not None
+                current_render_scale_policy = render_scale_policy_for_preset(
+                    render_scale_preset_state.preset
+                )
                 if simulation_dt_seconds > 0.0:
                     solar_system_state = step_solar_system_simulation_state(
                         solar_system_state,
@@ -256,9 +265,16 @@ def main() -> int:
                     )
                 bodies = solar_system_to_render_bodies(
                     solar_system_state,
-                    policy=render_scale_policy_for_preset(render_scale_preset_state.preset),
+                    policy=current_render_scale_policy,
                 )
                 current_physics_bodies = solar_system_state.physics_bodies
+                current_scale_ruler = build_scale_ruler(
+                    camera_zoom=camera.zoom,
+                    meters_per_world_unit=current_render_scale_policy.meters_per_world_unit,
+                )
+                current_scale_note_text = render_scale_preset_explanation(
+                    render_scale_preset_state.preset
+                )
             trail_history = update_trail_history(trail_history, bodies)
             selected_physics_body = get_selected_physics_body(
                 current_physics_bodies,
@@ -297,6 +313,8 @@ def main() -> int:
                 camera_view_status_text=camera_view_status_text(camera_view_state),
                 physics_substeps_status_text=physics_substeps_status_text(physics_substep_state),
                 focus_status_text=focus_status_text(focus_camera_state),
+                scale_ruler=current_scale_ruler,
+                scale_note_text=current_scale_note_text,
                 selected_body_name=selection_state.selected_body_name,
                 inspector_lines=inspector_lines,
             )

@@ -5,6 +5,7 @@ from src.universe.render_scale import RenderScalePolicy
 from src.universe.render_scale_presets import (
     RenderScalePresetState,
     cycle_render_scale_preset,
+    render_scale_preset_explanation,
     render_scale_policy_for_preset,
     render_scale_preset_status_text,
 )
@@ -47,6 +48,12 @@ class RenderScalePresetStateTests(unittest.TestCase):
     def test_scale_status_text_is_deterministic(self) -> None:
         state = RenderScalePresetState(preset="overview")
         self.assertEqual(render_scale_preset_status_text(state), "Scale: overview")
+
+    def test_preset_explanations_exist_for_all_presets(self) -> None:
+        for preset in ("readable", "realistic", "overview"):
+            explanation = render_scale_preset_explanation(preset)
+            self.assertTrue(explanation)
+            self.assertLessEqual(len(explanation), 64)
 
     def test_preset_switching_does_not_mutate_physics_state(self) -> None:
         solar_state = create_solar_system_simulation_state()
