@@ -8,6 +8,7 @@ from .body import Body
 from .grid_distortion import (
     DistortionSource,
     GridDistortionState,
+    GridWarpPolicy,
     distort_grid_point,
 )
 from .overlay_controls import (
@@ -55,8 +56,10 @@ TRAIL_DASH_LENGTH = 10.0
 TRAIL_GAP_LENGTH = 7.0
 LABEL_OFFSET_PX = 10.0
 GRID_DISTORTION_SAMPLES_PER_LINE = 24
-GRID_DISTORTION_INFLUENCE_RADIUS_MULTIPLIER = 5.0
-GRID_DISTORTION_MAX_DISPLACEMENT_RATIO = 0.4
+GRID_DISTORTION_BASE_INFLUENCE_RADIUS_MULTIPLIER = 5.0
+GRID_DISTORTION_MIN_INFLUENCE_RADIUS_MULTIPLIER = 0.5
+GRID_DISTORTION_MAX_INFLUENCE_RADIUS_MULTIPLIER = 8.0
+GRID_DISTORTION_MAX_DISPLACEMENT_RATIO = 0.35
 
 
 @dataclass
@@ -320,8 +323,21 @@ def draw_grid(
             )
         return
 
-    influence_radius_world = minor_spacing * GRID_DISTORTION_INFLUENCE_RADIUS_MULTIPLIER
-    max_displacement_world = minor_spacing * GRID_DISTORTION_MAX_DISPLACEMENT_RATIO
+    warp_policy = GridWarpPolicy(
+        strength=distortion_state.strength,
+        base_influence_radius_world=(
+            minor_spacing * GRID_DISTORTION_BASE_INFLUENCE_RADIUS_MULTIPLIER
+        ),
+        min_influence_radius_world=(
+            minor_spacing * GRID_DISTORTION_MIN_INFLUENCE_RADIUS_MULTIPLIER
+        ),
+        max_influence_radius_world=(
+            minor_spacing * GRID_DISTORTION_MAX_INFLUENCE_RADIUS_MULTIPLIER
+        ),
+        max_displacement_world=(
+            minor_spacing * GRID_DISTORTION_MAX_DISPLACEMENT_RATIO
+        ),
+    )
 
     for start, end in minor_world_segments:
         _draw_distorted_grid_line(
@@ -333,9 +349,7 @@ def draw_grid(
             color=GRID_MINOR_COLOR,
             width=1,
             sources=distortion_sources,
-            strength=distortion_state.strength,
-            influence_radius_world=influence_radius_world,
-            max_displacement_world=max_displacement_world,
+            policy=warp_policy,
             samples_per_line=GRID_DISTORTION_SAMPLES_PER_LINE,
         )
 
@@ -349,9 +363,7 @@ def draw_grid(
             color=GRID_MAJOR_COLOR,
             width=2,
             sources=distortion_sources,
-            strength=distortion_state.strength,
-            influence_radius_world=influence_radius_world,
-            max_displacement_world=max_displacement_world,
+            policy=warp_policy,
             samples_per_line=GRID_DISTORTION_SAMPLES_PER_LINE,
         )
 
@@ -592,9 +604,7 @@ def _draw_distorted_grid_line(
     color: Tuple[int, int, int],
     width: int,
     sources: Sequence[DistortionSource],
-    strength: float,
-    influence_radius_world: float,
-    max_displacement_world: float,
+    policy: GridWarpPolicy,
     samples_per_line: int,
 ) -> None:
     viewport_size = surface.get_size()
@@ -603,9 +613,8 @@ def _draw_distorted_grid_line(
         distort_grid_point(
             point,
             sources,
-            strength=strength,
-            influence_radius_world=influence_radius_world,
-            max_displacement_world=max_displacement_world,
+            policy=policy,
+            camera_zoom=camera.zoom,
         )
         for point in sampled_points
     ]
